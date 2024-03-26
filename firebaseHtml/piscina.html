@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>tamaño de mi piscina</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Estilos para el diseño de la página */
+    html, body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+
+    body {
+      background-color: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Estilos para los botones */
+    .button-container {
+      margin-top: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .button {
+      font-size: 24px;
+      padding: 10px 20px;
+      margin: 5px;
+      background-color: #7198e048;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 80vw; /* Ancho del botón como el 80% del ancho de la pantalla */
+      max-width: 300px; /* Ancho máximo si el nombre es muy largo */
+      text-align: center;
+    }
+
+    .button:hover {
+      background-color: #030e03;
+    }
+
+    /* Estilos para la cabecera */
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      background-color: #000000;
+      color: white;
+      padding: 5px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .header h1 {
+      margin: 0;
+    }
+
+    /* Estilos para los nuevos botones en la cabecera */
+    .header-buttons a {
+      text-decoration: none;
+      color: rgb(252, 252, 252);
+      margin-right: 2px;
+      font-size: 18px;
+      background-color: #06420600;
+      padding: 10px 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .header-buttons a:hover {
+      background-color: #45a049;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-buttons">
+      <a href="index.html">Inicio</a>
+      <a href="timer.html">Timers</a>
+      <a href="tips.html">Tips</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </div>
+
+  <!-- Campos de entrada para ingresar el largo, ancho y alto -->
+  <label for="length">Largo (metros):</label>
+  <br>
+  <input type="number" id="length" placeholder="Ingresa el largo...">
+  <br><br>
+
+  <label for="width">Ancho (metros):</label>
+  <br>
+  <input type="number" id="width" placeholder="Ingresa el ancho...">
+  <br><br>
+
+  <label for="height">Alto (metros):</label>
+  <br>
+  <input type="number" id="height" placeholder="Ingresa el alto...">
+  <br><br>
+
+  <!-- Botón para calcular la multiplicación y restar el 20% -->
+  <button class="button" onclick="calcularMetrosCubicos()">Calcular Metros Cúbicos</button>
+
+  <!-- Div para mostrar los resultados -->
+  <div id="resultados"></div>
+
+  <script>
+    function calcularMetrosCubicos() {
+      // Obtener los valores ingresados
+      var largo = parseFloat(document.getElementById("length").value);
+      var ancho = parseFloat(document.getElementById("width").value);
+      var alto = parseFloat(document.getElementById("height").value);
+
+      // Calcular el volumen en metros cúbicos
+      var volumenMetrosCubicos = largo * ancho * alto;
+
+      // Calcular el volumen restando el 20%
+      var volumenRestado20PorCiento = volumenMetrosCubicos * 0.8;
+      var litrosReal = volumenMetrosCubicos * 0.8 * 1000;
+      var cl = volumenMetrosCubicos * 2;
+      
+
+      // Mostrar los resultados
+      document.getElementById("resultados").innerHTML = `
+        <p>Total metros cúbicos: ${volumenMetrosCubicos.toFixed(2)}</p>
+        <p>estimado Real en litros:   ${litrosReal.toFixed(0)}</p>
+        <p>cl * semana (c/ionizador):  ${cl.toFixed(0)}</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>

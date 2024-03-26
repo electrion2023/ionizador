@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selector de Hora y Envío de Datos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Estilos para el diseño de la página */
+        html, body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("fondo.jpg");
+            background-size: cover;
+        }
+
+        /* Estilos para la cabecera */
+        .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      background-color: #000000;
+      color: white;
+      padding: 1px;
+      position: fixed;
+      top: 30;
+      left: 0;
+      z-index: 1;
+    }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        /* Estilos para los nuevos botones del menú */
+        .header-buttons {
+            display: flex;
+            justify-content: space-evenly;
+            padding: 5px 0;
+        }
+
+        .header-buttons a {
+      text-decoration: none;
+      color: rgb(252, 252, 252);
+      margin-right: 2px;
+      font-size: 18px;
+      background-color: #06420600;
+      padding: 10px 10px;
+      border: none;
+      cursor: pointer;
+    }
+    .header-word {
+      background-color: #0a83a1;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 10px;
+      margin-top: 50px;
+      width: 100%;
+    }
+        .header-buttons a:hover {
+            background-color: #4c53af;
+        }
+
+        /* Ajuste de margen superior para el contenido principal */
+        .main-content {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            justify-items: center;
+        }
+
+        /* Espacio entre la palabra "Ruta" y el menú */
+        label[for="commandsPath"] {
+            margin-right: 5px;
+        }
+
+        /* Estilo para el campo de entrada de la ruta */
+        #commandsPath {
+            font-size: 18px;
+            padding: 5px;
+            width: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilos para los selectores de hora */
+        .time-selector {
+          @media screen and (max-width: 480px) {
+  #commandsPath {
+    width: 90%;
+  }
+
+  input[type="time"] {
+    width: 80%;
+  }
+}
+            
+        }
+
+        .time-selector label {
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        .time-selector input {
+            font-size: 18px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilos para el botón de enviar horas */
+        #sendButton {
+            font-size: 24px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4c53af;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #sendButton:hover {
+            background-color: #030e03;
+        }
+
+        /* Estilo para mostrar mensajes recibidos */
+        #messages {
+            margin-top: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header-word">ELECTRION</div>
+    <div class="header">
+        <div class="header-buttons">
+            <a href="index.html">Inicio</a>
+            <a href="timer.html">Timers</a>
+            <a href="tips.html">Tips</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Campo de entrada para ingresar la ruta -->
+        <label for="commandsPath">Ruta:</label>
+        <input type="text" id="commandsPath" placeholder="Ingresa la ruta...">
+
+        <!-- Desplegables para las horas -->
+        <div class="time-selector">
+            <label for="hourSelect1">On1:</label>
+            <select id="hourSelect1">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="hourSelect2">off1:</label>
+            <select id="hourSelect2">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+        <div class="time-selector">
+            <label for="hourSelect3">On2:</label>
+            <select id="hourSelect3">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="hourSelect4">off2:</label>
+            <select id="hourSelect4">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+        <div class="time-selector">
+            <label for="hourSelect5">On3:</label>
+            <select id="hourSelect5">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="hourSelect6">off3:</label>
+            <select id="hourSelect6">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+        <div class="time-selector">
+            <label for="hourSelect7">On4:</label>
+            <select id="hourSelect7">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="hourSelect8">off4:</label>
+            <select id="hourSelect8">
+                <!-- Opciones para las horas de 0 a 23 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="minuteSelect1">M 1:</label>
+            <select id="minuteSelect1">
+                <!-- Opciones para los minutos de 0 a 59 -->
+            </select>
+        </div>
+
+        <div class="time-selector">
+            <label for="minuteSelect2">M 2:</label>
+            <select id="minuteSelect2">
+                <!-- Opciones para los minutos de 0 a 59 -->
+            </select>
+        </div>
+    </div>
+    <!-- Botón de enviar horas -->
+    <button id="sendButton" onclick="sendCommands()">Enviar Horas</button>
+    
+
+<!-- Div para mostrar los valores seleccionados -->
+<div id="selectedValues"></div>
+
+
+    <!-- Div para mostrar los mensajes recibidos -->
+    <div id="messages"></div>
+    
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+    <script>
+  // Initialize Firebase
+  firebase.initializeApp({
+    apiKey: "AIzaSyAnvN90wYizXGSHC2QvyccZ-wCesELTVUI",
+    authDomain: "ionizadores-787e2.firebaseapp.com",
+    databaseURL: "https://ionizadores-787e2.firebaseio.com",
+    projectId: "ionizadores-787e2",
+    storageBucket: "ionizadores-787e2.appspot.com",
+    messagingSenderId: "403247710969",
+    appId: "1:403247710969:web:e6e943694e0ec56f195828",
+    measurementId: "G-QS0C8YLGWG"
+  });
+  var hourSelect1Value, hourSelect2Value, hourSelect3Value, hourSelect4Value,
+      hourSelect5Value, hourSelect6Value, hourSelect7Value, hourSelect8Value,
+      minuteSelect1Value, minuteSelect2Value;
+
+      // Get a reference to the database
+      var database = firebase.database();
+    
+        // Generar las opciones para los desplegables de 0 a 23
+        function generateOptions() {
+            var hourSelects = document.querySelectorAll(".time-selector select[id^='hourSelect']");
+            var minuteSelects = document.querySelectorAll(".time-selector select[id^='minuteSelect']");
+
+            for (let hour = 0; hour <= 23; hour++) {
+                let formattedHour = hour.toString().padStart(2, '0');
+
+                // Creamos una opción y la agregamos a cada desplegable de hora
+                let option = new Option(formattedHour, formattedHour);
+
+                hourSelects.forEach(select => {
+                    select.appendChild(option.cloneNode(true));
+                });
+            }
+
+            for (let minute = 0; minute <= 59; minute++) {
+                let formattedMinute = minute.toString().padStart(2, '0');
+
+                // Creamos una opción y la agregamos a cada desplegable de minuto
+                let option = new Option(formattedMinute, formattedMinute);
+
+                minuteSelects.forEach(select => {
+                    select.appendChild(option.cloneNode(true));
+                });
+            }
+        }
+
+        // Función para enviar los datos
+        function sendCommands() {
+            var commandsPath = document.getElementById("commandsPath").value;
+            var subraiz = "hora1"; // Subraíz que deseas agregar
+            var fullPath = commandsPath + "/" + subraiz; // Ruta completa con la subraíz
+
+           
+
+            hourSelect1Value = document.getElementById("hourSelect1").value;
+            hourSelect2Value = document.getElementById("hourSelect2").value;
+            hourSelect3Value = document.getElementById("hourSelect3").value;
+            hourSelect4Value = document.getElementById("hourSelect4").value;
+            hourSelect5Value = document.getElementById("hourSelect5").value;
+            hourSelect6Value = document.getElementById("hourSelect6").value;
+            hourSelect7Value = document.getElementById("hourSelect7").value;
+            hourSelect8Value = document.getElementById("hourSelect8").value;
+            minuteSelect1Value = document.getElementById("minuteSelect1").value;
+            minuteSelect2Value = document.getElementById("minuteSelect2").value;
+
+    
+    // Mostrar los valores seleccionados en el div "selectedValues"
+    var selectedValuesDiv = document.getElementById("selectedValues");
+    selectedValuesDiv.innerHTML = "Hora 1: " + hourSelect1Value + "<br> Hora 2: " + hourSelect2Value +
+                                  "<br> Hora 3: " + hourSelect3Value + "<br> Hora 4: " + hourSelect4Value +
+                                  "<br> Hora 5: " + hourSelect5Value + "<br> Hora 6: " + hourSelect6Value +
+                                  "<br> Hora 7: " + hourSelect7Value + "<br> Hora 8: " + hourSelect8Value;
+
+    // Guardar los valores seleccionados en el LocalStorage
+    localStorage.setItem("hourSelect1Value", hourSelect1Value);
+    localStorage.setItem("hourSelect2Value", hourSelect2Value);
+    localStorage.setItem("hourSelect3Value", hourSelect3Value);
+    localStorage.setItem("hourSelect4Value", hourSelect4Value);
+    localStorage.setItem("hourSelect5Value", hourSelect5Value);
+    localStorage.setItem("hourSelect6Value", hourSelect6Value);
+    localStorage.setItem("hourSelect7Value", hourSelect7Value);
+    localStorage.setItem("hourSelect8Value", hourSelect8Value);
+    localStorage.setItem("minuteSelect1Value", minuteSelect1Value);
+    localStorage.setItem("minuteSelect2Value", minuteSelect2Value);
+
+            // Crear la cadena de comandos con los valores de los desplegables
+            var commandsString = "H" + hourSelect1Value + "," + hourSelect2Value + "," + hourSelect3Value + "," + hourSelect4Value + "," + hourSelect5Value + "," + hourSelect6Value + "," + hourSelect7Value + "," + hourSelect8Value + "," + minuteSelect1Value + "," + minuteSelect2Value;
+
+            // Verificar si la ruta existe en la base de datos
+            database.ref(commandsPath).once("value")
+                .then(function(snapshot) {
+                    if (snapshot.exists()) {
+                        // La ruta existe, enviar los comandos a fullPath
+                        database.ref(fullPath).set(commandsString)
+                            .then(function() {
+                                alert("Comandos enviados exitosamente a " + commandsPath);
+                            })
+                            .catch(function(error) {
+                                console.error("Error al enviar los comandos:", error);
+                            });
+                    } else {
+                        // La ruta no existe, mostrar mensaje de error
+                        alert("La ruta " + commandsPath + " no existe en la base de datos.");
+                    }
+                })
+                .catch(function(error) {
+                    console.error("Error al verificar la ruta:", error);
+                });
+        }
+
+        // Recuperar la ruta guardada en localStorage al cargar la página
+        document.addEventListener("DOMContentLoaded", function() {
+            var rutaGuardada = localStorage.getItem("ruta");
+            if (rutaGuardada) {
+                document.getElementById("commandsPath").value = rutaGuardada;
+            }
+
+            var hourSelect1Value = localStorage.getItem("hourSelect1Value");
+            if (hourSelect1Value) {
+                document.getElementById("hourSelect1").value = hourSelect1Value;
+            }
+            
+            var hourSelect2Value = localStorage.getItem("hourSelect2Value");
+            if (hourSelect2Value) {
+                document.getElementById("hourSelect2").value = hourSelect2Value;
+            }
+            var hourSelect3Value = localStorage.getItem("hourSelect3Value");
+            if (hourSelect3Value) {
+                document.getElementById("hourSelect3").value = hourSelect3Value;
+            }
+            var hourSelect4Value = localStorage.getItem("hourSelect4Value");
+            if (hourSelect4Value) {
+                document.getElementById("hourSelect4").value = hourSelect4Value;
+            }
+            var hourSelect5Value = localStorage.getItem("hourSelect5Value");
+            if (hourSelect5Value) {
+                document.getElementById("hourSelect5").value = hourSelect5Value;
+            }
+            var hourSelect6Value = localStorage.getItem("hourSelect6Value");
+            if (hourSelect6Value) {
+                document.getElementById("hourSelect6").value = hourSelect6Value;
+            }
+            var hourSelect7Value = localStorage.getItem("hourSelect7Value");
+            if (hourSelect7Value) {
+                document.getElementById("hourSelect7").value = hourSelect7Value;
+            }
+            var hourSelect8Value = localStorage.getItem("hourSelect8Value");
+            if (hourSelect8Value) {
+                document.getElementById("hourSelect8").value = hourSelect8Value;
+            }
+
+            // Llamamos a la función para generar las opciones de los desplegables
+            generateOptions();
+        });
+    </script>
+   
+</script>
+</body>
+</html>

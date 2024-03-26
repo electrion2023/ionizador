@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Control de LEDs</title>
+  <script>
+    function toggleLed(ledIndex) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+      xhttp.open("GET", "/led/" + ledIndex + "/toggle", true);
+      xhttp.send();
+    }
+  </script>
+</head>
+<body>
+  <h1>Control de LEDs</h1>
+  <button onclick="toggleLed(0)">Encender/Apagar LED 1</button><br>
+  <button onclick="toggleLed(1)">Encender/Apagar LED 2</button><br>
+  <button onclick="toggleLed(2)">Encender/Apagar LED 3</button><br>
+  <button onclick="toggleLed(3)">Encender/Apagar LED 4</button><br>
+  <button onclick="toggleLed(4)">Encender/Apagar LED 5</button><br>
+  <button onclick="toggleLed(5)">Encender/Apagar LED 6</button><br>
+</body>
+</html>

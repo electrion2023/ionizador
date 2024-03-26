@@ -1,0 +1,85 @@
+
+'''String html = "<html><head>";
+    html += "<style>";
+    // Estilos para el cuerpo y contenedor
+    html += "body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; }";
+    html += ".container { max-width: 800px; margin: 0 auto; padding: 46px; }";
+    html += "h1 { color: #0099cc; font-size: 56px; text-align: center; }";
+    html += "p { color: #333; }";
+    html += "form { background-color: #fff; padding: 20px; border: 1px solid #ccc; }";
+    html += "select { width: 120px; height: 40px; font-size: 26px; }"; // Ajusta el tamaño aquí
+    html += "input[type='submit'] { background-color: #0099cc; color: #fff; padding: 10px 20px; border: none; cursor: pointer; }";
+    html += "</style>";
+    html += "<style>";
+    // Estilos para los botones
+    html += ".button-container { text-align: center; }";
+    html += ".button { display: inline-block; margin: 10px; }";
+    html += ".button a { display: block; background-color: #0099cc; color: white;";
+    html += "padding: 48px 56px; font-size: 28px; text-align: center;";
+    html += "text-decoration: none; border-radius: 4px; cursor: pointer; }";
+    html += ".button a:hover { background-color: #0077aa; }";
+    html += "</style>";
+    html += "<style>";
+    // Estilos para los selectores en columnas
+    html += ".column-container { display: flex; justify-content: space-between; flex-wrap: wrap; }";
+    html += ".variable-container { width: calc(50% - 10px); margin-bottom: 10px; }";
+    html += "</style>";
+    html += "<script>";
+    // Script para enviar solicitudes
+    html += "function sendRequest(url) {";
+    html += "var xhr = new XMLHttpRequest();";
+    html += "xhr.open('GET', url, true);";
+    html += "xhr.onload = function() { location.reload(); };";
+    html += "xhr.send(); }";
+    html += "</script>";
+    html += "</head><body>";
+    html += "<div class='container'>";
+    html += "<h1>Control WIFI ELECTRION</h1>";
+    html += "<p>Hora actual: " + String(hour(currentTime)) + ":" + String(minute(currentTime)) + "</p>";
+  
+    html += "<div class='button-container'>";
+    html += "<div class='button'>";
+    html += "<a href='#' onclick=\"sendRequest('/led1/toggle');\">Bomba(" + led1Status + ")</a>";
+    html += "</div>";
+    html += "<div class='button'>";
+    html += "<a href='#' onclick=\"sendRequest('/led2/toggle');\">Auxiliar (" + led2Status + ")</a>";
+    html += "</div>";
+    html += "</div>";
+  
+    html += "<h2>Configurar Variables</h2>";
+    html += "<form action='/setvariables' method='get'>";
+    html += "<div class='column-container'>"; // Abre el contenedor de columna
+  
+    for (int i = 1; i <= 10; i++) {
+      String label = (i % 2 == 1 ? "ON " : "OFF ") + String(i);
+      String selectorName = "variable" + String(i) + (i % 2 == 1 ? "_hour" : "_minute");
+      String oddEvenClass = (i % 2 == 1) ? "odd-select" : "even-select";
+  
+      // Cada 5 selectores, cerramos la columna actual y comenzamos una nueva
+      if (i > 1 && i % 6 == 1) {
+        html += "</div><div class='column-container'>";
+      }
+  
+      html += "<div class='variable-container " + oddEvenClass + "'>";
+      html += label + ": <select name='" + selectorName + "'>";
+      for (int j = 0; j <= (i % 2 == 1 ? 23 : 59); j++) {
+        html += "<option value='" + String(j) + "'>" + String(j) + "</option>";
+      }
+      html += "</select><br>";
+      html += "</div>";
+    }
+  
+    html += "</div>"; // Cierra la última columna
+    html += "<input type='submit' value='Establecer'>";
+    html += "</form>";
+  
+    html += "<h4>Configurar Hora</h4>";
+    html += "<form action='/settime' method='get'>";
+    html += "Hora: <input type='time' name='time_hour' value='" + String(hour(currentTime)) + ":" + String(minute(currentTime)) + "'>";
+    html += "<input type='submit' value='Establecer'>";
+    html += "</form>";
+  
+    html += "</div>"; // Cierre del contenedor
+    html += "</body></html>";
+    
+  

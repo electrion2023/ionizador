@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Selector de Hora y Envío de Datos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Estilos para el diseño de la página */
+        html, body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("fondo.jpg");
+            background-size: cover;
+        }
+
+        /* Estilos para la cabecera */
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        /* Estilos para los nuevos botones del menú */
+        .header-buttons {
+            display: flex;
+            justify-content: space-evenly;
+            padding: 5px 0;
+        }
+
+        .header-buttons a {
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .header-buttons a:hover {
+            background-color: #4c53af;
+        }
+
+        /* Ajuste de margen superior para el contenido principal */
+        .main-content {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            justify-items: center;
+        }
+
+        /* Espacio entre la palabra "Ruta" y el menú */
+        label[for="commandsPath"] {
+            margin-right: 5px;
+        }
+
+        /* Estilo para el campo de entrada de la ruta */
+        #commandsPath {
+            font-size: 18px;
+            padding: 5px;
+            width: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilos para los selectores de hora */
+        .time-selector {
+          @media screen and (max-width: 480px) {
+  #commandsPath {
+    width: 90%;
+  }
+
+  input[type="time"] {
+    width: 80%;
+  }
+}
+            
+        }
+
+        .time-selector label {
+            font-size: 18px;
+            margin-right: 5px;
+        }
+
+        .time-selector input {
+            font-size: 18px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Estilos para el botón de enviar horas */
+        #sendButton {
+            font-size: 24px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4c53af;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #sendButton:hover {
+            background-color: #030e03;
+        }
+
+        /* Estilo para mostrar mensajes recibidos */
+        #messages {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-buttons">
+            <a href="index.html">Inicio</a>
+            <a href="timer.html">Timers</a>
+            <a href="tips.html">Tips</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Campo de entrada para ingresar la ruta -->
+        <label for="commandsPath">Ruta:</label>
+        <input type="text" id="commandsPath" placeholder="Ingresa la ruta...">
+
+        <!-- Selectores de hora -->
+        <div class="time-selector">
+            <label for="timeInput1">on1:</label>
+            <input type="time" id="timeInput1">
+        </div>
+
+        <div class="time-selector">
+            <label for="timeInput2">off1:</label>
+            <input type="time" id="timeInput2">
+        </div>
+
+        <!-- Repite este bloque para los otros 4 selectores de hora -->
+        <div class="time-selector">
+            <label for="timeInput3">on2</label>
+            <input type="time" id="timeInput3">
+        </div>
+
+        <div class="time-selector">
+            <label for="timeInput4">off2:</label>
+            <input type="time" id="timeInput4">
+        </div>
+
+        <div class="time-selector">
+            <label for="timeInput5">on3</label>
+            <input type="time" id="timeInput5">
+        </div>
+
+        <div class="time-selector">
+            <label for="timeInput6">off3:</label>
+            <input type="time" id="timeInput6">
+        </div>
+        <div class="time-selector">
+          <label for="timeInput7">on4</label>
+          <input type="time" id="timeInput7">
+      </div>
+
+      <div class="time-selector">
+          <label for="timeInput8">off4:</label>
+          <input type="time" id="timeInput8">
+      </div>
+
+       <!-- Campo de entrada para ingresar la ruta -->
+    <!-- ... (otros campos existentes) -->
+
+    <!-- Casilleros para los números -->
+    <div class="number-input">
+      <label for="numberInput1">Valor Casillero 1:</label>
+      <input type="number" id="numberInput1">
+  </div>
+
+  <div class="number-input">
+      <label for="numberInput2">Valor Casillero 2:</label>
+      <input type="number" id="numberInput2">
+  </div>
+    </div>
+
+    <!-- Botón para enviar las horas -->
+    <button id="sendButton" onclick="sendCommands()">Enviar Horas</button>
+
+    <!-- Div para mostrar los mensajes recibidos -->
+    <div id="messages"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+    <script>
+    // Initialize Firebase
+    firebase.initializeApp({
+      apiKey: "AIzaSyAnvN90wYizXGSHC2QvyccZ-wCesELTVUI",
+      authDomain: "ionizadores-787e2.firebaseapp.com",
+      databaseURL: "https://ionizadores-787e2.firebaseio.com",
+      projectId: "ionizadores-787e2",
+      storageBucket: "ionizadores-787e2.appspot.com",
+      messagingSenderId: "403247710969",
+      appId: "1:403247710969:web:e6e943694e0ec56f195828",
+      measurementId: "G-QS0C8YLGWG"
+    });
+      // Obtener una referencia a la base de datos
+      var database = firebase.database();
+    
+      // Función para enviar los comandos para controlar los LEDs
+      function sendCommands() {
+        var commandsPath = document.getElementById("commandsPath").value;
+        localStorage.setItem("ruta", commandsPath); // Guardar ruta en localStorage
+    
+        // Agregar "/H1" al final de la ruta
+        var horasPath = commandsPath + "/hora1";
+    
+        // Recorrer los 6 selectores de hora
+        var commandsString = "";
+    
+        for (var i = 1; i <= 8; i++) {
+          var selectedTime = document.getElementById("timeInput" + i).value;
+          var formattedTime = formatTime(selectedTime);
+          commandsString += formattedTime + ",";
+        }
+    
+        var numberInput1Value = document.getElementById("numberInput1").value;
+    var numberInput2Value = document.getElementById("numberInput2").value;
+
+    // Agregar los valores de los casilleros al final de la cadena de comandos
+    commandsString += numberInput1Value + "," + numberInput2Value;
+
+    // Eliminar la última coma
+    commandsString = commandsString.slice(0, -1);
+
+    commandsString = "H" + commandsString + "H";
+    
+        // Verificar si la ruta existe en la base de datos
+        database.ref(commandsPath).once("value")
+          .then(function(snapshot) {
+            if (snapshot.exists()) {
+              // La ruta existe, crear la subcarpeta H1 y enviar los comandos
+              database.ref(horasPath).set(commandsString)
+                .then(function() {
+                  alert("Comandos enviados exitosamente.");
+                })
+                .catch(function(error) {
+                  console.error("Error al enviar los comandos:", error);
+                });
+            } else {
+              // La ruta no existe, mostrar mensaje de error
+              alert("La ruta no existe en la base de datos.");
+            }
+          })
+          .catch(function(error) {
+            console.error("Error al verificar la ruta:", error);
+          });
+      }
+    
+      // Función para formatear la hora seleccionada
+      function formatTime(timeString) {
+        var timeArray = timeString.split(":");
+        var hours = timeArray[0];
+        //var minutes = timeArray[1];
+    
+        return hours;
+      }
+    
+      // Recuperar la ruta guardada en localStorage al cargar la página
+      document.addEventListener("DOMContentLoaded", function() {
+        var rutaGuardada = localStorage.getItem("ruta");
+        if (rutaGuardada) {
+          document.getElementById("commandsPath").value = rutaGuardada;
+        }
+      });
+    </script>
+    <!-- Coloca aquí el script para enviar los comandos -->
+    <!-- ... -->
+</body>
+</html>
