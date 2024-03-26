@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Control por Bluetooth</title>
+</head>
+<body>
+  <h1>Control por Bluetooth</h1>
+  <form>
+    <label for="h1">Valor de h1:</label>
+    <input type="number" id="h1" name="h1">
+    <button type="button" onclick="enviarComando()">Enviar</button>
+  </form>
+
+  <script>
+    async function enviarComando() {
+      let h1Value = document.getElementById("h1").value;
+      let command = `H1=${h1Value}\n`;
+      try {
+        await sendCommandOverBluetooth(command);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function sendCommandOverBluetooth(command) {
+      if ('bluetooth' in navigator) {
+        try {
+          const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['<tu_servicio_bluetooth>'] }] // Reemplaza <tu_servicio_bluetooth> con el UUID de tu servicio Bluetooth en el ESP32
+          });
+          const server = await device.gatt.connect();
+          const service = await server.getPrimaryService('<tu_servicio_bluetooth>');
+          const characteristic = await service.getCharacteristic('<tu_caracteristica_bluetooth>');
+          await characteristic.writeValue(new TextEncoder().encode(command));
+          console.log('Comando enviado:', command);
+        } catch (error) {
+          console.error('Error al enviar comando:', error);
+        }
+      } else {
+        console.error('Web Bluetooth no es compatible con este navegador.');
+      }
+    }
+  </script>
+</body>
+</html>

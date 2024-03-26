@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Selector de Hora y Envío de Datos</title>
+<style>
+  /* Estilos para el diseño de la página */
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* Estilos para los botones */
+  button {
+    font-size: 24px;
+    padding: 10px 20px;
+    margin: 5px;
+  }
+
+  /* Estilos para el campo de entrada */
+  #commandsPath {
+    font-size: 18px;
+    padding: 5px;
+  }
+</style>
+</head>
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+
+<script>
+// Initialize Firebase
+firebase.initializeApp({
+  apiKey: "AIzaSyAnvN90wYizXGSHC2QvyccZ-wCesELTVUI",
+  authDomain: "ionizadores-787e2.firebaseapp.com",
+  databaseURL: "https://ionizadores-787e2.firebaseio.com",
+  projectId: "ionizadores-787e2",
+  storageBucket: "ionizadores-787e2.appspot.com",
+  messagingSenderId: "403247710969",
+  appId: "1:403247710969:web:e6e943694e0ec56f195828",
+  measurementId: "G-QS0C8YLGWG"
+});
+// Get a reference to the database
+var database = firebase.database();
+
+// Función para enviar los comandos para controlar los LEDs
+function sendCommands() {
+  var commandsPath = document.getElementById("commandsPath").value;
+
+  // Agregar "/H1" al final de la ruta
+  var horasPath = commandsPath + "/H1";
+
+  // Recorrer los 6 selectores de hora
+  var commandsString = "";
+
+  for (var i = 1; i <= 6; i++) {
+    var selectedTime = document.getElementById("timeInput" + i).value;
+    var formattedTime = formatTime(selectedTime);
+    commandsString += formattedTime + ",";
+  }
+
+  // Eliminar la última coma
+  commandsString = commandsString.slice(0, -1);
+
+  // Verificar si la ruta existe en la base de datos
+  database.ref(commandsPath).once("value")
+    .then(function(snapshot) {
+      if (snapshot.exists()) {
+        // La ruta existe, crear la subcarpeta H1 y enviar los comandos
+        database.ref(horasPath).set(commandsString)
+          .then(function() {
+            alert("Comandos enviados exitosamente.");
+          })
+          .catch(function(error) {
+            console.error("Error al enviar los comandos:", error);
+          });
+      } else {
+        // La ruta no existe, mostrar mensaje de error
+        alert("La ruta no existe en la base de datos.");
+      }
+    })
+    .catch(function(error) {
+      console.error("Error al verificar la ruta:", error);
+    });
+}
+
+// Función para formatear la hora seleccionada
+function formatTime(timeString) {
+  var timeArray = timeString.split(":");
+  var hours = timeArray[0];
+  var minutes = timeArray[1];
+  return hours + "," + minutes;
+}
+
+</script>
+
+<!-- Campo de entrada para ingresar la ruta -->
+<label for="commandsPath">Ruta:</label>
+<br>
+<input type="text" id="commandsPath" placeholder="Ingresa la ruta...">
+<br><br>
+
+<!-- Selectores de hora -->
+<label for="timeInput1">Selecciona la hora 1:</label>
+<input type="time" id="timeInput1">
+<br><br>
+
+<label for="timeInput2">Selecciona la hora 2:</label>
+<input type="time" id="timeInput2">
+<br><br>
+
+<!-- Repite este bloque para los otros 4 selectores de hora -->
+<label for="timeInput3">Selecciona la hora 3:</label>
+<input type="time" id="timeInput3">
+<br><br>
+
+<label for="timeInput4">Selecciona la hora 4:</label>
+<input type="time" id="timeInput4">
+<br><br>
+
+<label for="timeInput5">Selecciona la hora 5:</label>
+<input type="time" id="timeInput5">
+<br><br>
+
+<label for="timeInput6">Selecciona la hora 6:</label>
+<input type="time" id="timeInput6">
+<br><br>
+
+<!-- Botón para enviar las horas -->
+<button onclick="sendCommands()">Enviar Horas</button>
+
+<!-- Div para mostrar los mensajes recibidos -->
+<div id="messages"></div>
+
+<script>
+// Listen for changes to the database
+database.ref("messages").on("child_added", function(snapshot) {
+  // Get the message
+  var message = snapshot.val();
+
+  // Display the message
+  document.getElementById("messages").innerHTML += "<p>" + message + "</p>";
+});
+</script>
+
+</body>
+</html>
