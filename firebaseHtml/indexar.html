@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>*ELECTRION--</title>
+  <link rel="icon" href="icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007BFF">
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      background-color: #f2f2f2;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-image: url("fondo.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    /* CABECERA */
+    .header {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(243, 28, 28, 0.3);
+    }
+    .header-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .header-buttons a {
+      text-decoration: none;
+      color: white;
+      font-size: 18px;
+      padding: 8px 16px;
+      border-radius: 5px;
+      background-color: #5e4d4d;
+      transition: background-color 0.3s;
+    }
+    .header-buttons a:hover {
+      background-color: #4c53af;
+    }
+    /* CONTENIDO */
+    .main-content {
+      margin-top: 100px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+    /* CAMPO DE RUTA */
+    #commandsPath {
+      font-size: 18px;
+      padding: 10px;
+      width: 100%;
+      max-width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    /* BOTONES */
+    button {
+      font-size: 22px;
+      padding: 14px 24px;
+      margin: 10px auto;
+      background-color: #444; /* Color por defecto mientras carga el estado */
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 90%;
+      max-width: 300px;
+      transition: background-color 0.3s, transform 0.1s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    button:hover {
+      background-color: #2e2e2e;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    /* COLORES DE ESTADO */
+    .btn-on { background-color: green !important; }
+    .btn-off { background-color: #001f3f !important; }
+
+    /* BOTÓN DE INSTALACIÓN */
+    #installBtn {
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+    }
+    #installBtn:hover {
+      background-color: #218838;
+    }
+    /* CONTADOR DE VISITAS */
+    #contador {
+      font-weight: bold;
+      color: #333;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-buttons">
+      <a href="index.html">Inicio</a>
+      <a href="timer.html">Timers</a>
+      <a href="tips.html">Tips</a>
+      <a href="settings.html">Settings</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <label for="commandsPath">Ruta:</label><br>
+    <input type="text" id="commandsPath" placeholder="Ingresa la ruta..."><br>
+
+    <button id="btnBomba">Bomba</button>
+    <button id="btnLuz">Luz</button>
+    <button id="btnAux">Auxiliar</button>
+    <button onclick="sendValue('61')"> publicidad</button>
+
+    <div id="messages"></div>
+    <button id="installBtn" style="display:none;">Instalar App</button>
+    <p>Contador de visitas: <span id="contador">0</span></p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+  <script>
+    // ===== INICIALIZACIÓN DE FIREBASE =====
+   const firebaseConfig = {
+  apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
+  authDomain: "electrion-e54b2.firebaseapp.com",
+  databaseURL: "https://electrion-e54b2.firebaseio.com",
+  projectId: "electrion-e54b2",
+  storageBucket: "electrion-e54b2.firebasestorage.app",
+  messagingSenderId: "112035346936",
+  appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
+  measurementId: "G-KQGCZ616JK"
+};
+    const database = firebase.database();
+    
+    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES =====
+    function sendValue(value) {
+      const commandsPath = document.getElementById("commandsPath").value;
+      if (!commandsPath) {
+          alert("Por favor, ingresa una ruta válida.");
+          return;
+      }
+      localStorage.setItem("ruta", commandsPath);
+      const on1Path = commandsPath + "/hora1";
+      database.ref(on1Path).set(value);
+    }
+
+    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO =====
+    /**
+     * Configura un botón para que cambie de estado y escuche cambios en Firebase.
+     * @param {object} config - Objeto de configuración del botón.
+     */
+    function setupStatefulButton(config) {
+        const button = document.getElementById(config.buttonId);
+        let currentState = null; // Estado actual, ej: "bt", "bf", "lt", etc.
+
+        // 1. Asignar el evento click al botón
+        button.addEventListener('click', () => {
+            const valueToSend = currentState === config.onStateValue ? config.offCommand : config.onCommand;
+            sendValue(valueToSend);
+        });
+        
+        // 2. Función para actualizar la apariencia del botón
+        const updateButtonUI = (state) => {
+            currentState = state;
+            if (state === config.onStateValue) {
+                button.textContent = config.onText;
+                button.classList.add('btn-on');
+                button.classList.remove('btn-off');
+            } else {
+                button.textContent = config.offText;
+                button.classList.add('btn-off');
+                button.classList.remove('btn-on');
+            }
+        };
+
+        // 3. Escuchar cambios en Firebase
+        const listenForStateChanges = () => {
+            const commandsPath = localStorage.getItem("ruta") || "";
+            if (!commandsPath) return; // No hacer nada si no hay ruta
+
+            const stateRef = database.ref(commandsPath + config.statePath);
+            stateRef.on('value', snapshot => {
+                const state = snapshot.val();
+                if (state !== null) {
+                    updateButtonUI(state);
+                }
+            });
+        };
+        
+        return { listen: listenForStateChanges };
+    }
+
+    // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO =====
+    document.addEventListener("DOMContentLoaded", function() {
+      // Cargar y configurar la ruta guardada
+      const pathInput = document.getElementById("commandsPath");
+      const savedPath = localStorage.getItem("ruta");
+      if (savedPath) {
+        pathInput.value = savedPath;
+      }
+      
+      // Configuración de cada botón
+      const bombaController = setupStatefulButton({
+          buttonId: 'btnBomba',
+          statePath: '/estado3',
+          onStateValue: 'bt',
+          onCommand: '56',
+          offCommand: '57',
+          onText: 'Bomba ON',
+          offText: 'Bomba OFF'
+      });
+
+      const luzController = setupStatefulButton({
+          buttonId: 'btnLuz',
+          statePath: '/estado4',
+          onStateValue: 'lt',
+          onCommand: '58',
+          offCommand: '59',
+          onText: 'Luz ON',
+          offText: 'Luz OFF'
+      });
+
+      const auxController = setupStatefulButton({
+          buttonId: 'btnAux',
+          statePath: '/estado5',
+          onStateValue: 'at',
+          onCommand: '60',
+          offCommand: '61',
+          onText: 'Auxiliar ON',
+          offText: 'Auxiliar OFF'
+      });
+      
+      // Iniciar los listeners para el estado de los botones
+      const startListeners = () => {
+          bombaController.listen();
+          luzController.listen();
+          auxController.listen();
+      };
+      
+      // Iniciar listeners al cargar la página si hay una ruta
+      if (savedPath) {
+          startListeners();
+      }
+
+      // IMPORTANTE: Si el usuario cambia la ruta, se deben reiniciar los listeners.
+      // Esto es una mejora para que la app reaccione a cambios de ruta.
+      pathInput.addEventListener('change', () => {
+          const newPath = pathInput.value;
+          localStorage.setItem("ruta", newPath);
+          alert("Ruta actualizada. La página se recargará para aplicar los cambios.");
+          window.location.reload(); // La forma más simple de reiniciar los listeners
+      });
+
+      // Contador de visitas
+      const visits = (localStorage.getItem('contador-visitas') || 0);
+      const newVisits = parseInt(visits) + 1;
+      localStorage.setItem('contador-visitas', newVisits);
+      document.getElementById('contador').textContent = newVisits;
+
+      // Lógica para PWA (App Progresiva)
+      setupPWA();
+    });
+    
+    // ===== LÓGICA PWA (Service Worker e Instalación) =====
+    function setupPWA() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado', reg))
+                .catch(err => console.error('Error registrando el Service Worker:', err));
+        }
+
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+
+            installBtn.addEventListener('click', () => {
+                installBtn.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuario aceptó la instalación');
+                    } else {
+                        console.log('Usuario rechazó la instalación');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('App instalada');
+            installBtn.style.display = 'none';
+        });
+    }
+  </script>
+</body>
+</html>
