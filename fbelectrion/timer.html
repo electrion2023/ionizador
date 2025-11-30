@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>-Configuración de Timerss</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007BFF">
+    <style>
+        html, body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            background-color: #f2f2f2;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("fondo.jpg");
+            background-size: cover;
+            background-position: center;
+        }
+        /* ESTILOS DE LA CABECERA (Consistente con index.html) */
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .header-buttons a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 5px;
+            background-color: #555;
+            transition: background-color 0.3s;
+        }
+        .header-buttons a:hover {
+            background-color: #4c53af;
+        }
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .timer-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .path-container {
+            margin-bottom: 20px;
+        }
+        #commandsPath {
+            font-size: 18px;
+            padding: 10px;
+            width: calc(100% - 24px);
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .timers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            margin-bottom: 20px;
+        }
+        .time-selector, .number-input {
+            width: 100%;
+        }
+        .time-selector label, .number-input label {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .time-selector input, .number-input input {
+            font-size: 18px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+        #sendButton {
+            font-size: 24px;
+            padding: 12px 24px;
+            margin-top: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 320px;
+            transition: background-color 0.3s;
+        }
+        #sendButton:hover {
+            background-color: #218838;
+        }
+        #statusMessage {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            height: 25px; /* Para evitar que el layout salte */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-buttons">
+            <a href="index.html">Inicio</a>
+            <a href="timer.html">Timers</a>
+            <a href="tips.html">Tips</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="timer-card">
+            <h2>Configurar Horarios</h2>
+            <div class="path-container">
+                <label for="commandsPath">Ruta del Dispositivo:</label><br>
+                <input type="text" id="commandsPath" placeholder="Ingresa la ruta...">
+            </div>
+            
+            <div class="timers-grid">
+                <!-- Horarios Bomba y Luz -->
+                <div class="time-selector"><label for="timeInput1">Bomba ON 1 (h1)</label><input type="time" id="timeInput1"></div>
+                <div class="time-selector"><label for="timeInput2">Bomba OFF 1 (h2)</label><input type="time" id="timeInput2"></div>
+                <div class="time-selector"><label for="timeInput3">Bomba ON 2 (h3)</label><input type="time" id="timeInput3"></div>
+                <div class="time-selector"><label for="timeInput4">Bomba OFF 2 (h4)</label><input type="time" id="timeInput4"></div>
+                <div class="time-selector"><label for="timeInput5">Bomba ON 3 (h5)</label><input type="time" id="timeInput5"></div>
+                <div class="time-selector"><label for="timeInput6">Bomba OFF 3 (h6)</label><input type="time" id="timeInput6"></div>
+                <div class="time-selector"><label for="timeInput7">Luz ON (h7)</label><input type="time" id="timeInput7"></div>
+                <div class="time-selector"><label for="timeInput8">Luz OFF (h8)</label><input type="time" id="timeInput8"></div>
+                <!-- Minutos -->
+                <div class="number-input"><label for="numberInput1">Minuto ON (h9)</label><input type="number" id="numberInput1" min="0" max="59"></div>
+                <div class="number-input"><label for="numberInput2">Minuto OFF (h10)</label><input type="number" id="numberInput2" min="0" max="59"></div>
+            </div>
+            
+            <button id="sendButton">Enviar Horas</button>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+    <script>
+    // ===== INICIALIZACIÓN DE FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
+  authDomain: "electrion-e54b2.firebaseapp.com",
+  databaseURL: "https://electrion-e54b2.firebaseio.com",
+  projectId: "electrion-e54b2",
+  storageBucket: "electrion-e54b2.appspot.com",
+  messagingSenderId: "112035346936",
+  appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
+  measurementId: "G-KQGCZ616JK"
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+const database = firebase.database();
+
+
+    
+    // ===== ELEMENTOS DEL DOM =====
+    const pathInput = document.getElementById("commandsPath");
+    const sendButton = document.getElementById("sendButton");
+    const statusMessage = document.getElementById("statusMessage");
+    const timeInputs = Array.from({length: 8}, (_, i) => document.getElementById(`timeInput${i + 1}`));
+    const numberInputs = [document.getElementById('numberInput1'), document.getElementById('numberInput2')];
+
+    // ===== FUNCIONES =====
+    
+    /**
+     * Muestra un mensaje al usuario y lo borra después de un tiempo.
+     */
+    function showStatusMessage(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.style.color = isError ? 'red' : 'green';
+        setTimeout(() => { statusMessage.textContent = ''; }, 4000);
+    }
+
+    /**
+     * Carga los horarios actuales desde Firebase y rellena los campos.
+     */
+    function loadCurrentTimers() {
+        const commandsPath = localStorage.getItem("ruta");
+        if (!commandsPath) return; // No hacer nada si no hay ruta
+
+        const horariosRef = database.ref(commandsPath + "/horarios");
+        horariosRef.once('value').then(snapshot => {
+            if (!snapshot.exists()) {
+                console.log("No hay horarios guardados para esta ruta.");
+                return;
+            }
+            // El ESP guarda un string como "h1=8, h2=12, ..., h10=30"
+            const dataString = snapshot.val();
+            const parts = dataString.split(', ');
+            const values = parts.map(p => p.split('=')[1]);
+            
+            if (values.length === 10) {
+                // Rellenar horas (h1 a h8)
+                for (let i = 0; i < 8; i++) {
+                    const hour = parseInt(values[i]).toString().padStart(2, '0');
+                    timeInputs[i].value = `${hour}:00`;
+                }
+                // Rellenar minutos (h9 y h10)
+                numberInputs[0].value = values[8];
+                numberInputs[1].value = values[9];
+                showStatusMessage("Horarios actuales cargados.");
+            }
+        }).catch(error => {
+            console.error("Error al cargar horarios:", error);
+            showStatusMessage("Error al cargar horarios.", true);
+        });
+    }
+    
+    /**
+     * Recopila los datos de los inputs y los envía a Firebase.
+     */
+    function sendCommands() {
+        const commandsPath = pathInput.value;
+        if (!commandsPath) {
+            showStatusMessage("Por favor, ingresa una ruta.", true);
+            return;
+        }
+        localStorage.setItem("ruta", commandsPath);
+
+        // Construir el string de comandos
+        let commands = [];
+        // Obtener horas
+        for (let i = 0; i < 8; i++) {
+            const timeValue = timeInputs[i].value;
+            if (!timeValue) {
+                showStatusMessage(`Por favor, completa el campo h${i+1}.`, true);
+                return;
+            }
+            commands.push(timeValue.split(':')[0]); // Solo la hora
+        }
+        // Obtener minutos
+        commands.push(numberInputs[0].value || '0');
+        commands.push(numberInputs[1].value || '0');
+        
+        const commandString = "H" + commands.join(",");
+
+        const horasPath = commandsPath + "/hora1";
+        database.ref(horasPath).set(commandString)
+            .then(() => showStatusMessage("Horarios enviados con éxito."))
+            .catch(error => {
+                console.error("Error al enviar comandos:", error);
+                showStatusMessage("Error al enviar comandos.", true);
+            });
+    }
+
+    // ===== EVENTOS =====
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedPath = localStorage.getItem("ruta");
+        if (savedPath) {
+            pathInput.value = savedPath;
+            loadCurrentTimers();
+        }
+        
+        sendButton.addEventListener('click', sendCommands);
+
+        pathInput.addEventListener('change', () => {
+            localStorage.setItem("ruta", pathInput.value);
+            window.location.reload(); // Recargar para obtener los timers de la nueva ruta
+        });
+    });
+    </script>
+</body>
+</html>
