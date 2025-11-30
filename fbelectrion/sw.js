@@ -1,34 +1,28 @@
-
-const CACHE_NAME = 'reserva-oficinas-v2';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/fondo.jpg',
-  '/icon-192.png',
-  '/icon-512.png'
-];
-
-self.addEventListener('install', (event) => {
-  console.log('Service Worker instalado');
-  event.waitUntil(
-    caches.open('v1').then((cache) => {
-      return cache.addAll([
-        '/ios/index.html',
-        '/ios/manifest.json',
-        '/ios/icon-192.png',
-        '/ios/icon-512.png',
-      ]).catch(err => {
-        console.warn('⚠️ Error al cachear archivos:', err);
-      });
-    })
-  );
-});
-
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
-});
+{
+  // CAMBIO 1: ID debe reflejar el nuevo dominio/ruta. Usar la raíz '/' es una práctica común.
+  "id": "/",
+  "name": "ionizador inteligente ELECTRION",
+  "short_name": "electrion",
+  
+  // CAMBIO 2: START_URL debe ser la ruta donde estará tu index.html. Usar la raíz '/' si lo subes allí.
+  "start_url": "/",
+  
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007BFF",
+  "orientation": "portrait",
+  "icons": [
+    {
+      // RUTA CORREGIDA: Usando ruta relativa si están en la misma carpeta que el manifest
+      "src": "./icon-192.png", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      // RUTA CORREGIDA: Usando ruta relativa si están en la misma carpeta que el manifest
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
