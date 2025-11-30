@@ -1,6 +1,6 @@
 // Actualiza el nombre del caché para asegurar que los usuarios obtengan la nueva versión
 const CACHE_NAME = 'electrion-v1'; 
-// Define los archivos a precachear en la nueva ubicación (asumiendo la raíz del servidor)
+
 const urlsToCache = [
   '/', // La raíz (index.html)
   '/index.html',
