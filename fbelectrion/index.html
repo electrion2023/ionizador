@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>ELECTRION</title>
-  <link rel="icon" href="./icon-192.png">
+  <title>*ELECTRION*</title>
+    <link rel="icon" href="./icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#007BFF">
   
   <style>
-    /* (El CSS se mantiene igual, no hay cambios necesarios aquí) */
+    /* Estilos CSS integrados para asegurar que se vean */
     html, body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -22,6 +22,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      /* RUTA: 'fondo.jpg' está en la misma carpeta */
       background-image: url("fondo.jpg"); 
       background-size: cover;
       background-position: center;
@@ -79,7 +80,7 @@
       font-size: 22px;
       padding: 14px 24px;
       margin: 10px auto;
-      background-color: #444; /* Color por defecto mientras carga el estado */
+      background-color: #444; 
       color: white;
       border: none;
       border-radius: 12px;
@@ -146,7 +147,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
   
   <script>
-    // ===== INICIALIZACIÓN DE FIREBASE (ÚNICA VEZ) =====
+    // ===== INICIALIZACIÓN DE FIREBASE (ÚNICA Y CORRECTA) =====
     const firebaseConfig = {
       apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
       authDomain: "electrion-e54b2.firebaseapp.com",
@@ -158,24 +159,23 @@
       measurementId: "G-KQGCZ616JK"
     };
     
-    // Inicialización correcta: Solo una vez
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     
-    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES (NO CAMBIA) =====
+    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES =====
     function sendValue(value) {
       const commandsPath = document.getElementById("commandsPath").value;
       if (!commandsPath) {
           alert("Por favor, ingresa una ruta válida.");
           return;
       }
-      // Guarda la ruta en localStorage
+      // Guarda la ruta
       localStorage.setItem("ruta", commandsPath); 
       const on1Path = commandsPath + "/hora1";
       database.ref(on1Path).set(value);
     }
     
-    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO (NO CAMBIA) =====
+    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO =====
     function setupStatefulButton(config) {
         const button = document.getElementById(config.buttonId);
         let currentState = null;
@@ -223,7 +223,7 @@
         pathInput.value = savedPath;
       }
     
-      // Configuración de controladores de botones (se mantiene igual)
+      // Configuración de controladores de botones
       const bombaController = setupStatefulButton({
           buttonId: 'btnBomba', statePath: '/estado3', onStateValue: 'bt', onCommand: '56', offCommand: '57', onText: 'Bomba ON', offText: 'Bomba OFF'
       });
@@ -253,7 +253,7 @@
           window.location.reload();
       });
     
-      // Lógica de contador de visitas (se mantiene igual)
+      // Lógica de contador de visitas
       const visits = (localStorage.getItem('contador-visitas') || 0);
       const newVisits = parseInt(visits) + 1;
       localStorage.setItem('contador-visitas', newVisits);
@@ -262,10 +262,11 @@
       setupPWA();
     });
     
-    // ===== LÓGICA PWA (Service Worker e Instalación) (se mantiene igual) =====
+    // ===== LÓGICA PWA (Service Worker e Instalación) =====
     function setupPWA() {
       if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/sw.js')
+          // RUTA CRUCIAL CORREGIDA para la subcarpeta /fbelectrion/
+          navigator.serviceWorker.register('/fbelectrion/sw.js')
               .then(reg => console.log('Service Worker registrado', reg))
               .catch(err => console.error('Error registrando el Service Worker:', err));
       }
