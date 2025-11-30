@@ -1,28 +1,33 @@
-{
-  // CAMBIO 1: ID debe reflejar el nuevo dominio/ruta. Usar la raíz '/' es una práctica común.
-  "id": "/",
-  "name": "ionizador inteligente ELECTRION",
-  "short_name": "electrion",
-  
-  // CAMBIO 2: START_URL debe ser la ruta donde estará tu index.html. Usar la raíz '/' si lo subes allí.
-  "start_url": "/",
-  
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007BFF",
-  "orientation": "portrait",
-  "icons": [
-    {
-      // RUTA CORREGIDA: Usando ruta relativa si están en la misma carpeta que el manifest
-      "src": "./icon-192.png", 
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      // RUTA CORREGIDA: Usando ruta relativa si están en la misma carpeta que el manifest
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+// Actualiza el nombre del caché para asegurar que los usuarios obtengan la nueva versión
+const CACHE_NAME = 'electrion-v1'; 
+// Define los archivos a precachear en la nueva ubicación (asumiendo la raíz del servidor)
+const urlsToCache = [
+  '/', // La raíz (index.html)
+  '/index.html',
+  '/fondo.jpg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/manifest.json' // Añadir el manifest.json
+];
+
+self.addEventListener('install', (event) => {
+  console.log('Service Worker de Electrion instalado');
+  // Usamos el nuevo nombre de caché
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      // Usamos la lista de URLs corregida
+      return cache.addAll(urlsToCache).catch(err => {
+        console.warn('⚠️ Error al cachear archivos:', err);
+      });
+    })
+  );
+});
+
+// La lógica 'fetch' se mantiene igual, ya que es genérica para servir archivos desde el caché o la red
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});
