@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<!-- saved from url=(0042)https://romaoficinas.com.ar/ios/index.html -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body {transition: opacity ease-in 0.2s; } 
-body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relative; } 
-</style>
-  
+<html lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>--ELECTRION--</title>
-  <link rel="icon" href="https://romaoficinas.com.ar/ios/icon-192.png">
+  <link rel="icon" href="./icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="manifest" href="https://romaoficinas.com.ar/ios/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#007BFF">
+  
   <style>
+    /* El CSS se mantiene igual */
     html, body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -22,7 +22,8 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-image: url("fondo.jpg");
+      /* RUTA CORREGIDA: Asumiendo que 'fondo.jpg' está en la misma carpeta */
+      background-image: url("fondo.jpg"); 
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -100,7 +101,6 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
     /* COLORES DE ESTADO */
     .btn-on { background-color: green !important; }
     .btn-off { background-color: #001f3f !important; }
-
     /* BOTÓN DE INSTALACIÓN */
     #installBtn {
       background-color: #28a745;
@@ -122,45 +122,49 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
 <body>
   <div class="header">
     <div class="header-buttons">
-      <a href="https://electrion.com.ar/fbelectrion/index.html">Inicio</a>
-      <a href="https://electrion.com.ar/fbelectrion/timer.html">Timers</a>
-      <a href="https://electrion.com.ar/fbelectrion/tips.html">Tips</a>
-      <a href="https://electrion.com.ar/fbelectrion/settings.html">Settings</a>
+      <a href="./index.html">Inicio</a>
+      <a href="./timer.html">Timers</a>
+      <a href="./tips.html">Tips</a>
+      <a href="./settings.html">Settings</a>
     </div>
   </div>
-
+  
   <div class="main-content">
     <label for="commandsPath">Ruta:</label><br>
     <input type="text" id="commandsPath" placeholder="Ingresa la ruta..."><br>
-
+    
     <button id="btnBomba">Bomba</button>
     <button id="btnLuz">Luz</button>
     <button id="btnAux">Auxiliar</button>
-    <button onclick="sendValue(&#39;61&#39;)"> publicidad</button>
-
+    <button onclick="sendValue('61')"> publicidad</button>
+    
     <div id="messages"></div>
     <button id="installBtn" style="display: block;">Instalar App</button>
     <p>Contador de visitas: <span id="contador">15</span></p>
   </div>
-
-  <script src="./index_files/firebase-app.js.descarga"></script>
-  <script src="./index_files/firebase-database.js.descarga"></script>
-
+  
+  <script src="./firebase-app.js.descarga"></script>
+  <script src="./firebase-database.js.descarga"></script>
+  
   <script>
-    // ===== INICIALIZACIÓN DE FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
-  authDomain: "electrion-e54b2.firebaseapp.com",
-  databaseURL: "https://electrion-e54b2.firebaseio.com",
-  projectId: "electrion-e54b2",
-  storageBucket: "electrion-e54b2.firebasestorage.app",
-  messagingSenderId: "112035346936",
-  appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
-  measurementId: "G-KQGCZ616JK"
-};
+    // ===== INICIALIZACIÓN DE FIREBASE (NO CAMBIA) =====
+    // ESTO DEBE APUNTAR A TU BASE DE DATOS FIREBASE, NO AL SERVIDOR WEB.
+    const firebaseConfig = {
+      apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
+      authDomain: "electrion-e54b2.firebaseapp.com",
+      databaseURL: "https://electrion-e54b2.firebaseio.com",
+      projectId: "electrion-e54b2",
+      storageBucket: "electrion-e54b2.firebasestorage.app",
+      messagingSenderId: "112035346936",
+      appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
+      measurementId: "G-KQGCZ616JK"
+    };
+    
+    // Inicializa la app (asumiendo que los scripts de firebase ya se cargaron)
+    firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     
-    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES =====
+    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES (NO CAMBIA) =====
     function sendValue(value) {
       const commandsPath = document.getElementById("commandsPath").value;
       if (!commandsPath) {
@@ -171,23 +175,18 @@ const firebaseConfig = {
       const on1Path = commandsPath + "/hora1";
       database.ref(on1Path).set(value);
     }
-
-    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO =====
-    /**
-     * Configura un botón para que cambie de estado y escuche cambios en Firebase.
-     * @param {object} config - Objeto de configuración del botón.
-     */
+    
+    // ... (El resto de la lógica de setupStatefulButton y DOMContentLoaded se mantiene igual)
+    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO (NO CAMBIA) =====
     function setupStatefulButton(config) {
         const button = document.getElementById(config.buttonId);
-        let currentState = null; // Estado actual, ej: "bt", "bf", "lt", etc.
-
-        // 1. Asignar el evento click al botón
+        let currentState = null;
+    
         button.addEventListener('click', () => {
             const valueToSend = currentState === config.onStateValue ? config.offCommand : config.onCommand;
             sendValue(valueToSend);
         });
-        
-        // 2. Función para actualizar la apariencia del botón
+    
         const updateButtonUI = (state) => {
             currentState = state;
             if (state === config.onStateValue) {
@@ -200,12 +199,11 @@ const firebaseConfig = {
                 button.classList.remove('btn-on');
             }
         };
-
-        // 3. Escuchar cambios en Firebase
+    
         const listenForStateChanges = () => {
             const commandsPath = localStorage.getItem("ruta") || "";
-            if (!commandsPath) return; // No hacer nada si no hay ruta
-
+            if (!commandsPath) return;
+    
             const stateRef = database.ref(commandsPath + config.statePath);
             stateRef.on('value', snapshot => {
                 const state = snapshot.val();
@@ -214,20 +212,18 @@ const firebaseConfig = {
                 }
             });
         };
-        
+    
         return { listen: listenForStateChanges };
     }
-
-    // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO =====
+    
+    // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO (NO CAMBIA) =====
     document.addEventListener("DOMContentLoaded", function() {
-      // Cargar y configurar la ruta guardada
       const pathInput = document.getElementById("commandsPath");
       const savedPath = localStorage.getItem("ruta");
       if (savedPath) {
         pathInput.value = savedPath;
       }
-      
-      // Configuración de cada botón
+    
       const bombaController = setupStatefulButton({
           buttonId: 'btnBomba',
           statePath: '/estado3',
@@ -237,7 +233,7 @@ const firebaseConfig = {
           onText: 'Bomba ON',
           offText: 'Bomba OFF'
       });
-
+    
       const luzController = setupStatefulButton({
           buttonId: 'btnLuz',
           statePath: '/estado4',
@@ -247,7 +243,7 @@ const firebaseConfig = {
           onText: 'Luz ON',
           offText: 'Luz OFF'
       });
-
+    
       const auxController = setupStatefulButton({
           buttonId: 'btnAux',
           statePath: '/estado5',
@@ -257,74 +253,70 @@ const firebaseConfig = {
           onText: 'Auxiliar ON',
           offText: 'Auxiliar OFF'
       });
-      
-      // Iniciar los listeners para el estado de los botones
+    
       const startListeners = () => {
           bombaController.listen();
           luzController.listen();
           auxController.listen();
       };
-      
-      // Iniciar listeners al cargar la página si hay una ruta
+    
       if (savedPath) {
           startListeners();
       }
-
-      // IMPORTANTE: Si el usuario cambia la ruta, se deben reiniciar los listeners.
-      // Esto es una mejora para que la app reaccione a cambios de ruta.
+    
       pathInput.addEventListener('change', () => {
           const newPath = pathInput.value;
           localStorage.setItem("ruta", newPath);
           alert("Ruta actualizada. La página se recargará para aplicar los cambios.");
-          window.location.reload(); // La forma más simple de reiniciar los listeners
+          window.location.reload();
       });
-
-      // Contador de visitas
+    
       const visits = (localStorage.getItem('contador-visitas') || 0);
       const newVisits = parseInt(visits) + 1;
       localStorage.setItem('contador-visitas', newVisits);
       document.getElementById('contador').textContent = newVisits;
-
-      // Lógica para PWA (App Progresiva)
+    
       setupPWA();
     });
     
     // ===== LÓGICA PWA (Service Worker e Instalación) =====
     function setupPWA() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker registrado', reg))
-                .catch(err => console.error('Error registrando el Service Worker:', err));
-        }
-
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-
-            installBtn.addEventListener('click', () => {
-                installBtn.style.display = 'none';
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Usuario aceptó la instalación');
-                    } else {
-                        console.log('Usuario rechazó la instalación');
-                    }
-                    deferredPrompt = null;
-                });
-            });
-        });
-
-        window.addEventListener('appinstalled', () => {
-            console.log('App instalada');
-            installBtn.style.display = 'none';
-        });
+      if ('serviceWorker' in navigator) {
+          // RUTA CORREGIDA: Usando ruta absoluta a la raíz para el Service Worker
+          navigator.serviceWorker.register('/sw.js')
+              .then(reg => console.log('Service Worker registrado', reg))
+              .catch(err => console.error('Error registrando el Service Worker:', err));
+      }
+      
+      // ... (El resto de la lógica PWA se mantiene igual)
+      let deferredPrompt;
+      const installBtn = document.getElementById('installBtn');
+    
+      window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display = 'block';
+    
+          installBtn.addEventListener('click', () => {
+              installBtn.style.display = 'none';
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice.then((choiceResult) => {
+                  if (choiceResult.outcome === 'accepted') {
+                      console.log('Usuario aceptó la instalación');
+                  } else {
+                      console.log('Usuario rechazó la instalación');
+                  }
+                  deferredPrompt = null;
+              });
+          });
+      });
+    
+      window.addEventListener('appinstalled', () => {
+          console.log('App instalada');
+          installBtn.style.display = 'none';
+      });
     }
   </script>
 
-
-</body></html>
+  </body>
+</html>
