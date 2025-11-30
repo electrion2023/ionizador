@@ -1,25 +1,23 @@
-// CAMBIO 1: Nuevo nombre de caché para forzar la actualización
-const CACHE_NAME = 'electrion-fbelectrion-v3'; // Renombrado para evitar conflictos
+// SW CORREGIDO - electron-fbelectrion-v4
+const CACHE_NAME = 'electrion-fbelectrion-v4';
 
-// CAMBIO 2: Rutas corregidas para cachear los archivos DENTRO de la subcarpeta
+// RUTAS RELATIVAS CORRECTAS
 const urlsToCache = [
-  '/fbelectrion/', // La URL de la carpeta
-  '/fbelectrion/index.html',
-  '/fbelectrion/fondo.jpg',
-  '/fbelectrion/icon-192.png',
-  '/fbelectrion/icon-512.png',
-  '/fbelectrion/manifest.json',
-  '/fbelectrion/timer.html', // Asumo que quieres cachear las otras páginas
-  '/fbelectrion/tips.html',
-  '/fbelectrion/settings.html'
+  './',                    // index.html actual
+  './index.html',
+  './timer.html', 
+  './tips.html',
+  './settings.html',
+  './fondo.jpg',
+  './icon-192.png',
+  './icon-512.png',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('Service Worker de Electrion (v3) instalado');
+  console.log('Service Worker de Electrion (v4) instalado - RUTAS CORREGIDAS');
   event.waitUntil(
-    // Abrir el nuevo caché
     caches.open(CACHE_NAME).then((cache) => {
-      // Intentar cachear las nuevas URLs
       return cache.addAll(urlsToCache).catch(err => {
         console.warn('⚠️ Error al cachear archivos:', err);
       });
@@ -27,7 +25,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Listener de activación para limpiar cachés antiguos (IMPORTANTE)
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -35,20 +32,26 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            // Eliminar cachés antiguos
+            console.log('Eliminando caché antiguo:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  // Forzar control inmediato sobre los clients
+  return self.clients.claim();
 });
 
-
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  // Solo manejar solicitudes de la misma origen
+  if (event.request.url.startsWith(self.location.origin)) {
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        // Devuelve del cache o haz fetch
+        return response || fetch(event.request);
+      })
+    );
+  }
+  // Para solicitudes de terceros (como Firebase), dejar pasar normalmente
 });
