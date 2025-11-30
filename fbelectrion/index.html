@@ -267,7 +267,7 @@
     function setupPWA() {
       if ('serviceWorker' in navigator) {
           // RUTA CRUCIAL CORREGIDA para la subcarpeta /fbelectrion/
-          navigator.serviceWorker.register('/fbelectrion/sw.js')
+          navigator.serviceWorker.register('./sw.js')
               .then(reg => console.log('Service Worker registrado', reg))
               .catch(err => console.error('Error registrando el Service Worker:', err));
       }
