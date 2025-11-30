@@ -2,306 +2,491 @@
 <html lang="es">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>//ELECTRION*</title>
-  
+  <title>ELECTRION*</title>
   <link rel="icon" href="icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007BFF">
-  
-  <style>
-    /* ESTILOS IDÉNTICOS A TIMER.HTML */
+  
+  <style>
+    /* ESTILOS BASE */
     html, body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
     }
+    
     body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-image: url("fondo.jpg");
-        background-size: cover;
-        background-position: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
     
-    /* CABECERA IDÉNTICA */
+    /* CABECERA RESPONSIVE */
     .header {
-        background-color: #333;
-        color: white;
-        padding: 10px 0;
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 999;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      background-color: rgba(51, 51, 51, 0.95);
+      color: white;
+      padding: 12px 0;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
     }
+    
     .header-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      padding: 0 10px;
     }
+    
     .header-buttons a {
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-        padding: 8px 16px;
-        border-radius: 5px;
-        background-color: #555;
-        transition: background-color 0.3s;
+      text-decoration: none;
+      color: white;
+      font-size: 16px;
+      padding: 8px 16px;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #555, #666);
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
     }
+    
     .header-buttons a:hover {
-        background-color: #4c53af;
+      background: linear-gradient(45deg, #4c53af, #5a62c5);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 83, 175, 0.4);
     }
     
-    /* CONTENIDO PRINCIPAL - IGUAL QUE TIMER.HTML */
+    /* CONTENIDO PRINCIPAL */
     .main-content {
-        margin-top: 80px;
-        padding: 20px;
-        width: 100%;
-        max-width: 500px;
-        box-sizing: border-box;
+      margin-top: 100px;
+      padding: 30px 20px;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     
-    /* MANTENER TUS BOTONES ESPECÍFICOS */
+    .content-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      width: 100%;
+      max-width: 350px;
+    }
+    
+    /* CAMPO DE RUTA */
+    .path-container {
+      margin-bottom: 25px;
+    }
+    
+    .path-container label {
+      display: block;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
     #commandsPath {
-        font-size: 18px;
-        padding: 10px;
-        width: 100%;
-        max-width: 300px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      font-size: 16px;
+      padding: 12px 15px;
+      width: 100%;
+      border: 2px solid #e1e1e1;
+      border-radius: 12px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.9);
     }
     
-    button {
-        font-size: 22px;
-        padding: 14px 24px;
-        margin: 10px auto;
-        background-color: #444;
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        width: 90%;
-        max-width: 300px;
-        transition: background-color 0.3s, transform 0.1s;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    button:hover {
-        background-color: #2e2e2e;
-        transform: translateY(-2px);
-    }
-    button:active {
-        transform: scale(0.98);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    #commandsPath:focus {
+      outline: none;
+      border-color: #4c53af;
+      box-shadow: 0 0 0 3px rgba(76, 83, 175, 0.1);
+      transform: translateY(-2px);
     }
     
-    .btn-on { background-color: green !important; }
-    .btn-off { background-color: #001f3f !important; }
+    /* BOTONES PRINCIPALES */
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
     
+    .control-button {
+      font-size: 18px;
+      padding: 16px 24px;
+      background: linear-gradient(45deg, #444, #555);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .control-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    .control-button:active {
+      transform: translateY(-1px);
+    }
+    
+    /* ESTADOS DE BOTONES */
+    .btn-on { 
+      background: linear-gradient(45deg, #28a745, #20c997) !important; 
+    }
+    
+    .btn-off { 
+      background: linear-gradient(45deg, #001f3f, #0056b3) !important; 
+    }
+    
+    /* BOTÓN DE INSTALACIÓN */
     #installBtn {
-        background-color: #28a745;
-        color: white;
-        font-weight: bold;
+      background: linear-gradient(45deg, #28a745, #34ce57);
+      color: white;
+      font-weight: bold;
+      margin-top: 10px;
     }
+    
     #installBtn:hover {
-        background-color: #218838;
+      background: linear-gradient(45deg, #218838, #28a745);
+    }
+    
+    /* CONTADOR Y EXTRAS */
+    .extra-content {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0,0,0,0.1);
     }
     
     #contador {
-        font-weight: bold;
-        color: #333;
-        font-size: 18px;
-        margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+      font-size: 16px;
+      margin: 15px 0;
     }
-</style>
+    
+    .publicidad-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e) !important;
+      margin-top: 5px;
+    }
+    
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 480px) {
+      .main-content {
+        margin-top: 90px;
+        padding: 20px 15px;
+      }
+      
+      .content-card {
+        padding: 25px 20px;
+        max-width: 100%;
+      }
+      
+      .header-buttons {
+        gap: 8px;
+      }
+      
+      .header-buttons a {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+      
+      .control-button {
+        font-size: 16px;
+        padding: 14px 20px;
+      }
+      
+      #commandsPath {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .main-content {
+        margin-top: 85px;
+        padding: 15px 10px;
+      }
+      
+      .content-card {
+        padding: 20px 15px;
+      }
+      
+      .control-button {
+        font-size: 15px;
+        padding: 12px 16px;
+      }
+      
+      .header-buttons a {
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+    }
+    
+    @media (min-width: 768px) {
+      .main-content {
+        max-width: 450px;
+      }
+      
+      .content-card {
+        max-width: 400px;
+        padding: 35px 30px;
+      }
+      
+      .control-button {
+        font-size: 20px;
+      }
+      
+      #commandsPath {
+        font-size: 17px;
+      }
+    }
+    
+    /* ANIMACIONES */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .content-card {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    .control-button {
+      animation: fadeIn 0.8s ease-out;
+    }
+  </style>
 </head>
 <body>
-  <div class="header">
-    <div class="header-buttons">
-      <a href="index.html">Inicio</a>
-      <a href="timer.html">Timers</a>
-      <a href=" tips.html">Tips</a>
-      <a href=" settings.html">Settings</a>
-    </div>
-  </div>
-  
-  <div class="main-content">
-    <label for="commandsPath">Ruta:</label><br>
-    <input type="text" id="commandsPath" placeholder="Ingresa la ruta..."><br>
-    
-    <button id="btnBomba">Bomba</button>
-    <button id="btnLuz">Luz</button>
-    <button id="btnAux">Auxiliar</button>
-    <button onclick="sendValue('61')"> publicidad</button>
-    
-    <div id="messages"></div>
-    <button id="installBtn" style="display: block;">Instalar App</button>
-    <p>Contador de visitas: <span id="contador">15</span></p>
-  </div>
-  
-  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
-  
-  <script>
-    // ===== INICIALIZACIÓN DE FIREBASE (ÚNICA Y CORRECTA) =====
-    const firebaseConfig = {
-      apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
-      authDomain: "electrion-e54b2.firebaseapp.com",
-      databaseURL: "https://electrion-e54b2.firebaseio.com",
-      projectId: "electrion-e54b2",
-      storageBucket: "electrion-e54b2.firebasestorage.app",
-      messagingSenderId: "112035346936",
-      appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
-      measurementId: "G-KQGCZ616JK"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    
-    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES =====
-    function sendValue(value) {
-      const commandsPath = document.getElementById("commandsPath").value;
-      if (!commandsPath) {
-          alert("Por favor, ingresa una ruta válida.");
-          return;
-      }
-      // Guarda la ruta
-      localStorage.setItem("ruta", commandsPath); 
-      const on1Path = commandsPath + "/hora1";
-      database.ref(on1Path).set(value);
-    }
-    
-    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO =====
-    function setupStatefulButton(config) {
-        const button = document.getElementById(config.buttonId);
-        let currentState = null;
-    
-        button.addEventListener('click', () => {
-            const valueToSend = currentState === config.onStateValue ? config.offCommand : config.onCommand;
-            sendValue(valueToSend);
-        });
-    
-        const updateButtonUI = (state) => {
-            currentState = state;
-            if (state === config.onStateValue) {
-                button.textContent = config.onText;
-                button.classList.add('btn-on');
-                button.classList.remove('btn-off');
-            } else {
-                button.textContent = config.offText;
-                button.classList.add('btn-off');
-                button.classList.remove('btn-on');
-            }
-        };
-    
-        const listenForStateChanges = () => {
-            const commandsPath = localStorage.getItem("ruta") || "";
-            if (!commandsPath) return;
-    
-            const stateRef = database.ref(commandsPath + config.statePath);
-            stateRef.on('value', snapshot => {
-                const state = snapshot.val();
-                if (state !== null) {
-                    updateButtonUI(state);
-                }
-            });
-        };
-    
-        return { listen: listenForStateChanges };
-    }
-    
-    // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO (INICIA LA APP) =====
-    document.addEventListener("DOMContentLoaded", function() {
-      const pathInput = document.getElementById("commandsPath");
-      // Carga la ruta guardada al iniciar
-      const savedPath = localStorage.getItem("ruta");
-      if (savedPath) {
-        pathInput.value = savedPath;
-      }
-    
-      // Configuración de controladores de botones
-      const bombaController = setupStatefulButton({
-          buttonId: 'btnBomba', statePath: '/estado3', onStateValue: 'bt', onCommand: '56', offCommand: '57', onText: 'Bomba ON', offText: 'Bomba OFF'
-      });
-      const luzController = setupStatefulButton({
-          buttonId: 'btnLuz', statePath: '/estado4', onStateValue: 'lt', onCommand: '58', offCommand: '59', onText: 'Luz ON', offText: 'Luz OFF'
-      });
-      const auxController = setupStatefulButton({
-          buttonId: 'btnAux', statePath: '/estado5', onStateValue: 'at', onCommand: '60', offCommand: '61', onText: 'Auxiliar ON', offText: 'Auxiliar OFF'
-      });
-    
-      const startListeners = () => {
-          bombaController.listen();
-          luzController.listen();
-          auxController.listen();
-      };
-    
-      // Inicia los listeners si ya hay una ruta guardada
-      if (savedPath) {
-          startListeners();
-      }
-    
-      // Maneja el cambio de ruta: Guarda la ruta y recarga
-      pathInput.addEventListener('change', () => {
-          const newPath = pathInput.value;
-          localStorage.setItem("ruta", newPath);
-          alert("Ruta actualizada. La página se recargará para aplicar los cambios.");
-          window.location.reload();
-      });
-    
-      // Lógica de contador de visitas
-      const visits = (localStorage.getItem('contador-visitas') || 0);
-      const newVisits = parseInt(visits) + 1;
-      localStorage.setItem('contador-visitas', newVisits);
-      document.getElementById('contador').textContent = newVisits;
-    
-      setupPWA();
-    });
-    
-    // ===== LÓGICA PWA (Service Worker e Instalación) =====
-    function setupPWA() {
-      if ('serviceWorker' in navigator) {
-          // RUTA CRUCIAL CORREGIDA para la subcarpeta /fbelectrion/
-          navigator.serviceWorker.register('./sw.js')
-              .then(reg => console.log('Service Worker registrado', reg))
-              .catch(err => console.error('Error registrando el Service Worker:', err));
-      }
-      
-      let deferredPrompt;
-      const installBtn = document.getElementById('installBtn');
-    
-      window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredPrompt = e;
-          installBtn.style.display = 'block';
-    
-          installBtn.addEventListener('click', () => {
-              installBtn.style.display = 'none';
-              deferredPrompt.prompt();
-              deferredPrompt.userChoice.then((choiceResult) => {
-                  if (choiceResult.outcome === 'accepted') {
-                      console.log('Usuario aceptó la instalación');
-                  } else {
-                      console.log('Usuario rechazó la instalación');
-                  }
-                  deferredPrompt = null;
-              });
-          });
-      });
-    
-      window.addEventListener('appinstalled', () => {
-          console.log('App instalada');
-          installBtn.style.display = 'none';
-      });
-    }
-  </script>
-
-  </body>
+  <div class="header">
+    <div class="header-buttons">
+      <a href="./index.html">Inicio</a>
+      <a href="./timer.html">Timers</a>
+      <a href="./tips.html">Tips</a>
+      <a href="./settings.html">Settings</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="content-card">
+      <div class="path-container">
+        <label for="commandsPath">Ruta del Dispositivo:</label>
+        <input type="text" id="commandsPath" placeholder="Ingresa la ruta...">
+      </div>
+      
+      <div class="buttons-container">
+        <button id="btnBomba" class="control-button">Bomba</button>
+        <button id="btnLuz" class="control-button">Luz</button>
+        <button id="btnAux" class="control-button">Auxiliar</button>
+        <button onclick="sendValue('61')" class="control-button publicidad-btn">Publicidad</button>
+      </div>
+      
+      <div id="messages"></div>
+      
+      <div class="extra-content">
+        <button id="installBtn" class="control-button">Instalar App</button>
+        <p id="contador">Contador de visitas: <span>15</span></p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+  
+  <script>
+    // ===== INICIALIZACIÓN DE FIREBASE =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyBdSiQ3xyesATisbgMRbls-UYHzlJWULsA",
+      authDomain: "electrion-e54b2.firebaseapp.com",
+      databaseURL: "https://electrion-e54b2.firebaseio.com",
+      projectId: "electrion-e54b2",
+      storageBucket: "electrion-e54b2.firebasestorage.app",
+      messagingSenderId: "112035346936",
+      appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
+      measurementId: "G-KQGCZ616JK"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // ===== FUNCIÓN GENÉRICA PARA ENVIAR VALORES =====
+    function sendValue(value) {
+      const commandsPath = document.getElementById("commandsPath").value;
+      if (!commandsPath) {
+        alert("Por favor, ingresa una ruta válida.");
+        return;
+      }
+      localStorage.setItem("ruta", commandsPath); 
+      const on1Path = commandsPath + "/hora1";
+      database.ref(on1Path).set(value);
+    }
+    
+    // ===== LÓGICA REFACTORIZADA PARA BOTONES CON ESTADO =====
+    function setupStatefulButton(config) {
+      const button = document.getElementById(config.buttonId);
+      let currentState = null;
+  
+      button.addEventListener('click', () => {
+        const valueToSend = currentState === config.onStateValue ? config.offCommand : config.onCommand;
+        sendValue(valueToSend);
+      });
+  
+      const updateButtonUI = (state) => {
+        currentState = state;
+        if (state === config.onStateValue) {
+          button.textContent = config.onText;
+          button.classList.add('btn-on');
+          button.classList.remove('btn-off');
+        } else {
+          button.textContent = config.offText;
+          button.classList.add('btn-off');
+          button.classList.remove('btn-on');
+        }
+      };
+  
+      const listenForStateChanges = () => {
+        const commandsPath = localStorage.getItem("ruta") || "";
+        if (!commandsPath) return;
+  
+        const stateRef = database.ref(commandsPath + config.statePath);
+        stateRef.on('value', snapshot => {
+          const state = snapshot.val();
+          if (state !== null) {
+            updateButtonUI(state);
+          }
+        });
+      };
+  
+      return { listen: listenForStateChanges };
+    }
+    
+    // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO =====
+    document.addEventListener("DOMContentLoaded", function() {
+      const pathInput = document.getElementById("commandsPath");
+      
+      // Carga la ruta guardada al iniciar
+      const savedPath = localStorage.getItem("ruta");
+      if (savedPath) {
+        pathInput.value = savedPath;
+      }
+  
+      // Configuración de controladores de botones
+      const bombaController = setupStatefulButton({
+        buttonId: 'btnBomba', 
+        statePath: '/estado3', 
+        onStateValue: 'bt', 
+        onCommand: '56', 
+        offCommand: '57', 
+        onText: 'Bomba ON', 
+        offText: 'Bomba OFF'
+      });
+      
+      const luzController = setupStatefulButton({
+        buttonId: 'btnLuz', 
+        statePath: '/estado4', 
+        onStateValue: 'lt', 
+        onCommand: '58', 
+        offCommand: '59', 
+        onText: 'Luz ON', 
+        offText: 'Luz OFF'
+      });
+      
+      const auxController = setupStatefulButton({
+        buttonId: 'btnAux', 
+        statePath: '/estado5', 
+        onStateValue: 'at', 
+        onCommand: '60', 
+        offCommand: '61', 
+        onText: 'Auxiliar ON', 
+        offText: 'Auxiliar OFF'
+      });
+  
+      const startListeners = () => {
+        bombaController.listen();
+        luzController.listen();
+        auxController.listen();
+      };
+  
+      // Inicia los listeners si ya hay una ruta guardada
+      if (savedPath) {
+        startListeners();
+      }
+  
+      // Maneja el cambio de ruta
+      pathInput.addEventListener('change', () => {
+        const newPath = pathInput.value;
+        localStorage.setItem("ruta", newPath);
+        alert("Ruta actualizada. La página se recargará para aplicar los cambios.");
+        window.location.reload();
+      });
+  
+      // Lógica de contador de visitas
+      const visits = (localStorage.getItem('contador-visitas') || 0);
+      const newVisits = parseInt(visits) + 1;
+      localStorage.setItem('contador-visitas', newVisits);
+      document.querySelector('#contador span').textContent = newVisits;
+  
+      setupPWA();
+    });
+    
+    // ===== LÓGICA PWA =====
+    function setupPWA() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registrado', reg))
+          .catch(err => console.error('Error registrando el Service Worker:', err));
+      }
+      
+      let deferredPrompt;
+      const installBtn = document.getElementById('installBtn');
+  
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+  
+        installBtn.addEventListener('click', () => {
+          installBtn.style.display = 'none';
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('Usuario aceptó la instalación');
+            } else {
+              console.log('Usuario rechazó la instalación');
+            }
+            deferredPrompt = null;
+          });
+        });
+      });
+  
+      window.addEventListener('appinstalled', () => {
+        console.log('App instalada');
+        installBtn.style.display = 'none';
+      });
+    }
+  </script>
+</body>
 </html>
