@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>ELECTRION</title>
+  <title>*ELECTRION</title>
   <link rel="icon" href="./icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="./manifest.json">
@@ -143,8 +143,8 @@
     <p>Contador de visitas: <span id="contador">15</span></p>
   </div>
   
-  <script src="./firebase-app.js.descarga"></script>
-  <script src="./firebase-database.js.descarga"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
   
   <script>
     // ===== INICIALIZACIÓN DE FIREBASE (NO CAMBIA) =====
@@ -159,6 +159,11 @@
       appId: "1:112035346936:web:46840e40eb5436f3e8be0d",
       measurementId: "G-KQGCZ616JK"
     };
+    
+    // Inicializa la app
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    // ... (el resto de tu script se mantiene igual)
     
     // Inicializa la app (asumiendo que los scripts de firebase ya se cargaron)
     firebase.initializeApp(firebaseConfig);
