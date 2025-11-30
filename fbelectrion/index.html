@@ -2,11 +2,15 @@
 <html lang="es">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>ELECTRION</title>
+  <title>ELECTRION*</title>
   <link rel="icon" href="icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#007BFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ELECTRION">
+  <link rel="apple-touch-icon" href="icon-192.png">
   
   <style>
     /* ESTILOS BASE */
@@ -18,6 +22,7 @@
       height: 100%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #333;
+      -webkit-tap-highlight-color: transparent;
     }
     
     body {
@@ -169,10 +174,33 @@
       color: white;
       font-weight: bold;
       margin-top: 10px;
+      display: none; /* Oculto por defecto */
     }
     
     #installBtn:hover {
       background: linear-gradient(45deg, #218838, #28a745);
+    }
+    
+    /* PUBLICIDAD COMO IMAGEN */
+    .publicidad-container {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 12px;
+      border: 2px dashed #4c53af;
+    }
+    
+    .publicidad-img {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .publicidad-img:hover {
+      transform: scale(1.02);
     }
     
     /* CONTADOR Y EXTRAS */
@@ -187,11 +215,6 @@
       color: #333;
       font-size: 16px;
       margin: 15px 0;
-    }
-    
-    .publicidad-btn {
-      background: linear-gradient(45deg, #ff6b6b, #ff8e8e) !important;
-      margin-top: 5px;
     }
     
     /* RESPONSIVE DESIGN */
@@ -224,6 +247,10 @@
         font-size: 14px;
         padding: 10px 12px;
       }
+      
+      .publicidad-img {
+        max-width: 250px;
+      }
     }
     
     @media (max-width: 360px) {
@@ -244,6 +271,10 @@
       .header-buttons a {
         font-size: 12px;
         padding: 5px 10px;
+      }
+      
+      .publicidad-img {
+        max-width: 220px;
       }
     }
     
@@ -279,6 +310,17 @@
     .control-button {
       animation: fadeIn 0.8s ease-out;
     }
+    
+    /* ESTILOS PARA MODO APP */
+    @media all and (display-mode: standalone) {
+      .header {
+        padding: 15px 0;
+      }
+      
+      .main-content {
+        margin-top: 110px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -302,13 +344,22 @@
         <button id="btnBomba" class="control-button">Bomba</button>
         <button id="btnLuz" class="control-button">Luz</button>
         <button id="btnAux" class="control-button">Auxiliar</button>
-        <button onclick="sendValue('61')" class="control-button publicidad-btn">Publicidad</button>
+      </div>
+      
+      <!-- PUBLICIDAD COMO IMAGEN -->
+      <div class="publicidad-container">
+        <img src="publi.jpg" alt="Publicidad" class="publicidad-img" 
+             onerror="this.style.display='none'" 
+             onclick="sendValue('61')">
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+          Tap en la imagen para publicidad
+        </p>
       </div>
       
       <div id="messages"></div>
       
       <div class="extra-content">
-        <button id="installBtn" class="control-button">Instalar App</button>
+        <button id="installBtn" class="control-button">📱 Instalar App</button>
         <p id="contador">Contador de visitas: <span>15</span></p>
       </div>
     </div>
@@ -383,9 +434,20 @@
       return { listen: listenForStateChanges };
     }
     
+    // ===== DETECCIÓN DE MODO APP =====
+    function isRunningAsApp() {
+      return window.matchMedia('(display-mode: standalone)').matches || 
+             window.navigator.standalone === true;
+    }
+    
     // ===== EVENTO PRINCIPAL CUANDO EL DOM ESTÁ LISTO =====
     document.addEventListener("DOMContentLoaded", function() {
       const pathInput = document.getElementById("commandsPath");
+      
+      // Ocultar botón de instalación si ya está en modo app
+      if (isRunningAsApp()) {
+        document.getElementById('installBtn').style.display = 'none';
+      }
       
       // Carga la ruta guardada al iniciar
       const savedPath = localStorage.getItem("ruta");
@@ -452,39 +514,73 @@
       setupPWA();
     });
     
-    // ===== LÓGICA PWA =====
+    // ===== LÓGICA PWA MEJORADA =====
     function setupPWA() {
+      // Registrar Service Worker
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker registrado', reg))
-          .catch(err => console.error('Error registrando el Service Worker:', err));
+          .then(reg => {
+            console.log('Service Worker registrado correctamente');
+          })
+          .catch(err => {
+            console.error('Error registrando el Service Worker:', err);
+          });
       }
       
       let deferredPrompt;
       const installBtn = document.getElementById('installBtn');
-  
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = 'block';
-  
-        installBtn.addEventListener('click', () => {
-          installBtn.style.display = 'none';
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-              console.log('Usuario aceptó la instalación');
-            } else {
-              console.log('Usuario rechazó la instalación');
-            }
-            deferredPrompt = null;
+      
+      // Solo mostrar el botón si no está ya instalado como app
+      if (!isRunningAsApp()) {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          
+          // Mostrar el botón de instalación
+          installBtn.style.display = 'block';
+          
+          installBtn.addEventListener('click', () => {
+            // Ocultar el botón inmediatamente
+            installBtn.style.display = 'none';
+            
+            // Mostrar el prompt de instalación
+            deferredPrompt.prompt();
+            
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('Usuario aceptó la instalación PWA');
+                // Aquí puedes agregar analytics o tracking
+              } else {
+                console.log('Usuario rechazó la instalación PWA');
+                // Volver a mostrar el botón después de un tiempo
+                setTimeout(() => {
+                  installBtn.style.display = 'block';
+                }, 3000);
+              }
+              deferredPrompt = null;
+            });
           });
         });
-      });
+      }
   
+      // Cuando la app se instala
       window.addEventListener('appinstalled', () => {
-        console.log('App instalada');
+        console.log('App ELECTRION instalada correctamente');
         installBtn.style.display = 'none';
+        deferredPrompt = null;
+        
+        // Opcional: Redirigir o mostrar mensaje de éxito
+        setTimeout(() => {
+          alert('¡App instalada correctamente! Ahora puedes acceder desde tu pantalla de inicio.');
+        }, 1000);
+      });
+      
+      // Detectar si está en modo standalone (ya instalada)
+      window.addEventListener('load', () => {
+        if (isRunningAsApp()) {
+          console.log('Ejecutándose en modo App PWA');
+          installBtn.style.display = 'none';
+        }
       });
     }
   </script>
