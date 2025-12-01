@@ -1,122 +1,205 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 20px;
-    background-color: #f4f4f4;
-    color: #333;
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Instalación - IONIZADOR WIFI DUO (Archivo Único)</title>
+    
+    <style>
+        /* INICIO DEL CÓDIGO CSS INTEGRADO */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
 
-header h1 {
-    color: #007bff;
-    border-bottom: 3px solid #007bff;
-    padding-bottom: 10px;
-    text-align: center;
-}
+        header h1 {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            text-align: center;
+        }
 
-.contenido-principal {
-    max-width: 1200px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
+        .contenido-principal {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-/* --- SECCIÓN DE INSTALACIÓN Y DIAGRAMA --- */
+        /* --- SECCIÓN DE INSTALACIÓN Y DIAGRAMA --- */
 
-.instrucciones ol {
-    padding-left: 20px;
-    font-size: 1.1em;
-    list-style-type: decimal;
-}
+        .instrucciones ol {
+            padding-left: 20px;
+            font-size: 1.1em;
+            list-style-type: decimal;
+        }
 
-.diagrama-instalacion {
-    text-align: center;
-    margin: 30px 0;
-    /* Ajusta el tamaño máximo para que la imagen no sea gigante */
-}
+        .diagrama-instalacion {
+            text-align: center;
+            margin: 30px 0;
+        }
 
-.diagrama-instalacion img {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-}
+        .diagrama-instalacion img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
 
-/* --- SECCIÓN DE DETALLES (FOTOS INFERIORES) --- */
+        /* --- SECCIÓN DE DETALLES (FOTOS INFERIORES) --- */
 
-.secciones-detalle h2 {
-    color: #333;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 1.4em;
-}
+        .secciones-detalle h2 {
+            color: #333;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+        }
 
-.detalles-instalacion {
-    display: flex;
-    flex-direction: column; /* Apila las filas de imágenes verticalmente */
-    gap: 20px;
-    margin-bottom: 30px;
-}
+        .detalles-instalacion {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-.fila-detalles {
-    display: flex;
-    justify-content: space-around; /* Distribuye las imágenes horizontalmente */
-    gap: 10px;
-    flex-wrap: wrap; /* Permite que las imágenes bajen en pantallas pequeñas */
-}
+        .fila-detalles {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-.fila-detalles img {
-    width: 23%; /* Hace que 4 imágenes quepan en una fila con espacio entre ellas */
-    max-width: 200px; /* Tamaño máximo para cada detalle */
-    height: auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+        .fila-detalles img {
+            width: 23%;
+            max-width: 200px;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
 
-.conexiones-electricas {
-    align-items: flex-start; /* Alinea los ítems en la parte superior */
-    text-align: center;
-}
+        .conexiones-electricas {
+            align-items: flex-start;
+            text-align: center;
+        }
 
-.conexion-ficha, .conexion-jack, .conexion-controladora {
-    flex: 1; /* Ocupa el mismo espacio horizontal */
-    padding: 10px;
-}
+        .conexion-ficha, .conexion-jack, .conexion-controladora {
+            flex: 1;
+            padding: 10px;
+        }
 
-.conexion-ficha img, .conexion-jack img, .conexion-controladora img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 5px;
-}
+        .conexion-ficha img, .conexion-jack img, .conexion-controladora img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 5px;
+        }
 
-/* --- SECCIÓN DE RECOMENDACIONES --- */
+        /* --- SECCIÓN DE RECOMENDACIONES --- */
 
-.modo-uso {
-    background-color: #e9ecef;
-    padding: 20px;
-    border-radius: 5px;
-}
+        .modo-uso {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 5px;
+        }
 
-.modo-uso h2 {
-    color: #dc3545;
-    margin-top: 0;
-    border-bottom: 2px solid #dc3545;
-    padding-bottom: 10px;
-}
+        .modo-uso h2 {
+            color: #dc3545;
+            margin-top: 0;
+            border-bottom: 2px solid #dc3545;
+            padding-bottom: 10px;
+        }
 
-.modo-uso ul {
-    list-style-type: disc;
-    padding-left: 20px;
-}
+        .modo-uso ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
 
-.modo-uso li {
-    margin-bottom: 8px;
-}
+        .modo-uso li {
+            margin-bottom: 8px;
+        }
 
-/* Media Query para pantallas más pequeñas (opcional) */
-@media (max-width: 768px) {
-    .fila-detalles img {
-        width: 45%; /* Dos imágenes por fila en pantallas pequeñas */
-        margin-bottom: 10px;
-    }
-}
+        /* Media Query para pantallas más pequeñas (opcional) */
+        @media (max-width: 768px) {
+            .fila-detalles img {
+                width: 45%;
+                margin-bottom: 10px;
+            }
+        }
+        /* FIN DEL CÓDIGO CSS INTEGRADO */
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MODO DE INSTALACIÓN</h1>
+    </header>
+
+    <div class="contenido-principal">
+        
+        <div class="instrucciones">
+            <ol>
+                <li>atornillar controladora a la pared</li>
+                <li>ajustar abrazadera a un caño del circuito</li>
+                <li>perforar el caño en el centro de la abrazadera con mecha de 8mm.</li>
+                <li>enroscar el porta-electrodos a la abrazadera.</li>
+                <li>conectar la ficha jack con el porta-electrodos.</li>
+                <li>conectar la bomba en el tomacorriente (1)</li>
+                <li>conectar la alimentacion 220v de las luces (2)</li>
+                <li>enchufar el equipo a 220v (directo a diferencial)</li>
+            </ol>
+        </div>
+
+        <div class="diagrama-instalacion">
+            <p>**[Asegúrate de guardar la imagen del diagrama de conexiones como `diagrama_general.jpg` en la misma carpeta]**</p>
+            <img src="diagrama_general.jpg" alt="Diagrama de conexión del Ionizador WiFi Duo">
+            
+        </div>
+
+        <div class="secciones-detalle">
+            <h2>Instalar la abrazadera</h2>
+            <div class="detalles-instalacion">
+                <div class="fila-detalles">
+                    <img src="detalle_abrazadera_1.jpg" alt="Detalle de instalación de la abrazadera">
+                    <img src="detalle_abrazadera_2.jpg" alt="Detalle de enroscado del porta-electrodos">
+                    <img src="detalle_abrazadera_3.jpg" alt="Detalle de instalación del porta-electrodos">
+                    <img src="detalle_abrazadera_4.jpg" alt="Abrazadera instalada con porta-electrodos">
+                </div>
+                
+                <div class="fila-detalles conexiones-electricas">
+                    <div class="conexion-ficha">
+                        <img src="detalle_bisagra.jpg" alt="Detalle de la bisagra para amurar">
+                        <p>amure con la bisagra incorporada</p>
+                    </div>
+                    <div class="conexion-jack">
+                        <img src="detalle_jack.jpg" alt="Detalle de la conexión jack">
+                        <p>conecte la ficha de salida al porta electrodos</p>
+                    </div>
+                    <div class="conexion-controladora">
+                        <img src="detalle_controladora.jpg" alt="Detalle de la controladora y sus enchufes">
+                        <p>enchufe las luces</p>
+                        <p>enchufe la bomba</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="modo-uso">
+            <h2>RECOMENDACIONES Y MODO DE USO</h2>
+            <ul>
+                <li>Por seguridad es muy importante enchufar el equipo directo a **diferencial**.</li>
+                <li>Controle el **PH del Agua** siempre dentro del rango (**7.0-7.9**).</li>
+                <li>En el caso de los modelos **Compact y Eq50** utilice la tela inversora **1 vez a la Semana**.</li>
+                <li>Para un correcto mantenimiento se recomienda **1 HS x dia de ionizado** cada **10.000lt**. para el **e-Cu65 - e-Cu+ pro - WifiDUO** - y **2 HS x dia/10.000lt**. para los modelos **Compact y Eq50**.</li>
+                <li>Para un optimo resultado, es necesario que la carga filtrante esté en **excelentes condiciones**.</li>
+                <li>Es muy importante cambiar la **cápsula ionizadora** cada **comienzo de temporada**.</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>
