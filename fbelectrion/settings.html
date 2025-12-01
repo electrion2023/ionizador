@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header h1 {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.contenido-principal {
+    max-width: 1200px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- SECCIÓN DE INSTALACIÓN Y DIAGRAMA --- */
+
+.instrucciones ol {
+    padding-left: 20px;
+    font-size: 1.1em;
+    list-style-type: decimal;
+}
+
+.diagrama-instalacion {
+    text-align: center;
+    margin: 30px 0;
+    /* Ajusta el tamaño máximo para que la imagen no sea gigante */
+}
+
+.diagrama-instalacion img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+}
+
+/* --- SECCIÓN DE DETALLES (FOTOS INFERIORES) --- */
+
+.secciones-detalle h2 {
+    color: #333;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.detalles-instalacion {
+    display: flex;
+    flex-direction: column; /* Apila las filas de imágenes verticalmente */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.fila-detalles {
+    display: flex;
+    justify-content: space-around; /* Distribuye las imágenes horizontalmente */
+    gap: 10px;
+    flex-wrap: wrap; /* Permite que las imágenes bajen en pantallas pequeñas */
+}
+
+.fila-detalles img {
+    width: 23%; /* Hace que 4 imágenes quepan en una fila con espacio entre ellas */
+    max-width: 200px; /* Tamaño máximo para cada detalle */
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.conexiones-electricas {
+    align-items: flex-start; /* Alinea los ítems en la parte superior */
+    text-align: center;
+}
+
+.conexion-ficha, .conexion-jack, .conexion-controladora {
+    flex: 1; /* Ocupa el mismo espacio horizontal */
+    padding: 10px;
+}
+
+.conexion-ficha img, .conexion-jack img, .conexion-controladora img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 5px;
+}
+
+/* --- SECCIÓN DE RECOMENDACIONES --- */
+
+.modo-uso {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.modo-uso h2 {
+    color: #dc3545;
+    margin-top: 0;
+    border-bottom: 2px solid #dc3545;
+    padding-bottom: 10px;
+}
+
+.modo-uso ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.modo-uso li {
+    margin-bottom: 8px;
+}
+
+/* Media Query para pantallas más pequeñas (opcional) */
+@media (max-width: 768px) {
+    .fila-detalles img {
+        width: 45%; /* Dos imágenes por fila en pantallas pequeñas */
+        margin-bottom: 10px;
+    }
+}
