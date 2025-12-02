@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronóstico para ESP8266</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Enviar Pronóstico a Firebase</h1>
+    
+    <div id="dataDisplay">
+        <p>Obteniendo datos del pronóstico...</p>
+    </div>
+    
+    <button onclick="getAndSendData()">Actualizar y Enviar Datos</button>
+    
+    <div id="status"></div>
+    
+    <script>
+        // Configuración de Firebase (REMPLAZA CON TUS DATOS)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            databaseURL: "https://TU_PROYECTO.firebaseio.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase (asegúrate de incluir el SDK en tu HTML)
+        // <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+        // <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+        
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch (error) {
+            console.log("Firebase no inicializado - modo prueba");
+        }
+
+        async function getWeatherData() {
+            try {
+                const response = await fetch(
+                    'https://api.open-meteo.com/v1/forecast?latitude=-33.295498&longitude=-66.338036&hourly=precipitation_probability&forecast_hours=2&timezone=auto'
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error obteniendo datos:', error);
+                throw error;
+            }
+        }
+
+        async function sendToFirebase(weatherData) {
+            try {
+                if (!db) {
+                    throw new Error("Firebase no está inicializado");
+                }
+
+                const timestamp = new Date().toISOString();
+                const precipitationData = {
+                    time: weatherData.hourly.time[0],
+                    precipitation_probability: weatherData.hourly.precipitation_probability[0],
+                    time2: weatherData.hourly.time[1],
+                    precipitation_probability2: weatherData.hourly.precipitation_probability[1],
+                    lastUpdate: timestamp
+                };
+
+                // Enviar a Firebase Realtime Database
+                await db.ref('weather/forecast').set(precipitationData);
+                
+                return precipitationData;
+            } catch (error) {
+                console.error('Error enviando a Firebase:', error);
+                throw error;
+            }
+        }
+
+        async function getAndSendData() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = "Procesando...";
+            statusDiv.className = "";
+            
+            try {
+                // Obtener datos del pronóstico
+                const weatherData = await getWeatherData();
+                
+                // Mostrar datos
+                displayData(weatherData);
+                
+                // Enviar a Firebase
+                const sentData = await sendToFirebase(weatherData);
+                
+                // Mostrar éxito
+                statusDiv.innerHTML = `✅ Datos enviados exitosamente a Firebase<br>
+                    Hora 1: ${sentData.time} - ${sentData.precipitation_probability}%<br>
+                    Hora 2: ${sentData.time2} - ${sentData.precipitation_probability2}%`;
+                statusDiv.className = "success";
+                
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Error: ${error.message}`;
+                statusDiv.className = "error";
+            }
+        }
+
+        function displayData(data) {
+            const displayDiv = document.getElementById('dataDisplay');
+            displayDiv.innerHTML = `
+                <h3>Pronóstico de Precipitación:</h3>
+                <p><strong>Hora 1:</strong> ${data.hourly.time[0]} - ${data.hourly.precipitation_probability[0]}%</p>
+                <p><strong>Hora 2:</strong> ${data.hourly.time[1]} - ${data.hourly.precipitation_probability[1]}%</p>
+            `;
+        }
+
+        // Cargar datos automáticamente al inicio
+        window.onload = getAndSendData;
+        
+        // Actualizar automáticamente cada 10 minutos
+        setInterval(getAndSendData, 600000);
+    </script>
+    
+    <!-- Firebase SDK (descomenta cuando tengas tu configuración) -->
+    <!--
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    -->
+</body>
+</html>
