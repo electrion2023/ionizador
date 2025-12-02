@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Sistema Clima ESP8266 + Firebase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 40px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #4facfe;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .step h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        
+        .important {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .note {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #3a8bff;
+        }
+        
+        .btn-copy {
+            background: #6c757d;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .architecture {
+            background: #f8f9fa;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .architecture-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .component {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 200px;
+            text-align: center;
+        }
+        
+        .arrow {
+            font-size: 2rem;
+            color: #4facfe;
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .steps-container {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            header {
+                padding: 30px 20px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .architecture-diagram {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌤️ Sistema Clima ESP8266 + Firebase</h1>
+            <p class="subtitle">Tutorial completo - Sistema automático de pronóstico del tiempo</p>
+        </header>
+        
+        <div class="architecture">
+            <h2>📡 Arquitectura del Sistema</h2>
+            <div class="architecture-diagram">
+                <div class="component">
+                    <h3>Open-Meteo API</h3>
+                    <p>Datos del clima cada hora</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="component">
+                    <h3>Google Apps Script</h3>
+                    <p>Actualización automática</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="component">
+                    <h3>Firebase Database</h3>
+                    <p>Almacenamiento en tiempo real</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="component">
+                    <h3>ESP8266</h3>
+                    <p>Lectura cada 5 minutos</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="steps-container">
+            <!-- PASO 1 -->
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Crear Script de Google</h3>
+                <p>Este script se ejecuta automáticamente cada hora y obtiene datos del clima.</p>
+                
+                <a href="https://script.google.com" target="_blank" class="btn">Ir a Google Script</a>
+                
+                <div class="important">
+                    <strong>📝 Instrucciones:</strong>
+                    <ol>
+                        <li>Haz clic en "+ Nuevo proyecto"</li>
+                        <li>Borra todo el código existente</li>
+                        <li>Copia y pega el siguiente código:</li>
+                    </ol>
+                </div>
+                
+                <div class="code-block" id="code1">
+// SISTEMA CLIMA ESP8266 - ACTUALIZACIÓN AUTOMÁTICA
+const FIREBASE_URL = "https://pronosticos-761a3-default-rtdb.firebaseio.com";
+
+function actualizarClimaAutomatico() {
+  console.log('🔄 Actualizando clima...');
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-33.295498&longitude=-66.338036&hourly=precipitation_probability&forecast_hours=2&timezone=auto';
+    const response = UrlFetchApp.fetch(url);
+    const datos = JSON.parse(response.getContentText());
+    
+    const datosESP = {
+      prob: datos.hourly.precipitation_probability[0],
+      prob2: datos.hourly.precipitation_probability[1],
+      hora: datos.hourly.time[0].substring(11, 16),
+      actualizado: new Date().toLocaleString("es-AR")
+    };
+    
+    const opciones = {
+      method: 'PUT',
+      contentType: 'application/json',
+      payload: JSON.stringify(datosESP)
+    };
+    
+    UrlFetchApp.fetch(FIREBASE_URL + "/clima.json", opciones);
+    console.log('✅ Enviado a Firebase');
+    
+  } catch (error) {
+    console.log('❌ Error: ' + error);
+  }
+}
+
+function probar() {
+  console.log('🧪 Prueba manual');
+  actualizarClimaAutomatico();
+  return "Prueba OK";
+}
+
+function activarAutomatico() {
+  const triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(t => ScriptApp.deleteTrigger(t));
+  
+  ScriptApp.newTrigger('actualizarClimaAutomatico')
+    .timeBased()
+    .everyHours(1)
+    .create();
+  
+  console.log('✅ Programado cada hora');
+  return "¡Activado!";
+}
+                </div>
+                <button class="btn btn-copy" onclick="copyCode('code1')">Copiar código</button>
+                
+                <div class="note">
+                    <strong>💡 Nota:</strong> Guarda el script como "ClimaESP8266_Simple"
+                </div>
+            </div>
+            
+            <!-- PASO 2 -->
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Configurar Firebase</h3>
+                <p>Base de datos en tiempo real para almacenar los datos del clima.</p>
+                
+                <a href="https://console.firebase.google.com" target="_blank" class="btn">Ir a Firebase</a>
+                
+                <div class="important">
+                    <strong>🔥 Configuración:</strong>
+                    <ol>
+                        <li>Crea un nuevo proyecto</li>
+                        <li>Activa "Realtime Database"</li>
+                        <li>Configura las reglas de seguridad:</li>
+                    </ol>
+                </div>
+                
+                <div class="code-block" id="code2">
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+                </div>
+                <button class="btn btn-copy" onclick="copyCode('code2')">Copiar reglas</button>
+                
+                <div class="note">
+                    <strong>🔒 Seguridad:</strong> Estas reglas son para desarrollo. En producción, usa autenticación.
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Tu URL de Firebase:</strong>
+                    <div class="code-block">
+https://pronosticos-761a3-default-rtdb.firebaseio.com/clima.json
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PASO 3 -->
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Código ESP8266</h3>
+                <p>Programa que se ejecuta en el microcontrolador para leer datos.</p>
+                
+                <div class="important">
+                    <strong>📦 Librerías necesarias:</strong>
+                    <ul>
+                        <li>Firebase ESP8266 Client (por Mobizt)</li>
+                        <li>ArduinoJson (por Benoit Blanchon)</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block" id="code3">
+#include <ESP8266WiFi.h>
+#include <FirebaseESP8266.h>
+
+// CONFIGURAR ESTOS DATOS
+const char* WIFI_SSID = "TU_WIFI";
+const char* WIFI_PASSWORD = "TU_PASSWORD";
+#define FIREBASE_HOST "pronosticos-761a3-default-rtdb.firebaseio.com"
+
+FirebaseData fbData;
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Conectar WiFi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\n✅ WiFi conectado");
+  
+  // Conectar Firebase
+  Firebase.begin(FIREBASE_HOST);
+  Serial.println("✅ Firebase conectado");
+}
+
+void loop() {
+  if (Firebase.getInt(fbData, "/clima/prob")) {
+    int probabilidad = fbData.intData();
+    
+    Serial.print("🌧️  Probabilidad: ");
+    Serial.print(probabilidad);
+    Serial.println("%");
+    
+    if (probabilidad > 50) {
+      Serial.println("⚠️  Alta probabilidad de lluvia!");
+    }
+    
+  } else {
+    Serial.println("Error: " + fbData.errorReason());
+  }
+  
+  delay(300000); // Esperar 5 minutos
+}
+                </div>
+                <button class="btn btn-copy" onclick="copyCode('code3')">Copiar código</button>
+                
+                <div class="note">
+                    <strong>⚙️ Configuración:</strong> Reemplaza "TU_WIFI" y "TU_PASSWORD" con tus datos reales.
+                </div>
+            </div>
+            
+            <!-- PASO 4 -->
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Activar Sistema</h3>
+                <p>Pasos finales para poner en marcha el sistema completo.</p>
+                
+                <div class="important">
+                    <strong>🎯 Secuencia de activación:</strong>
+                    <ol>
+                        <li>En Google Script, ejecuta <code>activarAutomatico()</code></li>
+                        <li>Luego ejecuta <code>probar()</code> para primera carga</li>
+                        <li>Verifica en Firebase que hay datos</li>
+                        <li>Sube el código al ESP8266</li>
+                        <li>Abre el Monitor Serial (115200 baudios)</li>
+                    </ol>
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Verificación:</strong>
+                    <p>Para verificar que todo funciona:</p>
+                    <ul>
+                        <li><strong>Google Script:</strong> Ver → Logs</li>
+                        <li><strong>Firebase:</strong> /clima.json</li>
+                        <li><strong>ESP8266:</strong> Monitor Serial</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+// COMANDOS PARA EJECUTAR EN GOOGLE SCRIPT:
+
+activarAutomatico()  // Programa ejecución cada hora
+probar()             // Ejecuta manualmente para probar
+                </div>
+            </div>
+            
+            <!-- PASO 5 -->
+            <div class="step">
+                <div class="step-number">5</div>
+                <h3>Solución de Problemas</h3>
+                <p>Problemas comunes y cómo solucionarlos.</p>
+                
+                <div class="important">
+                    <strong>🔧 Problema: Error 404 en Firebase</strong>
+                    <p><strong>Solución:</strong> Verifica que la URL sea correcta y que las reglas permitan escritura.</p>
+                </div>
+                
+                <div class="important">
+                    <strong>📶 Problema: ESP8266 no se conecta a WiFi</strong>
+                    <p><strong>Solución:</strong> Verifica credenciales WiFi y distancia al router.</p>
+                </div>
+                
+                <div class="important">
+                    <strong>🔄 Problema: No se actualiza automáticamente</strong>
+                    <p><strong>Solución:</strong> En Google Script, verifica que hay triggers activos.</p>
+                </div>
+                
+                <div class="note">
+                    <strong>📊 Monitoreo:</strong>
+                    <p>El sistema se mantiene automático. Puedes cerrar todo y seguirá funcionando.</p>
+                </div>
+            </div>
+            
+            <!-- PASO 6 -->
+            <div class="step">
+                <div class="step-number">6</div>
+                <h3>Recursos y Enlaces</h3>
+                <p>Todos los enlaces importantes en un solo lugar.</p>
+                
+                <div class="important">
+                    <strong>🔗 Enlaces críticos:</strong>
+                    <ul>
+                        <li><a href="https://script.google.com" target="_blank">Google Apps Script</a></li>
+                        <li><a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                        <li><a href="https://pronosticos-761a3-default-rtdb.firebaseio.com/clima.json" target="_blank">Tus datos en vivo</a></li>
+                        <li><a href="https://api.open-meteo.com/v1/forecast?latitude=-33.295498&longitude=-66.338036&hourly=precipitation_probability&forecast_hours=2&timezone=auto" target="_blank">API del Clima</a></li>
+                    </ul>
+                </div>
+                
+                <div class="success">
+                    <strong>🎉 ¡Sistema completado!</strong>
+                    <p>Tu sistema ahora:</p>
+                    <ul>
+                        <li>✓ Se actualiza cada hora automáticamente</li>
+                        <li>✓ Funciona 24/7 sin intervención</li>
+                        <li>✓ Es completamente gratuito</li>
+                        <li>✓ Tu ESP8266 lee datos cada 5 minutos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <h3>💾 Guarda esta página</h3>
+            <p>Recomendación: Guarda esta página HTML en tu computadora para referencia futura.</p>
+            <p><strong>Sistema Clima ESP8266</strong> | Creado para actualización automática de pronóstico del tiempo</p>
+        </footer>
+    </div>
+    
+    <script>
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textArea = document.createElement('textarea');
+            textArea.value = codeElement.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Mostrar mensaje de confirmación
+            const originalText = event.target.textContent;
+            event.target.textContent = '¡Copiado!';
+            event.target.style.background = '#28a745';
+            
+            setTimeout(() => {
+                event.target.textContent = originalText;
+                event.target.style.background = '#6c757d';
+            }, 2000);
+        }
+        
+        // Resaltar código al pasar el mouse
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 0 2px #4facfe';
+            });
+            
+            block.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Guardar página automáticamente
+        function savePage() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Tutorial_Clima_ESP8266.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Botón para guardar página
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '💾 Guardar Tutorial';
+        saveBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        `;
+        saveBtn.onclick = savePage;
+        document.body.appendChild(saveBtn);
+    </script>
+</body>
+</html>
