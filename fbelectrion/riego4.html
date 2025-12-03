@@ -519,47 +519,65 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dispositivoRef = database.ref('riego/dispositivo1');
+        const climaRef = database.ref('riego/clima');   // Nueva referencia para el clima
         
         // Variables de estado
         let ultimaActualizacion = null;
         let estadoConexion = false;
         
         // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar configuración actual
-            cargarConfiguracionActual();
-            cargarHorariosActuales();
-            
-            // Escuchar cambios en tiempo real
-            iniciarMonitorizacion();
-            
-            // Actualizar hora cada segundo
-            setInterval(actualizarHora, 1000);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar configuración actual
+    cargarConfiguracionActual();
+    cargarHorariosActuales();
+
+    // Cargar clima actual
+    climaRef.once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+            const clima = snapshot.val();
+            document.getElementById('probabilidad').textContent = `${clima.probabilidadLluvia || '--'}%`;
+        }
+    });
+
+    // Escuchar cambios en tiempo real
+    iniciarMonitorizacion();
+
+    // Actualizar hora cada segundo
+    setInterval(actualizarHora, 1000);
+});
         
         function iniciarMonitorizacion() {
-            // Escuchar estado del sistema
-            dispositivoRef.child('estado').on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    const estado = snapshot.val();
-                    actualizarEstadoUI(estado);
-                    estadoConexion = true;
-                    actualizarEstadoConexion(true);
-                }
-            });
-            
-            // Escuchar eventos
-            dispositivoRef.child('eventos').limitToLast(5).on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    actualizarEventosUI(snapshot.val());
-                }
-            });
-            
-            // Verificar conexión
-            dispositivoRef.onDisconnect().update({
-                'estado/conexion': 'offline'
-            });
+    // Escuchar estado del sistema (dispositivo1)
+    dispositivoRef.child('estado').on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const estado = snapshot.val();
+            actualizarEstadoUI(estado);
+            estadoConexion = true;
+            actualizarEstadoConexion(true);
         }
+    });
+
+    // Escuchar cambios en el clima
+    climaRef.on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            const clima = snapshot.val();
+            // Actualizar solo la probabilidad de lluvia
+            document.getElementById('probabilidad').textContent = `${clima.probabilidadLluvia || '--'}%`;
+        }
+    });
+
+    // Escuchar eventos
+    dispositivoRef.child('eventos').limitToLast(5).on('value', (snapshot) => {
+        if (snapshot.exists()) {
+            actualizarEventosUI(snapshot.val());
+        }
+    });
+
+    // Verificar conexión
+    dispositivoRef.onDisconnect().update({
+        'estado/conexion': 'offline'
+    });
+}
         
         function cargarConfiguracionActual() {
             dispositivoRef.child('config').once('value')
@@ -593,20 +611,13 @@
         }
         
         function actualizarEstadoUI(estado) {
-    // Actualizar valores
+    // Actualizar valores del dispositivo
     document.getElementById('humedad').textContent = `${estado.humedad || '--'}%`;
-    
-    // Para lloviendo: intentar en estado.lloviendo, si no, en estado.clima.lloviendo
-    const lloviendo = estado.lloviendo || (estado.clima && estado.clima.lloviendo);
-    document.getElementById('lluvia').textContent = lloviendo ? 'SÍ' : 'NO';
-    
-    // Para probabilidadLluvia: intentar desde estado.clima, si no, desde estado.probabilidadLluvia
-    const probabilidad = (estado.clima && estado.clima.probabilidadLluvia) || estado.probabilidadLluvia;
-    document.getElementById('probabilidad').textContent = `${probabilidad || '--'}%`;
-    
+    document.getElementById('lluvia').textContent = estado.lloviendo ? 'SÍ' : 'NO';
+    // Nota: probabilidadLluvia ya no se actualiza aquí
     document.getElementById('riego').textContent = estado.regando ? 'ACTIVO' : 'INACTIVO';
     document.getElementById('riego').className = estado.regando ? 'status-value irrigating' : 'status-value';
-    
+
     // Actualizar hora de última actualización
     ultimaActualizacion = new Date();
     document.getElementById('lastUpdate').textContent = 
