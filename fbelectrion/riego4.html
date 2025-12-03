@@ -593,18 +593,25 @@
         }
         
         function actualizarEstadoUI(estado) {
-            // Actualizar valores
-            document.getElementById('humedad').textContent = `${estado.humedad || '--'}%`;
-            document.getElementById('lluvia').textContent = estado.lloviendo ? 'SÍ' : 'NO';
-            document.getElementById('probabilidad').textContent = `${estado.probabilidadLluvia || '--'}%`;
-            document.getElementById('riego').textContent = estado.regando ? 'ACTIVO' : 'INACTIVO';
-            document.getElementById('riego').className = estado.regando ? 'status-value irrigating' : 'status-value';
-            
-            // Actualizar hora de última actualización
-            ultimaActualizacion = new Date();
-            document.getElementById('lastUpdate').textContent = 
-                ultimaActualizacion.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-        }
+    // Actualizar valores
+    document.getElementById('humedad').textContent = `${estado.humedad || '--'}%`;
+    
+    // Para lloviendo: intentar en estado.lloviendo, si no, en estado.clima.lloviendo
+    const lloviendo = estado.lloviendo || (estado.clima && estado.clima.lloviendo);
+    document.getElementById('lluvia').textContent = lloviendo ? 'SÍ' : 'NO';
+    
+    // Para probabilidadLluvia: intentar desde estado.clima, si no, desde estado.probabilidadLluvia
+    const probabilidad = (estado.clima && estado.clima.probabilidadLluvia) || estado.probabilidadLluvia;
+    document.getElementById('probabilidad').textContent = `${probabilidad || '--'}%`;
+    
+    document.getElementById('riego').textContent = estado.regando ? 'ACTIVO' : 'INACTIVO';
+    document.getElementById('riego').className = estado.regando ? 'status-value irrigating' : 'status-value';
+    
+    // Actualizar hora de última actualización
+    ultimaActualizacion = new Date();
+    document.getElementById('lastUpdate').textContent = 
+        ultimaActualizacion.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
         
         function actualizarEventosUI(eventos) {
             const eventosList = document.getElementById('eventosList');
