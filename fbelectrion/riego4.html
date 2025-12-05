@@ -385,7 +385,7 @@
                 <div class="form-group">
                     <button class="btn btn-danger" onclick="detenerRiego()">
                         <i class="fas fa-stop-circle"></i>
-                        Detener Riego (Emergencia)
+                        - Detener Riego (Emergencia)
                     </button>
                 </div>
             </div>
@@ -807,13 +807,13 @@ document.addEventListener('DOMContentLoaded', function() {
         function detenerRiego() {
             if (!confirm('⚠️ ¿Detener riego de emergencia?')) return;
             
-            dispositivoRef.child('control/detenerRiego').set(true)
+            dispositivoRef.child('control/riegoManual').set('pause');
                 .then(() => {
                     mostrarAlerta('🛑 Comando de detención enviado', 'success');
                     
                     // Limpiar después de 5 segundos
                     setTimeout(() => {
-                        dispositivoRef.child('control/detenerRiego').remove();
+                        dispositivoRef.child('control/riegoManual').remove();
                     }, 5000);
                 })
                 .catch((error) => {
