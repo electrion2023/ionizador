@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Control - Riego Inteligente</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c7744 0%, #4CAF50 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        h1 i {
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: #2c7744;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.5rem;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .status-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .status-item.rain {
+            border-left-color: #2196F3;
+        }
+        
+        .status-item.probability {
+            border-left-color: #FF9800;
+        }
+        
+        .status-item.irrigating {
+            border-left-color: #f44336;
+        }
+        
+        .status-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        
+        .status-value.irrigating {
+            color: #f44336;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        input[type="number"], input[type="time"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus, input[type="time"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .time-input-group {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .time-input-group label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #2c7744 0%, #4CAF50 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 119, 68, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-update {
+            background: linear-gradient(90deg, #2196F3 0%, #21CBF3 100%);
+        }
+        
+        .btn-manual {
+            background: linear-gradient(90deg, #FF9800 0%, #FFB74D 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #f44336 0%, #EF5350 100%);
+        }
+        
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 15px;
+        }
+        
+        .status-online {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2c7744;
+        }
+        
+        .status-offline {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.online {
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.offline {
+            background: #f44336;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .events-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .event-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 3px solid #4CAF50;
+            font-size: 0.9rem;
+        }
+        
+        .event-time {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid #4CAF50;
+            color: #2c7744;
+        }
+        
+        .alert-error {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid #f44336;
+            color: #f44336;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .time-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <i class="fas fa-tint"></i>
+                Panel de Control - Riego Inteligente
+            </h1>
+            <p class="subtitle">Monitorización y configuración en tiempo real</p>
+        </header>
+        
+        <div class="dashboard">
+            <!-- Panel de Estado -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Estado Actual del Sistema
+                </h2>
+                
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">Humedad del Suelo</div>
+                        <div class="status-value" id="humedad">--%</div>
+                    </div>
+                    
+                    <div class="status-item rain">
+                        <div class="status-label">Lluvia Detectada</div>
+                        <div class="status-value" id="lluvia">--</div>
+                    </div>
+                    
+                    <div class="status-item probability">
+                        <div class="status-label">Probabilidad Lluvia</div>
+                        <div class="status-value" id="probabilidad">--%</div>
+                    </div>
+                    
+                    <div class="status-item irrigating">
+                        <div class="status-label">Estado Riego</div>
+                        <div class="status-value" id="riego">--</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span>Conectando...</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-manual" onclick="activarRiegoManual()">
+                        <i class="fas fa-play-circle"></i>
+                        Activar Riego Manual (10 min)
+                    </button>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-danger" onclick="detenerRiego()">
+                        <i class="fas fa-stop-circle"></i>
+                        Detener Riego (Emergencia)
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Configuración de Umbrales -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-sliders-h"></i>
+                    Configuración de Umbrales
+                </h2>
+                
+                <div id="alertConfig" class="alert" style="display: none;"></div>
+                
+                <div class="form-group">
+                    <label for="umbralHumedad">
+                        <i class="fas fa-seedling"></i>
+                        Umbral de Humedad (%)
+                    </label>
+                    <input type="number" id="umbralHumedad" min="0" max="100" step="1" 
+                           placeholder="Ej: 30" title="Regar cuando humedad sea menor a este valor">
+                    <small style="color: #6c757d; font-size: 0.85rem;">
+                        Riego se activa cuando humedad está por debajo de este valor
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="umbralDiferencia">
+                        <i class="fas fa-exchange-alt"></i>
+                        Umbral de Diferencia (%)
+                    </label>
+                    <input type="number" id="umbralDiferencia" min="1" max="20" step="1" 
+                           placeholder="Ej: 3" title="Porcentaje mínimo de cambio para enviar datos">
+                    <small style="color: #6c757d; font-size: 0.85rem;">
+                        Enviar datos solo cuando humedad cambia más de este porcentaje
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="probabilidadMax">
+                        <i class="fas fa-cloud-rain"></i>
+                        Máxima Probabilidad para Riego (%)
+                    </label>
+                    <input type="number" id="probabilidadMax" min="0" max="100" step="1" 
+                           placeholder="Ej: 40" title="No regar si probabilidad de lluvia es mayor">
+                    <small style="color: #6c757d; font-size: 0.85rem;">
+                        No regar si la probabilidad de lluvia supera este valor
+                    </small>
+                </div>
+                
+                <button class="btn btn-update" onclick="actualizarConfiguracion()">
+                    <i class="fas fa-save"></i>
+                    Guardar Configuración
+                </button>
+            </div>
+            
+            <!-- Configuración de Horarios -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="fas fa-clock"></i>
+                    Horarios de Riego Programado
+                </h2>
+                
+                <p style="margin-bottom: 20px; color: #6c757d; font-size: 0.95rem;">
+                    Configura hasta 4 horarios diarios para riego automático
+                </p>
+                
+                <div class="time-grid">
+                    <div class="time-input-group">
+                        <label for="hora1">Horario 1</label>
+                        <input type="time" id="hora1" value="08:00">
+                    </div>
+                    
+                    <div class="time-input-group">
+                        <label for="hora2">Horario 2</label>
+                        <input type="time" id="hora2" value="12:00">
+                    </div>
+                    
+                    <div class="time-input-group">
+                        <label for="hora3">Horario 3</label>
+                        <input type="time" id="hora3" value="16:00">
+                    </div>
+                    
+                    <div class="time-input-group">
+                        <label for="hora4">Horario 4</label>
+                        <input type="time" id="hora4" value="19:00">
+                    </div>
+                </div>
+                
+                <button class="btn btn-update" onclick="actualizarHorarios()" style="margin-top: 20px;">
+                    <i class="fas fa-clock"></i>
+                    Actualizar Horarios
+                </button>
+                
+                <div class="form-group" style="margin-top: 25px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #495057;">
+                        <i class="fas fa-history"></i>
+                        Últimos Eventos
+                    </h3>
+                    <div class="events-list" id="eventosList">
+                        <div class="event-item">
+                            Cargando eventos...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Sistema de Riego Inteligente | Electrion | Última actualización: <span id="lastUpdate">--:--</span></p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">
+                <i class="fas fa-microchip"></i> ESP8266 | 
+                <i class="fas fa-cloud"></i> Firebase | 
+                <i class="fas fa-sun"></i> Riego Automático
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuración Firebase
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "electrion-e54b2.firebaseapp.com",
+            databaseURL: "https://electrion-e54b2.firebaseio.com",
+            projectId: "electrion-e54b2",
+            storageBucket: "electrion-e54b2.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dispositivoRef = database.ref('riego/dispositivo1');
+        
+        // Variables de estado
+        let ultimaActualizacion = null;
+        let estadoConexion = false;
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar configuración actual
+            cargarConfiguracionActual();
+            cargarHorariosActuales();
+            
+            // Escuchar cambios en tiempo real
+            iniciarMonitorizacion();
+            
+            // Actualizar hora cada segundo
+            setInterval(actualizarHora, 1000);
+        });
+        
+        function iniciarMonitorizacion() {
+            // Escuchar estado del sistema
+            dispositivoRef.child('estado').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const estado = snapshot.val();
+                    actualizarEstadoUI(estado);
+                    estadoConexion = true;
+                    actualizarEstadoConexion(true);
+                }
+            });
+            
+            // Escuchar eventos
+            dispositivoRef.child('eventos').limitToLast(5).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    actualizarEventosUI(snapshot.val());
+                }
+            });
+            
+            // Verificar conexión
+            dispositivoRef.onDisconnect().update({
+                'estado/conexion': 'offline'
+            });
+        }
+        
+        function cargarConfiguracionActual() {
+            dispositivoRef.child('config').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const config = snapshot.val();
+                        document.getElementById('umbralHumedad').value = config.umbralHumedad || 30;
+                        document.getElementById('umbralDiferencia').value = config.umbralDiferencia || 3;
+                        document.getElementById('probabilidadMax').value = config.probabilidadMax || 40.0;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error cargando configuración:", error);
+                });
+        }
+        
+        function cargarHorariosActuales() {
+            dispositivoRef.child('config/horarios').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const horarios = snapshot.val();
+                        for (let i = 0; i < 4; i++) {
+                            if (horarios[i]) {
+                                const hora = horarios[i].hora.toString().padStart(2, '0');
+                                const minuto = horarios[i].minuto.toString().padStart(2, '0');
+                                document.getElementById(`hora${i+1}`).value = `${hora}:${minuto}`;
+                            }
+                        }
+                    }
+                });
+        }
+        
+        function actualizarEstadoUI(estado) {
+            // Actualizar valores
+            document.getElementById('humedad').textContent = `${estado.humedad || '--'}%`;
+            document.getElementById('lluvia').textContent = estado.lloviendo ? 'SÍ' : 'NO';
+            document.getElementById('probabilidad').textContent = `${estado.probabilidadLluvia || '--'}%`;
+            document.getElementById('riego').textContent = estado.regando ? 'ACTIVO' : 'INACTIVO';
+            document.getElementById('riego').className = estado.regando ? 'status-value irrigating' : 'status-value';
+            
+            // Actualizar hora de última actualización
+            ultimaActualizacion = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                ultimaActualizacion.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function actualizarEventosUI(eventos) {
+            const eventosList = document.getElementById('eventosList');
+            eventosList.innerHTML = '';
+            
+            // Ordenar eventos por timestamp (más reciente primero)
+            const eventosArray = Object.entries(eventos)
+                .map(([key, value]) => ({ ...value, id: key }))
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, 5); // Mostrar solo los 5 más recientes
+            
+            if (eventosArray.length === 0) {
+                eventosList.innerHTML = '<div class="event-item">No hay eventos recientes</div>';
+                return;
+            }
+            
+            eventosArray.forEach(evento => {
+                const fecha = new Date(evento.timestamp);
+                const hora = fecha.toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                let icono = '⏰';
+                let texto = '';
+                
+                switch(evento.tipo) {
+                    case 'riego_programado':
+                        icono = '🚰';
+                        texto = `Riego programado (${evento.horaProgramada}:${evento.minutoProgramado})`;
+                        break;
+                    case 'riego_manual':
+                        icono = '👨‍🔧';
+                        texto = 'Riego manual activado';
+                        break;
+                    case 'riego_interrumpido':
+                        icono = '⚠️';
+                        texto = 'Riego interrumpido por lluvia';
+                        break;
+                    default:
+                        icono = '📝';
+                        texto = evento.tipo || 'Evento del sistema';
+                }
+                
+                const eventoHTML = `
+                    <div class="event-item">
+                        <div>${icono} ${texto}</div>
+                        <div class="event-time">${hora} | Humedad: ${evento.humedad || '--'}%</div>
+                    </div>
+                `;
+                
+                eventosList.innerHTML += eventoHTML;
+            });
+        }
+        
+        function actualizarEstadoConexion(conectado) {
+            const statusElement = document.getElementById('connectionStatus');
+            const dotElement = statusElement.querySelector('.status-dot');
+            
+            if (conectado) {
+                statusElement.className = 'connection-status status-online';
+                statusElement.innerHTML = `
+                    <span class="status-dot online"></span>
+                    <span>Conectado en tiempo real</span>
+                `;
+            } else {
+                statusElement.className = 'connection-status status-offline';
+                statusElement.innerHTML = `
+                    <span class="status-dot offline"></span>
+                    <span>Sin conexión</span>
+                `;
+            }
+        }
+        
+        function actualizarConfiguracion() {
+            const config = {
+                umbralHumedad: parseInt(document.getElementById('umbralHumedad').value),
+                umbralDiferencia: parseInt(document.getElementById('umbralDiferencia').value),
+                probabilidadMax: parseFloat(document.getElementById('probabilidadMax').value),
+                cmd: 'actualizar'
+            };
+            
+            // Validaciones
+            if (config.umbralHumedad < 0 || config.umbralHumedad > 100) {
+                mostrarAlerta('Umbral de humedad debe estar entre 0 y 100%', 'error');
+                return;
+            }
+            
+            if (config.umbralDiferencia < 1 || config.umbralDiferencia > 20) {
+                mostrarAlerta('Umbral de diferencia debe estar entre 1 y 20%', 'error');
+                return;
+            }
+            
+            if (config.probabilidadMax < 0 || config.probabilidadMax > 100) {
+                mostrarAlerta('Probabilidad máxima debe estar entre 0 y 100%', 'error');
+                return;
+            }
+            
+            // Enviar a Firebase
+            dispositivoRef.child('config').update(config)
+                .then(() => {
+                    mostrarAlerta('✅ Configuración actualizada correctamente', 'success');
+                    
+                    // Forzar actualización en dispositivo
+                    setTimeout(() => {
+                        dispositivoRef.child('config/cmd').set('actualizar');
+                    }, 1000);
+                })
+                .catch((error) => {
+                    console.error("Error actualizando configuración:", error);
+                    mostrarAlerta('❌ Error al actualizar configuración', 'error');
+                });
+        }
+        
+        function actualizarHorarios() {
+            const horarios = {};
+            
+            for (let i = 0; i < 4; i++) {
+                const input = document.getElementById(`hora${i+1}`).value;
+                if (input) {
+                    const [hora, minuto] = input.split(':').map(Number);
+                    
+                    // Validar hora
+                    if (hora >= 0 && hora <= 23 && minuto >= 0 && minuto <= 59) {
+                        horarios[i] = {
+                            hora: hora,
+                            minuto: minuto
+                        };
+                    } else {
+                        mostrarAlerta(`Horario ${i+1} no válido`, 'error');
+                        return;
+                    }
+                }
+            }
+            
+            // Enviar a Firebase
+            dispositivoRef.child('config/horarios').update(horarios)
+                .then(() => {
+                    mostrarAlerta('✅ Horarios actualizados correctamente', 'success');
+                    
+                    // Forzar actualización en dispositivo
+                    setTimeout(() => {
+                        dispositivoRef.child('config/cmd').set('actualizar');
+                    }, 1000);
+                })
+                .catch((error) => {
+                    console.error("Error actualizando horarios:", error);
+                    mostrarAlerta('❌ Error al actualizar horarios', 'error');
+                });
+        }
+        
+        function activarRiegoManual() {
+            if (!confirm('¿Activar riego manual por 10 minutos?')) return;
+            
+            // Crear evento de riego manual
+            const evento = {
+                tipo: 'riego_manual',
+                timestamp: Date.now(),
+                humedad: document.getElementById('humedad').textContent.replace('%', '') || 0
+            };
+            
+            const eventoRef = dispositivoRef.child('eventos').push();
+            eventoRef.set(evento)
+                .then(() => {
+                    mostrarAlerta('✅ Comando de riego manual enviado', 'success');
+                    
+                    // También podemos agregar un comando especial para riego manual
+                    dispositivoRef.child('control/riegoManual').set('activar');
+                    
+                    // Limpiar después de 10 segundos
+                    setTimeout(() => {
+                        dispositivoRef.child('control/riegoManual').remove();
+                    }, 10000);
+                })
+                .catch((error) => {
+                    console.error("Error activando riego manual:", error);
+                    mostrarAlerta('❌ Error al activar riego manual', 'error');
+                });
+        }
+        
+        function detenerRiego() {
+            if (!confirm('⚠️ ¿Detener riego de emergencia?')) return;
+            
+            dispositivoRef.child('control/detenerRiego').set(true)
+                .then(() => {
+                    mostrarAlerta('🛑 Comando de detención enviado', 'success');
+                    
+                    // Limpiar después de 5 segundos
+                    setTimeout(() => {
+                        dispositivoRef.child('control/detenerRiego').remove();
+                    }, 5000);
+                })
+                .catch((error) => {
+                    console.error("Error deteniendo riego:", error);
+                    mostrarAlerta('❌ Error al detener riego', 'error');
+                });
+        }
+        
+        function mostrarAlerta(mensaje, tipo) {
+            const alertElement = document.getElementById('alertConfig');
+            alertElement.textContent = mensaje;
+            alertElement.className = `alert alert-${tipo}`;
+            alertElement.style.display = 'block';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        function actualizarHora() {
+            const ahora = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // Verificar conexión periódicamente
+        setInterval(() => {
+            dispositivoRef.child('estado/timestamp').once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const timestamp = snapshot.val();
+                        const diferencia = Date.now() - timestamp;
+                        estadoConexion = diferencia < 120000; // 2 minutos
+                        actualizarEstadoConexion(estadoConexion);
+                    }
+                })
+                .catch(() => {
+                    estadoConexion = false;
+                    actualizarEstadoConexion(false);
+                });
+        }, 30000); // Cada 30 segundos
+        
+        // Manejar desconexión/reconexión de Firebase
+        database.ref('.info/connected').on('value', (snapshot) => {
+            if (snapshot.val() === true) {
+                estadoConexion = true;
+                actualizarEstadoConexion(true);
+            } else {
+                estadoConexion = false;
+                actualizarEstadoConexion(false);
+            }
+        });
+    </script>
+</body>
+</html>
