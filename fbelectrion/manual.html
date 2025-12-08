@@ -2,137 +2,95 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Electrion, Instructivo de Conexiones – Sistema de Riego</title>
-
+<title>Instructivo de Conexiones</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f2;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        max-width: 850px;
-        margin: 20px auto;
-        background: #fff;
-        padding: 25px 35px;
-        border-radius: 12px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-        line-height: 1.7;
-    }
-
-    h1 {
-        text-align: center;
-        font-size: 28px;
-        margin-bottom: 10px;
-        color: #333;
-    }
-
-    h2 {
-        margin-top: 28px;
-        color: #444;
-        font-size: 22px;
-        border-left: 6px solid #4CAF50;
-        padding-left: 10px;
-    }
-
-    p, li {
-        font-size: 17px;
-        color: #333;
-    }
-
-    ul {
-        margin-left: 20px;
-    }
-
-    .warning {
-        background: #ffe4e1;
-        padding: 12px 15px;
-        border-left: 6px solid #ff3b3b;
-        margin-bottom: 25px;
-        border-radius: 4px;
-    }
-
-    img {
-        width: 100%;
-        max-width: 650px;
-        margin: 20px auto;
-        display: block;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-    }
-
-    .summary-box {
-        background: #e8f5e9;
-        padding: 15px;
-        border-left: 6px solid #4CAF50;
-        border-radius: 6px;
-    }
-
+  body {
+    font-family: Arial, sans-serif;
+    margin: 30px;
+    background: #f7f7f7;
+    color: #333;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    color: #444;
+  }
+  .img-container {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  img {
+    width: 70%;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+  }
+  ol {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #0077cc;
+  }
+  li {
+    margin-bottom: 15px;
+  }
+  .color {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .rojo { background: #ffdddd; color: #b30000; }
+  .negro { background: #e6e6e6; color: #000; }
+  .amarillo { background: #fff6c7; color: #8a7a00; }
+  .blanco { background: #ffffff; color: #555; border: 1px solid #ccc; }
+  .azul { background: #d8eaff; color: #004a99; }
 </style>
-
 </head>
 <body>
 
-<div class="container">
+<h1>Instructivo de Conexiones del Sistema de Riego</h1>
 
-    <h1>Instructivo de Conexiones<br>Sistema de Riego Automático</h1>
+<div class="img-container">
+  <img src="conex.jpg" alt="Esquema de conexiones">
+</div>
 
-    <div class="warning">
-        <strong>IMPORTANTE:</strong> Alimentar todo el sistema con <strong>5V</strong>.
-    </div>
+<ol>
+  <li>
+    <b>Sensor de humedad del suelo (2 cables):</b><br>
+    • Cable <span class="rojo color">rojo</span> → Conectar a <b>GND</b> del equipo.<br>
+    • Cable <span class="blanco color">blanco</span> → Conectar a <b>A0</b> (entrada analógica).<br>
+    Este sensor debe enterrarse en un punto elevado del suelo.
+  </li>
 
-    <h2>1. Sensor de Humedad del Suelo</h2>
-    <p>Colocar el sensor enterrado en un punto elevado del terreno. Conectarlo de la siguiente manera:</p>
+  <li>
+    <b>Sensor de lluvia capacitivo (3 cables):</b><br>
+    • Cable <span class="negro color">negro</span> → <b>GND</b><br>
+    • Cable <span class="rojo color">rojo</span> → <b>+5V</b><br>
+    • Cable <span class="amarillo color">amarillo</span> → <b>GPIO 0</b> (entrada digital)<br>
+    Colocarlo en una zona elevada para evitar falsas detecciones.
+  </li>
 
-    <ul>
-        <li><strong>GND</strong> del sensor → borne <strong>G</strong></li>
-        <li><strong>Salida analógica</strong> → borne <strong>A</strong></li>
-    </ul>
+  <li>
+    <b>Alimentación del sistema:</b><br>
+    • Cable <span class="rojo color">rojo</span> → <b>+5V IN</b><br>
+    • Cable <span class="negro color">negro</span> → <b>GND</b><br>
+    IMPORTANTE: alimentar con una fuente estable de 5 V.
+  </li>
 
-    <h2>2. Sensor de Lluvia</h2>
-    <p>Instalar el sensor en una zona elevada y despejada. Conexiones:</p>
+  <li>
+    <b>Conexión a la válvula de riego:</b><br>
+    Dentro del equipo hay un <b>relé</b>.  
+    Por eso, se debe **interceptar solo uno de los dos cables que alimentan la válvula**:<br><br>
 
-    <ul>
-        <li><strong>GND</strong> → borne <strong>G</strong></li>
-        <li><strong>Señal</strong> (cable amarillo) → borne <strong>0</strong></li>
-        <li><strong>5V</strong> → borne <strong>3</strong></li>
-    </ul>
+    • Cable <span class="azul color">azul (1)</span> → entra al relé (tornillo R1).<br>
+    • Cable <span class="azul color">azul (2)</span> → sale del relé hacia la válvula (tornillo R2).<br><br>
 
-    <h2>3. Alimentación del Módulo</h2>
-    <p>Conectar la alimentación principal de 5V en:</p>
-    <ul>
-        <li><strong>+</strong> → 5V</li>
-        <li><strong>G</strong> → GND</li>
-    </ul>
+    El otro cable ORIGINAL de la válvula queda **sin cortar**, tal como viene.
+  </li>
 
-    <h2>4. Conexión de la Válvula</h2>
-    <p>La salida hacia la válvula de riego se realiza desde los bornes:</p>
+</ol>
 
-    <ul>
-        <li><strong>R</strong> → un polo de la válvula</li>
-        <li>El otro polo se conecta según la alimentación requerida por la válvula.</li>
-    </ul>
-
-    <h2>Resumen de Bornes</h2>
-    <div class="summary-box">
-        <ul>
-            <li><strong>G</strong> → Tierra / GND</li>
-            <li><strong>A</strong> → Señal analógica del sensor de humedad</li>
-            <li><strong>0</strong> → Señal del sensor de lluvia</li>
-            <li><strong>3</strong> → 5V para sensor de lluvia</li>
-            <li><strong>+</strong> → Entrada de alimentación 5V</li>
-            <li><strong>R</strong> → Salida a la válvula</li>
-        </ul>
-    </div>
-
-    <h2>Esquema Visual</h2>
-    <p>Referencia gráfica de las conexiones:</p>
-
-    <!-- CAMBIÁ EL NOMBRE DE LA IMAGEN SEGÚN TU ARCHIVO -->
-    <img src="conex.jpg" alt="Esquema de conexiones del sistema de riego">
+</body>
+</html>
 
 </div>
 
