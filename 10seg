@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELECTRION - Soluciones de Agua</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos CSS Integrados */
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6; /* Fondo gris claro */
+            color: #333; /* Texto oscuro */
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #007bff; /* Azul vibrante */
+            color: white;
+            padding: 20px 40px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-nombre h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 40px 20px;
+            flex-wrap: wrap; 
+        }
+
+        .producto {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 350px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            margin-bottom: 20px; /* Espacio inferior para el modo móvil */
+        }
+
+        .producto:hover {
+            transform: translateY(-5px);
+        }
+
+        .producto img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            object-fit: cover;
+            max-height: 250px; 
+        }
+
+        .producto h2 {
+            color: #007bff;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+
+        .boton-enlace {
+            display: inline-block;
+            background-color: #28a745; /* Verde para el botón */
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .boton-enlace:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            background-color: #333; /* Gris oscuro */
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .contacto h3 {
+            margin-top: 0;
+            color: #ffc107; /* Amarillo para resaltar */
+        }
+
+        .contacto a {
+            color: #ffc107;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contacto a:hover {
+            text-decoration: underline;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            font-size: 0.9em;
+            border-top: 1px solid #555;
+            padding-top: 10px;
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .producto {
+                max-width: 90%;
+            }
+
+            header, footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-nombre">
+            <h1>⚡ ELECTRION</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="producto">
+            <img src="[ruta_a_foto1.jpg]" alt="Juego 10's">
+            <h2>Juego 10's</h2>
+            <p>El innovador sistema compacto para tratamiento de agua. ¡La solución que necesitas!</p>
+        </section>
+
+        <section class="producto">
+            <img src="[ruta_a_foto2.jpg]" alt="Ionizadores">
+            <h2>Ionizadores</h2>
+            <p>Descubre la tecnología de ionización de ELECTRION para una calidad de agua superior.</p>
+            <a href="https://electrion.com.ar" target="_blank" class="boton-enlace">Visitar Electrion</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="contacto">
+            <h3>Contáctanos</h3>
+            <p>
+                📞 **WhatsApp:** <a href="https://wa.me/5492665007541" target="_blank">2665-007541</a>
+                <br>
+                ☎️ **Teléfono:** 2664-709447
+            </p>
+            <p>
+                📸 **Instagram:** <a href="https://www.instagram.com/ionizador.electrion/" target="_blank">@ionizador.electrion</a>
+            </p>
+        </div>
+        <p class="copyright">&copy; 2025 ELECTRION.</p>
+    </footer>
+</body>
+</html>
