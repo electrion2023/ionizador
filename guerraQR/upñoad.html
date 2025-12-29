@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Subida de Imágenes</title>
+<style>
+  body { font-family: Arial; background: #f2f2f2; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  .box { background: #fff; padding: 20px; border-radius: 8px; width: 320px; box-shadow: 0 0 10px rgba(0,0,0,.1); text-align: center; }
+  label { display: block; margin-top: 15px; font-weight: bold; text-align: left; }
+  input, button { width: 100%; margin-top: 5px; box-sizing: border-box; }
+  button { margin-top: 20px; padding: 10px; background: #28a745; color: #fff; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+  button:hover { background: #218838; }
+  img { margin-top: 20px; max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+  #estado { margin-top: 10px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Subir imágenes</h2>
+
+  <label>Foto 1</label>
+  <input type="file" id="foto1" accept="image/*">
+
+  <label>Foto 2</label>
+  <input type="file" id="foto2" accept="image/*">
+
+  <button onclick="subir()">Subir y Reemplazar</button>
+  <p id="estado"></p>
+
+  <label>Vista previa (Foto 1):</label>
+  <img id="preview" src="https://res.cloudinary.com/dxgplmbg/image/upload/imagenes/foto1.jpg">
+</div>
+
+<script>
+const CLOUD_NAME = "dxgplmbg";
+const UPLOAD_PRESET = "github_upload";
+
+async function subir() {
+  const f1 = document.getElementById("foto1").files[0];
+  const f2 = document.getElementById("foto2").files[0];
+  const estado = document.getElementById("estado");
+  const preview = document.getElementById("preview");
+
+  if (!f1 || !f2) {
+    estado.innerText = "⚠️ Seleccioná las dos imágenes";
+    return;
+  }
+
+  estado.innerText = "Subiendo... ⏳";
+  estado.style.color = "black";
+
+  try {
+    // Subimos ambas imágenes
+    await subirImagen(f1, "foto1");
+    await subirImagen(f2, "foto2");
+
+    estado.innerText = "✅ ¡Éxito! Imágenes reemplazadas.";
+    estado.style.color = "green";
+
+    // Forzamos la actualización de la imagen con un parámetro aleatorio (?v=...) para saltar el caché
+    preview.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/imagenes/foto1.jpg?v=${new Date().getTime()}`;
+
+  } catch (e) {
+    estado.innerText = "❌ Error: " + e.message;
+    estado.style.color = "red";
+    console.error(e);
+  }
+}
+
+async function subirImagen(file, nombreDeseado) {
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+  const data = new FormData();
+
+  // TRUCO CLAVE: Renombramos el archivo antes de enviarlo
+  // Como tu preset usa "Filename as Public ID", esto pondrá el nombre correcto
+  const archivoRenombrado = new File([file], nombreDeseado + ".jpg", { type: file.type });
+
+  data.append("file", archivoRenombrado);
+  data.append("upload_preset", UPLOAD_PRESET);
+
+  // NOTA: No enviamos "public_id" para evitar el error 401 que te daba el preset
+  
+  const response = await fetch(url, {
+    method: "POST",
+    body: data
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error.message);
+  }
+
+  return response.json();
+}
+</script>
+
+</body>
+</html>
