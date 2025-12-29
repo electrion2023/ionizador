@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Subir imágenes</title>
+<title>Subir imágene s</title>
 <style>
 body {
   font-family: Arial;
@@ -55,7 +55,7 @@ button {
 </div>
 
 <script>
-const CLOUD_NAME = "TU_CLOUD_NAME";
+const CLOUD_NAME = "dxgplmbg";
 const UPLOAD_PRESET = "github_upload";
 
 async function subir() {
@@ -79,7 +79,7 @@ async function subir() {
 }
 
 async function subirImagen(file, nombre) {
-  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+  const url = `https://api.cloudinary.com/v1_1/$dxgplmbg/image/upload`;
   const data = new FormData();
   data.append("file", file);
   data.append("upload_preset", UPLOAD_PRESET);
@@ -90,9 +90,3 @@ async function subirImagen(file, nombre) {
     method: "POST",
     body: data
   });
-}
-</script>
-
-</body>
-</html>
-
