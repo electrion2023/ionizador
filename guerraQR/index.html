@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir imágenes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<form action="upload.php" method="POST" enctype="multipart/form-data">
+    <h2>Subir imágenes</h2>
+
+    <label>Foto 1</label>
+    <input type="file" name="foto1" accept="image/*" required>
+
+    <label>Foto 2</label>
+    <input type="file" name="foto2" accept="image/*" required>
+
+    <button type="submit">Subir</button>
+</form>
+
+</body>
+</html>
