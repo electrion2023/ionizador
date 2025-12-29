@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Subir imágenes</title>
+<style>
+body {
+  font-family: Arial;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+}
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+input, button {
+  width: 100%;
+  margin-top: 5px;
+}
+button {
+  margin-top: 20px;
+  padding: 10px;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Subir imágenes</h2>
+
+  <label>Foto 1</label>
+  <input type="file" id="foto1" accept="image/*">
+
+  <label>Foto 2</label>
+  <input type="file" id="foto2" accept="image/*">
+
+  <button onclick="subir()">Subir</button>
+  <p id="estado"></p>
+</div>
+
+<script>
+const CLOUD_NAME = "TU_CLOUD_NAME";
+const UPLOAD_PRESET = "github_upload";
+
+async function subir() {
+  const f1 = document.getElementById("foto1").files[0];
+  const f2 = document.getElementById("foto2").files[0];
+  const estado = document.getElementById("estado");
+
+  if (!f1 || !f2) {
+    estado.innerText = "Seleccioná las dos imágenes";
+    return;
+  }
+
+  try {
+    await subirImagen(f1, "foto1");
+    await subirImagen(f2, "foto2");
+    estado.innerText = "✅ Imágenes subidas y reemplazadas";
+  } catch (e) {
+    estado.innerText = "❌ Error al subir";
+    console.error(e);
+  }
+}
+
+async function subirImagen(file, nombre) {
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", UPLOAD_PRESET);
+  data.append("public_id", nombre);   // nombre fijo
+  data.append("overwrite", "true");   // sobrescribe
+
+  return fetch(url, {
+    method: "POST",
+    body: data
+  });
+}
+</script>
+
+</body>
+</html>
