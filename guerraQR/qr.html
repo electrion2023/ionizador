@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Subir imágene s</title>
+<title>Imágenes</title>
 <style>
 body {
   font-family: Arial;
@@ -37,6 +37,10 @@ button {
   cursor: pointer;
   border-radius: 5px;
 }
+img {
+  margin-top: 20px;
+  max-width: 100%;
+}
 </style>
 </head>
 <body>
@@ -52,6 +56,8 @@ button {
 
   <button onclick="subir()">Subir</button>
   <p id="estado"></p>
+
+  <img src="https://res.cloudinary.com/dxgplmbg/image/upload/imagenes/foto1.jpg?v=1">
 </div>
 
 <script>
@@ -79,12 +85,12 @@ async function subir() {
 }
 
 async function subirImagen(file, nombre) {
-  const url = `https://api.cloudinary.com/v1_1/$dxgplmbg/image/upload`;
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
   const data = new FormData();
   data.append("file", file);
   data.append("upload_preset", UPLOAD_PRESET);
-  data.append("public_id", nombre);   // nombre fijo
-  data.append("overwrite", "true");   // sobrescribe
+  data.append("public_id", nombre);
+  data.append("overwrite", "true");
 
   return fetch(url, {
     method: "POST",
