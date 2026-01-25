@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoreo Cámaras de Frío</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .ok {
+      color: green;
+      font-weight: bold;
+    }
+
+    .off {
+      color: red;
+      font-weight: bold;
+    }
+
+    .temp {
+      font-size: 32px;
+    }
+
+    .label {
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>❄️ Monitoreo de Cámaras de Frío</h1>
+
+<div class="container" id="camaras"></div>
+
+<script>
+  // 🔥 CONFIG FIREBASE (la tuya)
+  var firebaseConfig = {
+    apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+    databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
+
+  const contenedor = document.getElementById("camaras");
+
+  const camaras = [
+    "camara_1",
+    "camara_2",
+    "camara_3",
+    "camara_4",
+    "camara_5",
+    "camara_6",
+    "camara_7",
+    "camara_8"
+  ];
+
+  camaras.forEach(camara => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = camara;
+
+    card.innerHTML = `
+      <h3>${camara.toUpperCase()}</h3>
+      <div class="temp" id="${camara}_temp">-- °C</div>
+      <div class="label">Energía: <span id="${camara}_energia">--</span></div>
+      <div class="label">Última actualización:</div>
+      <div id="${camara}_ts">--</div>
+    `;
+
+    contenedor.appendChild(card);
+
+    db.ref("camaras/" + camara + "/actual").on("value", snap => {
+      if (!snap.exists()) return;
+
+      const data = snap.val();
+
+      document.getElementById(camara + "_temp").innerText =
+        data.temp + " °C";
+
+      const energiaEl = document.getElementById(camara + "_energia");
+      energiaEl.innerText = data.energia ? "ON" : "OFF";
+      energiaEl.className = data.energia ? "ok" : "off";
+
+      const fecha = new Date(data.ts * 1000);
+      document.getElementById(camara + "_ts").innerText =
+        fecha.toLocaleString();
+    });
+  });
+</script>
+
+</body>
+</html>
