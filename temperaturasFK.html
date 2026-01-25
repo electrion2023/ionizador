@@ -1,118 +1,190 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Monitoreo Cámaras de Frío</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Cámaras de Frío</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 10px;
+}
 
-    h1 {
-      text-align: center;
-    }
+h1 { text-align: center; font-size: 20px; }
 
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
-      padding: 20px;
-    }
+.selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
-    .card {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+.selector button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #ddd;
+  font-weight: bold;
+}
 
-    .ok {
-      color: green;
-      font-weight: bold;
-    }
+.selector .active {
+  background: #2196f3;
+  color: white;
+}
 
-    .off {
-      color: red;
-      font-weight: bold;
-    }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
 
-    .temp {
-      font-size: 32px;
-    }
+.card {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-left: 6px solid transparent;
+}
 
-    .label {
-      color: #666;
-    }
-  </style>
+.alert-card {
+  border-left-color: red;
+  background: #ffecec;
+}
+
+.estado { font-weight: bold; }
+.ok { color: green; }
+.alerta { color: red; }
+.offline { color: gray; }
+
+canvas { max-height: 140px; }
+
+.stats { font-size: 13px; margin-top: 4px; }
+</style>
 </head>
 
 <body>
 
-<h1>❄️ Monitoreo de Cámaras de Frío</h1>
+<h1>🧊 Cámaras de Frío</h1>
 
-<div class="container" id="camaras"></div>
+<div class="selector">
+  <button onclick="setPeriodo('hoy')" class="active">Hoy</button>
+  <button onclick="setPeriodo('ayer')">Ayer</button>
+  <button onclick="setPeriodo('semana')">7 días</button>
+</div>
+
+<div class="grid" id="panel"></div>
 
 <script>
-  // 🔥 CONFIG FIREBASE (la tuya)
-  var firebaseConfig = {
-    apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
-    databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/"
-  };
+/* ===== CONFIG ===== */
+const TEMP_MAX = 38;
+const OFFLINE_MIN = 5;
+let periodo = "hoy";
 
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.database();
+const firebaseConfig = {
+  apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+  databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/"
+};
 
-  const contenedor = document.getElementById("camaras");
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-  const camaras = [
-    "camara_1",
-    "camara_2",
-    "camara_3",
-    "camara_4",
-    "camara_5",
-    "camara_6",
-    "camara_7",
-    "camara_8"
-  ];
+const panel = document.getElementById("panel");
 
-  camaras.forEach(camara => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.id = camara;
+/* ===== PERIODO ===== */
+function setPeriodo(p) {
+  periodo = p;
+  document.querySelectorAll(".selector button").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  panel.innerHTML = "";
+  for (let i = 1; i <= 8; i++) crearCamara(i);
+}
 
-    card.innerHTML = `
-      <h3>${camara.toUpperCase()}</h3>
-      <div class="temp" id="${camara}_temp">-- °C</div>
-      <div class="label">Energía: <span id="${camara}_energia">--</span></div>
-      <div class="label">Última actualización:</div>
-      <div id="${camara}_ts">--</div>
-    `;
+function tsDesdePeriodo() {
+  const now = Math.floor(Date.now() / 1000);
+  if (periodo === "hoy") return now - 86400;
+  if (periodo === "ayer") return now - 2 * 86400;
+  return now - 7 * 86400;
+}
 
-    contenedor.appendChild(card);
+/* ===== CAMARA ===== */
+function crearCamara(id) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <h3>📦 Cámara ${id}</h3>
+    <div>Temp: <span id="temp${id}" class="estado">--</span> °C</div>
+    <div>Energía: <span id="energia${id}" class="estado">--</span></div>
+    <div>ESP: <span id="esp${id}" class="estado">--</span></div>
+    <div class="stats" id="stats${id}"></div>
+    <canvas id="chart${id}"></canvas>
+  `;
+  panel.appendChild(card);
 
-    db.ref("camaras/" + camara + "/actual").on("value", snap => {
-      if (!snap.exists()) return;
-
-      const data = snap.val();
-
-      document.getElementById(camara + "_temp").innerText =
-        data.temp + " °C";
-
-      const energiaEl = document.getElementById(camara + "_energia");
-      energiaEl.innerText = data.energia ? "ON" : "OFF";
-      energiaEl.className = data.energia ? "ok" : "off";
-
-      const fecha = new Date(data.ts * 1000);
-      document.getElementById(camara + "_ts").innerText =
-        fecha.toLocaleString();
-    });
+  const ctx = document.getElementById(`chart${id}`).getContext("2d");
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        { label: "Temp", data: [], tension: 0.3 },
+        { label: "Max", data: [], borderColor: "red", pointRadius: 0 }
+      ]
+    }
   });
+
+  /* ACTUAL */
+  db.ref(`camaras/camara_${id}/actual`).on("value", snap => {
+    if (!snap.exists()) return;
+    const d = snap.val();
+
+    document.getElementById(`temp${id}`).textContent = d.temp;
+    document.getElementById(`energia${id}`).textContent = d.energia ? "OK" : "CORTE";
+
+    const esp = document.getElementById(`esp${id}`);
+    const offline = (Date.now()/1000 - d.ts)/60 > OFFLINE_MIN;
+    esp.textContent = offline ? "OFFLINE" : "ONLINE";
+    esp.className = offline ? "estado offline" : "estado ok";
+
+    if (d.temp >= TEMP_MAX || !d.energia || offline) {
+      card.classList.add("alert-card");
+    }
+  });
+
+  /* HISTORIAL */
+  db.ref(`camaras/camara_${id}/historial_temp`)
+    .orderByKey()
+    .startAt(String(tsDesdePeriodo()))
+    .on("value", snap => {
+      let labels=[], data=[], min=999, max=-99, sum=0, n=0;
+
+      snap.forEach(c => {
+        const t = c.val();
+        labels.push(new Date(c.key*1000).toLocaleDateString());
+        data.push(t);
+        min=Math.min(min,t); max=Math.max(max,t); sum+=t; n++;
+      });
+
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.data.datasets[1].data = Array(data.length).fill(TEMP_MAX);
+      chart.update();
+
+      if(n>0)
+        document.getElementById(`stats${id}`).textContent =
+          `Min ${min}° | Max ${max}° | Prom ${(sum/n).toFixed(1)}°`;
+    });
+}
+
+/* INIT */
+for (let i = 1; i <= 8; i++) crearCamara(i);
 </script>
 
 </body>
