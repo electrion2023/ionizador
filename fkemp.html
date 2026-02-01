@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitor Cámaras</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f2f2f2;
+    }
+
+    .card {
+      background: white;
+      margin: 10px;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .ok {
+      color: green;
+      font-weight: bold;
+    }
+
+    .alarm {
+      color: red;
+      font-weight: bold;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    canvas {
+      max-height: 250px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📷 Cámara 1</h2>
+  <p>🌡 Temp: <span id="temp">--</span> °C</p>
+  <p>⚡ Energía: <span id="energia">--</span></p>
+  <p>🧠 Estado: <span id="estado">--</span></p>
+</div>
+
+<div class="card">
+  <h2>⚙️ Configuración</h2>
+
+  <label>Temperatura máxima</label>
+  <input id="tempMax" type="number">
+
+  <label>Histéresis</label>
+  <input id="hysteresis" type="number">
+
+  <button onclick="guardarConfig()">Guardar configuración</button>
+</div>
+
+<div class="card">
+  <h2>📡 WiFi del nodo</h2>
+
+  <label>SSID</label>
+  <input id="ssid">
+
+  <label>Password</label>
+  <input id="pass" type="password">
+
+  <button onclick="guardarWiFi()">Guardar WiFi</button>
+</div>
+
+<div class="card">
+  <h2>📊 Historial temperatura</h2>
+  <canvas id="grafico"></canvas>
+</div>
+
+<script>
+  /* ===== FIREBASE CONFIG ===== */
+  const firebaseConfig = {
+    apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+    databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const NODO = "camara_1";
+
+  /* ===== ELEMENTOS ===== */
+  const tempEl = document.getElementById("temp");
+  const energiaEl = document.getElementById("energia");
+  const estadoEl = document.getElementById("estado");
+
+  const tempMaxEl = document.getElementById("tempMax");
+  const hystEl = document.getElementById("hysteresis");
+
+  const ssidEl = document.getElementById("ssid");
+  const passEl = document.getElementById("pass");
+
+  /* ===== ESTADO ACTUAL ===== */
+  db.ref(`camaras/${NODO}/actual`).on("value", snap => {
+    const d = snap.val();
+    if (!d) return;
+
+    tempEl.textContent = d.temp;
+    energiaEl.textContent = d.energia ? "ON" : "OFF";
+    energiaEl.className = d.energia ? "ok" : "alarm";
+
+    estadoEl.textContent = "ONLINE";
+    estadoEl.className = "ok";
+  });
+
+  /* ===== CONFIG ===== */
+  db.ref(`camaras/${NODO}/config`).on("value", snap => {
+    const c = snap.val();
+    if (!c) return;
+
+    tempMaxEl.value = c.tempMax;
+    hystEl.value = c.hysteresis;
+
+    if (c.wifi) {
+      ssidEl.value = c.wifi.ssid || "";
+      passEl.value = c.wifi.pass || "";
+    }
+  });
+
+  function guardarConfig() {
+    db.ref(`camaras/${NODO}/config`).update({
+      tempMax: Number(tempMaxEl.value),
+      hysteresis: Number(hystEl.value)
+    });
+    alert("Configuración guardada");
+  }
+
+  function guardarWiFi() {
+    db.ref(`camaras/${NODO}/config/wifi`).set({
+      ssid: ssidEl.value,
+      pass: passEl.value
+    });
+    alert("WiFi enviado al nodo");
+  }
+
+  /* ===== GRAFICO ===== */
+  const ctx = document.getElementById("grafico").getContext("2d");
+
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [{
+        label: "Temperatura",
+        data: [],
+        borderWidth: 2,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  db.ref(`camaras/${NODO}/historial_temp`).limitToLast(50).on("value", snap => {
+    const labels = [];
+    const data = [];
+
+    snap.forEach(s => {
+      const ts = new Date(Number(s.key) * 1000);
+      labels.push(ts.getHours() + ":" + ts.getMinutes());
+      data.push(s.val());
+    });
+
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = data;
+    chart.update();
+  });
+</script>
+
+</body>
+</html>
