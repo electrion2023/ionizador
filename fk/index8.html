@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monitor Cámaras Frío FK</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root { --bg: #f0f2f5; --primary: #2563eb; --card-bg: #ffffff; --text: #1e293b; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-top: 80px; color: var(--text); }
+    
+    header {
+      background: #1e293b; color: white; padding: 15px 30px;
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .btn-config {
+      background: var(--primary); color: white; text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; font-weight: bold;
+      display: flex; align-items: center; gap: 8px; transition: 0.3s;
+    }
+    .btn-config:hover { background: #1d4ed8; transform: scale(1.05); }
+
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    
+    .camara-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+      gap: 25px; 
+    }
+
+    .camara-card { 
+      background: white; border-radius: 15px; 
+      padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .card-title { font-weight: bold; color: #64748b; margin-bottom: 10px; display: block; }
+    
+    .temp-val { 
+      font-size: 3rem; font-weight: 800; text-align: center; 
+      margin: 10px 0; color: var(--primary); 
+    }
+
+    .chart-box { height: 180px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="font-size: 1.2rem; font-weight: bold;">
+      <i class="fas fa-snowflake" style="color: #38bdf8;"></i> MONITOR FRÍO FK
+    </div>
+    <a href="configuraciones.html" class="btn-config">
+      <i class="fas fa-wifi"></i> CONFIGURAR NODOS
+    </a>
+  </header>
+
+  <div class="container">
+    <div class="camara-grid" id="camaraGrid"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+      authDomain: "pagos-58644.firebaseapp.com",
+      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+      projectId: "pagos-58644"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const charts = {}; // Para guardar las instancias de los gráficos
+
+    // Generar las tarjetas
+    const grid = document.getElementById("camaraGrid");
+    for (let i = 1; i <= 8; i++) {
+      const card = document.createElement("div");
+      card.className = "camara-card";
+      card.innerHTML = `
+        <span class="card-title">CÁMARA 0${i}</span>
+        <div id="temp${i}" class="temp-val">--°C</div>
+        <div class="chart-box">
+          <canvas id="chart${i}"></canvas>
+        </div>
+      `;
+      grid.appendChild(card);
+      setupListeners(i);
+    }
+
+    function setupListeners(id) {
+      const refCam = db.ref(`/camarasFK/camara_${id}`);
+
+      // 1. Escuchar Temperatura Actual
+      refCam.child("actual/temp").on("value", snap => {
+        const val = snap.val();
+        document.getElementById(`temp${id}`).innerText = val !== null ? val + "°C" : "--°C";
+      });
+
+      // 2. Escuchar Historial para el Gráfico
+      refCam.child("historial").limitToLast(20).on("value", snap => {
+        const histData = snap.val();
+        if (histData) {
+          updateChart(id, histData);
+        }
+      });
+    }
+
+    function updateChart(id, data) {
+      const ctx = document.getElementById(`chart${id}`).getContext('2d');
+      
+      // Ordenar datos por tiempo (las llaves son timestamps)
+      const keys = Object.keys(data).sort();
+      const labels = keys.map(k => new Date(parseInt(k) * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+      const values = keys.map(k => data[k]);
+
+      // Si el gráfico ya existe, lo destruimos para crearlo de nuevo con datos nuevos
+      if (charts[id]) {
+        charts[id].destroy();
+      }
+
+      charts[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Temperatura',
+            data: values,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { display: true, ticks: { maxTicksLimit: 5 } },
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
