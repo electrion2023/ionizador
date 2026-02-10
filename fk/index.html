@@ -3,137 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monitor Cámaras Frío FK</title>
+  <title>Monitor FK | Panel de Control</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
-    h1 { text-align: center; color: #333; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .camara-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
+    :root { --bg: #f0f2f5; --primary: #2563eb; --danger: #ef4444; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-top: 80px; }
+    
+    header {
+      background: #1e293b; color: white; padding: 15px 30px;
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
     }
-    .camara-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 15px;
+
+    .btn-config {
+      background: var(--primary); color: white; text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; font-weight: bold;
     }
-    .camara-header { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; }
-    .info { margin: 8px 0; }
-    .temp { font-size: 1.8em; font-weight: bold; }
-    .high { color: red; }
-    .normal { color: green; }
-    .input-group { margin: 15px 0; }
-    label { display: block; margin-bottom: 5px; }
-    input[type="number"] { width: 80px; padding: 6px; }
-    button { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    canvas { max-height: 200px; }
+
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    .camara-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+
+    .camara-card { 
+      background: white; border-radius: 15px; padding: 20px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    /* Estilo de Alerta */
+    .camara-card.alert { 
+      border-color: var(--danger); 
+      background: #fff5f5;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+    .temp-val { font-size: 3rem; font-weight: 800; text-align: center; margin: 10px 0; color: var(--primary); }
+    .temp-val.high { color: var(--danger); }
+    
+    .limit-info { text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 10px; }
+    .chart-box { height: 180px; }
   </style>
 </head>
 <body>
+
+  <header>
+    <div><i class="fas fa-snowflake"></i> MONITOR FK</div>
+    <a href="configuraciones.html" class="btn-config"><i class="fas fa-cog"></i> CONFIGURACIÓN</a>
+  </header>
+
   <div class="container">
-    <h1>Monitor Cámaras Frío FK</h1>
     <div class="camara-grid" id="camaraGrid"></div>
   </div>
 
   <script>
-    // ================= CONFIGURACIÓN FIREBASE =================
     const firebaseConfig = {
-      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",           // ← TU API KEY
-      authDomain: "pagos-58644.firebaseapp.com",                     // ← TU AUTH DOMAIN
-      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com", // ← TU DATABASE URL
-      projectId: "pagos-58644",
-      storageBucket: "pagos-58644.appspot.com",
-      messagingSenderId: "TU_SENDER_ID",
-      appId: "TU_APP_ID"
+      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+      authDomain: "pagos-58644.firebaseapp.com",
+      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+      projectId: "pagos-58644"
     };
-
-    // Inicializa Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const charts = {};
 
-    // Generar tarjetas para 8 cámaras
-    const grid = document.getElementById("camaraGrid");
-    for (let id = 1; id <= 8; id++) {
+    for (let i = 1; i <= 8; i++) {
       const card = document.createElement("div");
       card.className = "camara-card";
+      card.id = `card${i}`;
       card.innerHTML = `
-        <div class="camara-header">Cámara ${id}</div>
-        <div class="info">Temperatura actual: <span id="temp${id}" class="temp">-- °C</span></div>
-        <div class="info">Última actualización: <span id="ts${id}">--</span></div>
-        <div class="info">Temp. Máxima permitida: <span id="max${id}">-- °C</span></div>
-        <div class="input-group">
-          <label>Cambiar Temp. Máxima:</label>
-          <input type="number" id="inputMax${id}" step="0.5" placeholder="ej. 8">
-          <button onclick="guardarTempMax(${id})">Guardar</button>
-        </div>
-        <canvas id="chart${id}"></canvas>
+        <div style="font-weight:bold; color:#64748b">Cámara 0${i}</div>
+        <div id="temp${i}" class="temp-val">--°C</div>
+        <div class="limit-info">Límite: <span id="limit${i}">--</span>°C</div>
+        <div class="chart-box"><canvas id="chart${i}"></canvas></div>
       `;
-      grid.appendChild(card);
-
-      // Escuchar cambios en tiempo real
-      const base = db.ref(`/camarasFK/camara_${id}`);
-
-      // Temp actual y timestamp
-      base.child("actual").on("value", snap => {
+      document.getElementById("camaraGrid").appendChild(card);
+      
+      // Escuchar datos de la cámara
+      db.ref(`/camarasFK/camara_${i}`).on("value", snap => {
         const data = snap.val() || {};
-        document.getElementById(`temp${id}`).innerText = data.temp !== undefined ? data.temp + " °C" : "--";
-        document.getElementById(`temp${id}`).className = "temp " + (data.temp > (data.tempMax || 999) ? "high" : "normal");
-        document.getElementById(`ts${id}`).innerText = data.ts ? new Date(data.ts * 1000).toLocaleString("es-AR") : "--";
-      });
+        const actual = data.actual?.temp || 0;
+        const max = data.tempMax || 99;
 
-      // TempMax
-      base.child("tempMax").on("value", snap => {
-        const max = snap.val();
-        document.getElementById(`max${id}`).innerText = max !== null ? max + " °C" : "--";
-        document.getElementById(`inputMax${id}`).value = max !== null ? max : "";
-      });
+        // Actualizar UI
+        const tempEl = document.getElementById(`temp${i}`);
+        const cardEl = document.getElementById(`card${i}`);
+        tempEl.innerText = actual + "°C";
+        document.getElementById(`limit${i}`).innerText = max;
 
-      // Historial (gráfico)
-      base.child("historial").on("value", snap => {
-        const hist = snap.val() || {};
-        const labels = Object.keys(hist).sort().map(ts => new Date(Number(ts) * 1000).toLocaleTimeString("es-AR"));
-        const temps = Object.keys(hist).sort().map(ts => hist[ts]);
+        // Lógica de Alerta
+        if (actual > max) {
+          cardEl.classList.add("alert");
+          tempEl.classList.add("high");
+        } else {
+          cardEl.classList.remove("alert");
+          tempEl.classList.remove("high");
+        }
 
-        const ctx = document.getElementById(`chart${id}`).getContext("2d");
-        if (window[`chart${id}`]) window[`chart${id}`].destroy();  // destruir gráfico viejo si existe
-        window[`chart${id}`] = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "Temperatura (°C)",
-              data: temps,
-              borderColor: "#007bff",
-              fill: false,
-              tension: 0.1
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: { y: { beginAtZero: false } }
-          }
-        });
+        if (data.historial) updateChart(i, data.historial);
       });
     }
 
-    // Guardar nuevo tempMax
-    function guardarTempMax(camaraId) {
-      const nuevoMax = document.getElementById(`inputMax${camaraId}`).value;
-      if (!nuevoMax || isNaN(nuevoMax)) {
-        alert("Ingresa un número válido");
-        return;
-      }
+    function updateChart(id, data) {
+      const ctx = document.getElementById(`chart${id}`).getContext('2d');
+      const keys = Object.keys(data).sort();
+      const labels = keys.map(k => new Date(parseInt(k) * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+      const values = keys.map(k => data[k]);
 
-      const ref = firebase.database().ref(`/camarasFK/camara_${camaraId}/tempMax`);
-      ref.set(Number(nuevoMax))
-        .then(() => alert("Temp. Máxima guardada para cámara " + camaraId))
-        .catch(err => alert("Error: " + err.message));
+      if (charts[id]) charts[id].destroy();
+      charts[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{ data: values, borderColor: '#2563eb', tension: 0.4, fill: true, backgroundColor: 'rgba(37, 99, 235, 0.1)' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
     }
   </script>
 </body>
