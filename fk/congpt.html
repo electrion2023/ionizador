@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoreo Cámaras</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .camara {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,.5);
+    }
+
+    .camara.alerta {
+      border: 2px solid #ff3b3b;
+      background: #2a0000;
+    }
+
+    .temp {
+      font-size: 42px;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .ok {
+      color: #00ff9c;
+    }
+
+    .alerta-text {
+      color: #ff3b3b;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #alertas {
+      margin-top: 30px;
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .alerta-item {
+      border-bottom: 1px solid #333;
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📡 Monitoreo de Cámaras</h1>
+
+<div class="grid" id="camaras"></div>
+
+<div id="alertas">
+  <h2>⚠️ Alertas</h2>
+  <div id="listaAlertas"></div>
+</div>
+
+<script>
+  // 🔥 Firebase config
+  const firebaseConfig = {
+    apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+    databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const camaras = [1,2,3]; // ajustá según tus cámaras
+  const contenedor = document.getElementById("camaras");
+
+  camaras.forEach(id => {
+    const div = document.createElement("div");
+    div.className = "camara";
+    div.id = "camara_" + id;
+    div.innerHTML = `
+      <h3>Cámara ${id}</h3>
+      <div class="temp" id="temp_${id}">--°C</div>
+      <div class="estado" id="estado_${id}"></div>
+    `;
+    contenedor.appendChild(div);
+
+    const ref = db.ref(`camarasFK/camara_${id}`);
+
+    ref.child("actual/temp").on("value", snap => {
+      const temp = snap.val();
+      if (temp === null) return;
+
+      document.getElementById(`temp_${id}`).innerText = temp + "°C";
+
+      ref.child("tempMax").once("value").then(s => {
+        const max = s.val() || 0;
+        const card = document.getElementById(`camara_${id}`);
+        const estado = document.getElementById(`estado_${id}`);
+
+        if (max > 0 && temp > max) {
+          card.classList.add("alerta");
+          estado.innerHTML = `<div class="alerta-text">⚠️ ALTA</div>`;
+        } else {
+          card.classList.remove("alerta");
+          estado.innerHTML = `<div class="ok">✔ OK</div>`;
+        }
+      });
+    });
+  });
+
+  // 🔔 Alertas
+  const alertasRef = db.ref("camarasFK/alertas").limitToLast(10);
+  const lista = document.getElementById("listaAlertas");
+
+  alertasRef.on("child_added", snap => {
+    const div = document.createElement("div");
+    div.className = "alerta-item";
+    div.innerText = snap.val();
+    lista.prepend(div);
+  });
+</script>
+
+</body>
+</html>
