@@ -2,54 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Configuraciones FK</title>
+  <title>Configuración FK | Nodos y Cámaras</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: sans-serif; background: #0f172a; color: white; padding: 30px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 1px solid #1e293b; padding-bottom: 20px; }
+    .btn-back { color: #38bdf8; text-decoration: none; font-weight: bold; }
+    
+    h2 { color: #94a3b8; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 30px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+    
     .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
-    h3 { color: #38bdf8; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-    label { display: block; margin-top: 10px; color: #94a3b8; font-size: 0.8em; }
+    label { display: block; margin-top: 10px; color: #64748b; font-size: 0.8em; }
     input { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-    .btn { width: 100%; margin-top: 15px; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .btn-wifi { background: #38bdf8; color: #000; }
-    .btn-temp { background: #f59e0b; color: #000; }
-    .back { text-decoration: none; color: #38bdf8; margin-bottom: 20px; display: inline-block; }
+    
+    .btn { width: 100%; margin-top: 15px; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-wifi { background: #38bdf8; color: #0f172a; }
+    .btn-temp { background: #fbbf24; color: #0f172a; }
+    .btn:hover { opacity: 0.8; transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
-  <a href="vercamaras.html" class="back"><i class="fas fa-arrow-left"></i> Volver al Monitor</a>
-  <h1>Configuración de Sistema</h1>
+  <div class="container">
+    <div class="header">
+      <h1>Panel de Configuración</h1>
+      <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> VOLVER AL MONITOR</a>
+    </div>
 
-  <div class="grid">
-    <script>
-      for(let n=1; n<=4; n++) {
-        document.write(`
-          <div class="card">
-            <h3>NODO 0${n} (WiFi)</h3>
-            <label>SSID</label><input type="text" id="ssid${n}">
-            <label>PASSWORD</label><input type="text" id="pass${n}">
-            <button class="btn btn-wifi" onclick="saveWifi(${n})">Actualizar WiFi Nodo ${n}</button>
-          </div>
-        `);
-      }
-    </script>
+    <h2><i class="fas fa-network-wired"></i> Redes WiFi (4 Nodos)</h2>
+    <div class="grid" id="wifiGrid"></div>
 
-    <script>
-      for(let c=1; c<=6; c++) {
-        document.write(`
-          <div class="card">
-            <h3>CÁMARA 0${c} (Alertas)</h3>
-            <label>Temperatura Máxima (°C)</label>
-            <input type="number" id="max${c}" step="0.1">
-            <button class="btn btn-temp" onclick="saveTemp(${c})">Fijar Límite Cámara ${c}</button>
-          </div>
-        `);
-      }
-    </script>
+    <h2><i class="fas fa-bell"></i> Límites de Alerta (8 Cámaras)</h2>
+    <div class="grid" id="tempGrid"></div>
   </div>
 
   <script>
@@ -62,8 +50,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Cargar datos WiFi
+    // Generar Inputs para los 4 Nodos WiFi
+    const wifiGrid = document.getElementById("wifiGrid");
     for(let n=1; n<=4; n++) {
+      wifiGrid.innerHTML += `
+        <div class="card">
+          <strong style="color:#38bdf8">NODO 0${n}</strong>
+          <label>SSID</label><input type="text" id="ssid${n}">
+          <label>PASSWORD</label><input type="text" id="pass${n}">
+          <button class="btn btn-wifi" onclick="saveWifi(${n})">GUARDAR WIFI</button>
+        </div>
+      `;
+      // Cargar datos actuales
       db.ref(`camarasFK/nodos/nodo_${n}/wifi`).on('value', s => {
         if(s.val()){
           document.getElementById(`ssid${n}`).value = s.val().ssid || "";
@@ -72,8 +70,18 @@
       });
     }
 
-    // Cargar límites de Temperatura
-    for(let c=1; c<=6; c++) {
+    // Generar Inputs para las 8 Cámaras
+    const tempGrid = document.getElementById("tempGrid");
+    for(let c=1; c<=8; c++) {
+      tempGrid.innerHTML += `
+        <div class="card">
+          <strong style="color:#fbbf24">CÁMARA 0${c}</strong>
+          <label>Temp. Máxima (°C)</label>
+          <input type="number" id="max${c}" step="0.1">
+          <button class="btn btn-temp" onclick="saveTemp(${c})">FIJAR LÍMITE</button>
+        </div>
+      `;
+      // Cargar límites actuales
       db.ref(`camarasFK/camara_${c}/tempMax`).on('value', s => {
         document.getElementById(`max${c}`).value = s.val() || "";
       });
@@ -83,13 +91,13 @@
       const ssid = document.getElementById(`ssid${id}`).value;
       const pass = document.getElementById(`pass${id}`).value;
       db.ref(`camarasFK/nodos/nodo_${id}/wifi`).set({ ssid, pass })
-        .then(() => alert("WiFi Actualizado"));
+        .then(() => alert("WiFi de Nodo " + id + " actualizado."));
     }
 
     function saveTemp(id) {
       const t = document.getElementById(`max${id}`).value;
       db.ref(`camarasFK/camara_${id}/tempMax`).set(Number(t))
-        .then(() => alert("Temperatura Máxima Actualizada"));
+        .then(() => alert("Límite de Cámara " + id + " actualizado."));
     }
   </script>
 </body>
