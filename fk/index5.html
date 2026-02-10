@@ -1,0 +1,115 @@
+<style>
+  /* Estilos adicionales para la configuración de nodos */
+  .config-section {
+    background: #1e293b;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #334155;
+  }
+  .nodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+  }
+  .node-item {
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary);
+  }
+  .node-item h4 { margin: 0 0 10px 0; font-size: 0.9rem; color: var(--primary); }
+  .node-item input {
+    width: 100%;
+    margin-bottom: 8px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: white;
+    padding: 6px;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .btn-save-node {
+    width: 100%;
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+</style>
+
+<div class="container">
+  <div class="config-section">
+    <h3 style="margin-top:0"><i class="fas fa-wifi"></i> Configuración de Nodos (WiFi)</h3>
+    <div class="nodes-grid" id="nodesGrid">
+      </div>
+  </div>
+
+  <h3 style="margin-bottom:15px"><i class="fas fa-desktop"></i> Monitoreo de Cámaras</h3>
+  <div class="camara-grid" id="camaraGrid"></div>
+</div>
+
+<script>
+  // ... (Tu config de Firebase igual que antes) ...
+
+  function initNodesConfig() {
+    const nodesGrid = document.getElementById("nodesGrid");
+    for (let n = 1; n <= 4; n++) {
+      const nodeDiv = document.createElement("div");
+      nodeDiv.className = "node-item";
+      nodeDiv.innerHTML = `
+        <h4>NODO ${n}</h4>
+        <input type="text" id="ssid_n${n}" placeholder="SSID (WiFi)">
+        <input type="password" id="pass_n${n}" placeholder="Password">
+        <button class="btn-save-node" onclick="guardarConfigNodo(${n})">
+          <i class="fas fa-save"></i> Actualizar Nodo ${n}
+        </button>
+      `;
+      nodesGrid.appendChild(nodeDiv);
+
+      // Leer valores actuales de Firebase para los nodos
+      db.ref(`camarasFK/nodos/nodo_${n}/wifi`).on("value", snap => {
+        const data = snap.val();
+        if (data) {
+          document.getElementById(`ssid_n${n}`).value = data.ssid || "";
+          document.getElementById(`pass_n${n}`).value = data.pass || "";
+        }
+      });
+    }
+  }
+
+  function guardarConfigNodo(nodoId) {
+    const newSsid = document.getElementById(`ssid_n${nodoId}`).value;
+    const newPass = document.getElementById(`pass_n${nodoId}`).value;
+
+    if (!newSsid || !newPass) {
+      alert("Por favor completa ambos campos");
+      return;
+    }
+
+    db.ref(`camarasFK/nodos/nodo_${nodoId}/wifi`).set({
+      ssid: newSsid,
+      pass: newPass
+    })
+    .then(() => {
+      // Feedback visual rápido
+      const btn = event.target.closest('button');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "¡Guardado!";
+      btn.style.background = "#22c55e";
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = "";
+      }, 2000);
+    })
+    .catch(err => alert("Error: " + err.message));
+  }
+
+  // Llamar a esta función al cargar
+  initNodesConfig();
+  // ... (resto de las funciones de monitoreo) ...
+</script>
