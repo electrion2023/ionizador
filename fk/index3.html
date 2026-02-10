@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FK ColdChain | Dashboard</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    body { 
+      font-family: 'Segoe UI', system-ui, sans-serif; 
+      margin: 0; 
+      background: var(--bg); 
+      color: var(--text-main);
+    }
+
+    header {
+      background: #1e293b;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .container { padding: 20px; max-width: 1600px; margin: 0 auto; }
+
+    .camara-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .card.alert { border-color: var(--danger); background: #fff5f5; }
+    .card.offline { opacity: 0.7; grayscale: 1; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .card-title { font-weight: 700; font-size: 1.2rem; color: var(--text-main); }
+    
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-online { background: #dcfce7; color: #166534; }
+    .status-offline { background: #f1f5f9; color: #475569; }
+
+    .temp-display {
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .temp-val { font-size: 3rem; font-weight: 800; letter-spacing: -1px; }
+    .temp-val.high { color: var(--danger); }
+    .temp-val.normal { color: var(--primary); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+    }
+
+    .control-panel {
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-row { display: flex; gap: 8px; }
+    
+    input[type="number"] {
+      flex-grow: 1;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    button:hover { background: #1d4ed8; }
+
+    .chart-container { height: 180px; margin-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <i class="fas fa-snowflake"></i> 
+      <strong>FK COLDCHAIN</strong> | Monitoring
+    </div>
+    <div id="global-status" style="font-size: 0.8rem;">Sistema Activo</div>
+  </header>
+
+  <div class="container">
+    <div class="camara-grid" id="camaraGrid"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+      authDomain: "pagos-58644.firebaseapp.com",
+      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+      projectId: "pagos-58644",
+      storageBucket: "pagos-58644.appspot.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const charts = {};
+
+    function initDashboard() {
+      const grid = document.getElementById("camaraGrid");
+      
+      for (let id = 1; id <= 8; id++) {
+        const card = document.createElement("div");
+        card.className = `card`;
+        card.id = `card-${id}`;
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-box"></i> Cámara 0${id}</span>
+            <span id="status-${id}" class="status-badge status-offline">Inactiva</span>
+          </div>
+          
+          <div class="temp-display">
+            <div id="temp${id}" class="temp-val normal">--°</div>
+          </div>
+
+          <div class="stats">
+            <div><i class="far fa-clock"></i> <span id="ts${id}">--</span></div>
+            <div><i class="fas fa-bell"></i> Límite: <span id="max${id}">--</span>°C</div>
+          </div>
+
+          <div class="control-panel">
+            <label style="font-size:0.75rem; font-weight:bold">AJUSTAR LÍMITE MÁXIMO</label>
+            <div class="input-row">
+              <input type="number" id="inputMax${id}" step="0.5" placeholder="Ej: 8.0">
+              <button onclick="guardarTempMax(${id})">Set</button>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="chart${id}"></canvas>
+          </div>
+        `;
+        grid.appendChild(card);
+        setupFirebaseListeners(id);
+      }
+    }
+
+    function setupFirebaseListeners(id) {
+      const base = db.ref(`/camarasFK/camara_${id}`);
+
+      // Escuchar Temperatura y Tiempo Real
+      base.child("actual").on("value", snap => {
+        const data = snap.val() || {};
+        const tempEl = document.getElementById(`temp${id}`);
+        const tsEl = document.getElementById(`ts${id}`);
+        const cardEl = document.getElementById(`card-${id}`);
+        const statusEl = document.getElementById(`status-${id}`);
+
+        if(data.temp !== undefined) {
+          tempEl.innerText = `${data.temp}°`;
+          tsEl.innerText = new Date(data.ts * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          
+          // Verificar si está "Online" (último dato hace menos de 5 min)
+          const ahora = Math.floor(Date.now() / 1000);
+          if (ahora - data.ts < 300) {
+            statusEl.innerText = "En línea";
+            statusEl.className = "status-badge status-online";
+            cardEl.classList.remove("offline");
+          } else {
+            statusEl.innerText = "Offline";
+            statusEl.className = "status-badge status-offline";
+            cardEl.classList.add("offline");
+          }
+
+          // Alerta visual de temperatura
+          base.child("tempMax").once("value", maxSnap => {
+            const max = maxSnap.val() || 999;
+            if (data.temp > max) {
+              tempEl.className = "temp-val high";
+              cardEl.classList.add("alert");
+            } else {
+              tempEl.className = "temp-val normal";
+              cardEl.classList.remove("alert");
+            }
+          });
+        }
+      });
+
+      // Escuchar Límite Máximo
+      base.child("tempMax").on("value", snap => {
+        const max = snap.val();
+        document.getElementById(`max${id}`).innerText = max ?? "--";
+        document.getElementById(`inputMax${id}`).value = max ?? "";
+      });
+
+      // Gráfico
+      base.child("historial").limitToLast(20).on("value", snap => {
+        updateChart(id, snap.val());
+      });
+    }
+
+    function updateChart(id, histData) {
+      if (!histData) return;
+      const sortedKeys = Object.keys(histData).sort();
+      const labels = sortedKeys.map(ts => new Date(Number(ts)*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
+      const temps = sortedKeys.map(ts => histData[ts]);
+
+      const ctx = document.getElementById(`chart${id}`).getContext("2d");
+      
+      if (charts[id]) charts[id].destroy();
+
+      charts[id] = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: temps,
+            borderColor: "#2563eb",
+            backgroundColor: "rgba(37, 99, 235, 0.1)",
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { display: false },
+            y: { grid: { color: '#f1f5f9' } }
+          }
+        }
+      });
+    }
+
+    function guardarTempMax(id) {
+      const val = document.getElementById(`inputMax${id}`).value;
+      if (!val) return;
+      db.ref(`/camarasFK/camara_${id}/tempMax`).set(Number(val))
+        .then(() => console.log(`Cámara ${id} actualizada`));
+    }
+
+    initDashboard();
+  </script>
+</body>
+</html>
