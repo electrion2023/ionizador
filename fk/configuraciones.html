@@ -2,31 +2,55 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Configuración de Nodos FK</title>
+  <title>Configuraciones FK</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; margin: 0; padding: 40px; }
-    .header-box { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-    .btn-back { color: #94a3b8; text-decoration: none; font-size: 1.2em; }
+    body { font-family: sans-serif; background: #0f172a; color: white; padding: 30px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-    .node-card { background: #1e293b; padding: 25px; border-radius: 15px; border: 1px solid #334155; }
-    .node-card h3 { margin-top: 0; color: #38bdf8; display: flex; align-items: center; gap: 10px; }
-    label { display: block; margin-top: 15px; font-size: 0.8em; color: #94a3b8; }
+    .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+    h3 { color: #38bdf8; margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    label { display: block; margin-top: 10px; color: #94a3b8; font-size: 0.8em; }
     input { width: 100%; padding: 10px; margin-top: 5px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-    button { width: 100%; margin-top: 20px; padding: 12px; background: #38bdf8; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    button:hover { background: #0ea5e9; transform: translateY(-2px); }
+    .btn { width: 100%; margin-top: 15px; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn-wifi { background: #38bdf8; color: #000; }
+    .btn-temp { background: #f59e0b; color: #000; }
+    .back { text-decoration: none; color: #38bdf8; margin-bottom: 20px; display: inline-block; }
   </style>
 </head>
 <body>
 
-  <div class="header-box">
-    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Volver</a>
-    <h1>Gestión de WiFi Nodos</h1>
-  </div>
+  <a href="vercamaras.html" class="back"><i class="fas fa-arrow-left"></i> Volver al Monitor</a>
+  <h1>Configuración de Sistema</h1>
 
-  <div class="grid" id="nodesContainer"></div>
+  <div class="grid">
+    <script>
+      for(let n=1; n<=4; n++) {
+        document.write(`
+          <div class="card">
+            <h3>NODO 0${n} (WiFi)</h3>
+            <label>SSID</label><input type="text" id="ssid${n}">
+            <label>PASSWORD</label><input type="text" id="pass${n}">
+            <button class="btn btn-wifi" onclick="saveWifi(${n})">Actualizar WiFi Nodo ${n}</button>
+          </div>
+        `);
+      }
+    </script>
+
+    <script>
+      for(let c=1; c<=6; c++) {
+        document.write(`
+          <div class="card">
+            <h3>CÁMARA 0${c} (Alertas)</h3>
+            <label>Temperatura Máxima (°C)</label>
+            <input type="number" id="max${c}" step="0.1">
+            <button class="btn btn-temp" onclick="saveTemp(${c})">Fijar Límite Cámara ${c}</button>
+          </div>
+        `);
+      }
+    </script>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -38,39 +62,34 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Generar los 4 paneles para los nodos
-    const container = document.getElementById("nodesContainer");
-    for (let n = 1; n <= 4; n++) {
-      const card = document.createElement("div");
-      card.className = "node-card";
-      card.innerHTML = `
-        <h3><i class="fas fa-microchip"></i> NODO 0${n}</h3>
-        <label>SSID de la Red</label>
-        <input type="text" id="ssid${n}" placeholder="Cargando...">
-        <label>Contraseña WiFi</label>
-        <input type="text" id="pass${n}" placeholder="Cargando...">
-        <button onclick="saveNode(${n})"><i class="fas fa-save"></i> Guardar Configuración</button>
-      `;
-      container.appendChild(card);
-
-      // Cargar datos actuales
-      db.ref(`camarasFK/nodos/nodo_${n}/wifi`).on("value", snap => {
-        const data = snap.val();
-        if(data) {
-          document.getElementById(`ssid${n}`).value = data.ssid || "";
-          document.getElementById(`pass${n}`).value = data.pass || "";
+    // Cargar datos WiFi
+    for(let n=1; n<=4; n++) {
+      db.ref(`camarasFK/nodos/nodo_${n}/wifi`).on('value', s => {
+        if(s.val()){
+          document.getElementById(`ssid${n}`).value = s.val().ssid || "";
+          document.getElementById(`pass${n}`).value = s.val().pass || "";
         }
       });
     }
 
-    function saveNode(id) {
-      const s = document.getElementById(`ssid${id}`).value;
-      const p = document.getElementById(`pass${id}`).value;
-      
-      db.ref(`camarasFK/nodos/nodo_${id}/wifi`).set({
-        ssid: s,
-        pass: p
-      }).then(() => alert("¡Nodo " + id + " actualizado! El ESP8266 deberá reiniciarse para tomar los cambios."));
+    // Cargar límites de Temperatura
+    for(let c=1; c<=6; c++) {
+      db.ref(`camarasFK/camara_${c}/tempMax`).on('value', s => {
+        document.getElementById(`max${c}`).value = s.val() || "";
+      });
+    }
+
+    function saveWifi(id) {
+      const ssid = document.getElementById(`ssid${id}`).value;
+      const pass = document.getElementById(`pass${id}`).value;
+      db.ref(`camarasFK/nodos/nodo_${id}/wifi`).set({ ssid, pass })
+        .then(() => alert("WiFi Actualizado"));
+    }
+
+    function saveTemp(id) {
+      const t = document.getElementById(`max${id}`).value;
+      db.ref(`camarasFK/camara_${id}/tempMax`).set(Number(t))
+        .then(() => alert("Temperatura Máxima Actualizada"));
     }
   </script>
 </body>
