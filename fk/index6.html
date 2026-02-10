@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Control Nodos y Cámaras FK</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #121212; color: white; padding: 20px; }
+    .seccion { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+    h2 { color: #00a8ff; margin-top: 0; }
+    
+    /* Diseño de los Nodos */
+    .grid-nodos { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+    .nodo-card { background: #252525; padding: 15px; border-radius: 8px; border-top: 4px solid #00a8ff; }
+    input { width: 100%; padding: 8px; margin: 5px 0; border-radius: 4px; border: 1px solid #444; background: #111; color: white; box-sizing: border-box; }
+    button { width: 100%; padding: 10px; background: #00a8ff; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #007cc0; }
+
+    /* Diseño de Cámaras */
+    .grid-camaras { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .cam-card { background: #252525; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+    .temp { font-size: 2em; font-weight: bold; color: #2ecc71; }
+  </style>
+</head>
+<body>
+
+  <div class="seccion">
+    <h2><i class="fas fa-wifi"></i> Configuración de WiFi (Nodos)</h2>
+    <div class="grid-nodos">
+      <script>
+        for(let i=1; i<=4; i++) {
+          document.write(`
+            <div class="nodo-card">
+              <strong>Nodo ${i}</strong>
+              <input type="text" id="ssid${i}" placeholder="Nuevo SSID">
+              <input type="text" id="pass${i}" placeholder="Nueva Password">
+              <button onclick="actualizarWiFi(${i})">Guardar WiFi Nodo ${i}</button>
+            </div>
+          `);
+        }
+      </script>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>Monitoreo de Cámaras</h2>
+    <div class="grid-camaras" id="monitor"></div>
+  </div>
+
+  <script>
+    // Configuración Firebase (Tu misma configuración)
+    const firebaseConfig = {
+      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+      authDomain: "pagos-58644.firebaseapp.com",
+      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+      projectId: "pagos-58644"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // --- FUNCIÓN PARA MODIFICAR LAS RUTAS DE LOS NODOS ---
+    function actualizarWiFi(idNodo) {
+      const nuevoSSID = document.getElementById(`ssid${idNodo}`).value;
+      const nuevoPass = document.getElementById(`pass${idNodo}`).value;
+
+      if(nuevoSSID === "" || nuevoPass === "") {
+        alert("Completa ambos campos");
+        return;
+      }
+
+      // Referencia a la ruta exacta que usas en tu ESP8266
+      const ruta = `camarasFK/nodos/nodo_${idNodo}/wifi`;
+      
+      db.ref(ruta).update({
+        ssid: nuevoSSID,
+        pass: nuevoPass
+      }).then(() => {
+        alert("WiFi de Nodo " + idNodo + " actualizado en Firebase");
+      }).catch(e => alert("Error: " + e.message));
+    }
+
+    // --- CARGAR VALORES ACTUALES DE LOS NODOS ---
+    for(let i=1; i<=4; i++) {
+      db.ref(`camarasFK/nodos/nodo_${i}/wifi`).on('value', snap => {
+        const data = snap.val();
+        if(data) {
+          document.getElementById(`ssid${i}`).value = data.ssid || "";
+          document.getElementById(`pass${i}`).value = data.pass || "";
+        }
+      });
+    }
+
+    // --- GENERAR Y ESCUCHAR LAS 8 CÁMARAS ---
+    const monitor = document.getElementById('monitor');
+    for(let i=1; i<=8; i++) {
+      const card = document.createElement('div');
+      card.className = 'cam-card';
+      card.innerHTML = `<div>Cámara ${i}</div><div id="t${i}" class="temp">--°C</div>`;
+      monitor.appendChild(card);
+
+      db.ref(`camarasFK/camara_${i}/actual/temp`).on('value', snap => {
+        document.getElementById(`t${i}`).innerText = (snap.val() || "--") + "°C";
+      });
+    }
+  </script>
+</body>
+</html>
