@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monitor Cámaras Frío FK</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --bg: #f0f2f5; --primary: #2563eb; --card-bg: #ffffff; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-top: 60px; }
+    
+    /* Barra Superior */
+    header {
+      background: #1e293b; color: white; padding: 15px 30px;
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+    }
+
+    /* Botón Configuración */
+    .btn-config {
+      background: var(--primary); color: white; text-decoration: none;
+      padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.9em;
+      transition: background 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-config:hover { background: #1d4ed8; }
+
+    .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+    .camara-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+    .camara-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; }
+    .temp { font-size: 2.5em; font-weight: bold; color: var(--primary); text-align: center; margin: 10px 0; }
+    .high { color: #e74c3c; }
+    canvas { max-height: 200px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span><i class="fas fa-snowflake"></i> MONITOR FK</span>
+    <a href="configuraciones.html" class="btn-config">
+      <i class="fas fa-cog"></i> Configurar Nodos
+    </a>
+  </header>
+
+  <div class="container">
+    <div class="camara-grid" id="camaraGrid"></div>
+  </div>
+
+  <script>
+    // Tu Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+      authDomain: "pagos-58644.firebaseapp.com",
+      databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+      projectId: "pagos-58644"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Lógica para generar las 8 cámaras
+    for (let id = 1; id <= 8; id++) {
+      const grid = document.getElementById("camaraGrid");
+      const card = document.createElement("div");
+      card.className = "camara-card";
+      card.innerHTML = `
+        <div style="font-weight:bold; color:#64748b">Cámara ${id}</div>
+        <div id="temp${id}" class="temp">--°C</div>
+        <canvas id="chart${id}"></canvas>
+      `;
+      grid.appendChild(card);
+
+      // Listener de Temperatura
+      db.ref(`/camarasFK/camara_${id}/actual/temp`).on("value", snap => {
+        document.getElementById(`temp${id}`).innerText = (snap.val() || "--") + "°C";
+      });
+
+      // (Aquí podrías poner el código del gráfico que ya tenías)
+    }
+  </script>
+</body>
+</html>
