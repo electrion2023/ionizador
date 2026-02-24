@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Control Inteligente de Aires - Instructivo</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f5f5f5;
+margin:0;
+padding:40px;
+color:#333;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+background:white;
+padding:40px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+}
+
+h2{
+border-bottom:2px solid #eee;
+padding-bottom:5px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+margin-top:20px;
+}
+
+.card{
+background:#fafafa;
+padding:15px;
+border-radius:8px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card img{
+width:100%;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.card img:hover{
+transform:scale(1.05);
+}
+
+.material{
+columns:2;
+}
+
+footer{
+margin-top:40px;
+padding-top:20px;
+border-top:1px solid #ddd;
+font-size:14px;
+}
+
+.lightbox{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
+}
+
+.lightbox img{
+max-width:90%;
+max-height:90%;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Control Inteligente de Aires</h1>
+<p>Instructivo de armado y conexión</p>
+
+<h2>Lista de Materiales</h2>
+
+<div class="material">
+<ul>
+<li>Arduino UNO</li>
+<li>Display LCD 20x4 I2C</li>
+<li>Sensor de temperatura DS18B20</li>
+<li>Resistencia 4.7k</li>
+<li>Módulo de 2 relés 5V</li>
+<li>Pulsador</li>
+<li>Fuente 5V / 1A</li>
+<li>Cables Dupont</li>
+<li>Gabinete (opcional)</li>
+</ul>
+</div>
+
+<h2>Conexiones</h2>
+
+<p><b>LCD</b><br>
+GND → GND<br>
+VCC → 5V<br>
+SDA → A4<br>
+SCL → A5
+</p>
+
+<p><b>DS18B20</b><br>
+VCC → 5V<br>
+GND → GND<br>
+DATA → Pin 2<br>
+Resistencia 4.7k entre DATA y 5V
+</p>
+
+<p><b>Relés</b><br>
+IN1 → Pin 5<br>
+IN2 → Pin 6<br>
+VCC → 5V<br>
+GND → GND
+</p>
+
+<p><b>Botón</b><br>
+Pin 7 → Botón → GND
+</p>
+
+<h2>Diagramas</h2>
+
+<div class="grid">
+
+<div class="card">
+<h3>Sensor DS18B20</h3>
+<img src="ds18b20.jpg" onclick="openImg(this)">
+</div>
+
+<div class="card">
+<h3>Relés</h3>
+<img src="reles.jpg" onclick="openImg(this)">
+</div>
+
+<div class="card">
+<h3>Pantalla LCD</h3>
+<img src="pantalla.jpg" onclick="openImg(this)">
+</div>
+
+<div class="card">
+<h3>Botón</h3>
+<img src="boton.jpg" onclick="openImg(this)">
+</div>
+
+<div class="card">
+<h3>Conexión General</h3>
+<img src="general.jpg" onclick="openImg(this)">
+</div>
+
+</div>
+
+<footer>
+
+<b>Electrion</b><br>
+Titular: Leandro Daniel Cecchetto<br>
+CUIT/CUIL: 20-31422586-5<br>
+Alias: electrion<br>
+CBU: 1430001713034759270016<br>
+Tel: 2664709447<br>
+WhatsApp: 2665007541<br>
+Rivadavia 1138 - San Luis
+
+</footer>
+
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeImg()">
+<img id="lightbox-img">
+</div>
+
+<script>
+
+function openImg(img){
+document.getElementById("lightbox").style.display="flex"
+document.getElementById("lightbox-img").src=img.src
+}
+
+function closeImg(){
+document.getElementById("lightbox").style.display="none"
+}
+
+</script>
+
+</body>
+</html>
