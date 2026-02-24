@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador de Presupuestos - Electrion</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#eef1f5;
+margin:0;
+padding:40px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h1{
+margin-top:0;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+input{
+width:100%;
+padding:10px;
+border:1px solid #ccc;
+border-radius:6px;
+}
+
+button{
+margin-top:15px;
+padding:12px 20px;
+border:none;
+background:#0a58ca;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.result{
+margin-top:30px;
+padding:25px;
+background:#f7f7f7;
+border-radius:8px;
+}
+
+.price{
+font-size:28px;
+font-weight:bold;
+color:#0a58ca;
+}
+
+.small{
+color:#666;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Electrion – Generador de Presupuestos</h1>
+
+<div class="grid">
+
+<div>
+Cliente
+<input id="cliente">
+</div>
+
+<div>
+Proyecto
+<input id="proyecto">
+</div>
+
+<div>
+Precio
+<input id="precio" value="650000">
+</div>
+
+<div>
+Descuento %
+<input id="descuento" value="50">
+</div>
+
+<div>
+Entrega
+<input id="entrega" value="24-48 horas">
+</div>
+
+<div>
+Número presupuesto
+<input id="numero" value="001">
+</div>
+
+</div>
+
+<button onclick="generar()">Generar presupuesto</button>
+
+<div id="resultado" class="result"></div>
+
+</div>
+
+<script>
+
+function generar(){
+
+let cliente=document.getElementById("cliente").value
+let proyecto=document.getElementById("proyecto").value
+let precio=parseFloat(document.getElementById("precio").value)
+let descuento=parseFloat(document.getElementById("descuento").value)
+let entrega=document.getElementById("entrega").value
+let numero=document.getElementById("numero").value
+
+let final=precio-(precio*descuento/100)
+
+let hoy=new Date().toLocaleDateString()
+
+document.getElementById("resultado").innerHTML=`
+
+<h2>ELECTRION</h2>
+Desarrollo electrónico y automatización
+
+<hr>
+
+<b>Presupuesto Nº:</b> ${numero}<br>
+<b>Fecha:</b> ${hoy}<br>
+<b>Cliente:</b> ${cliente}<br><br>
+
+<b>Proyecto:</b><br>
+${proyecto}
+
+<hr>
+
+Precio original: $${precio.toLocaleString()}<br>
+Descuento: ${descuento}%<br>
+
+<div class="price">
+Total: $${final.toLocaleString()}
+</div>
+
+<br>
+
+<b>Entrega estimada:</b> ${entrega}
+
+<hr>
+
+<b>Datos de pago</b><br><br>
+
+Empresa: Electrion<br>
+Titular: Leandro Daniel Cecchetto<br>
+CUIT: 20-31422586-5<br><br>
+
+Alias: electrion<br>
+CBU: 1430001713034759270016<br><br>
+
+WhatsApp: 2665007541
+
+`
+
+}
+
+</script>
+
+</body>
+</html>
