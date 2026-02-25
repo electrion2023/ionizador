@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manual de Armado - Control de Aires</title>
 
 <style>
@@ -123,7 +124,36 @@ border-radius:6px;
 font-size:13px;
 margin-bottom:10px;
 }
+@media (max-width:700px){
 
+.container{
+padding:20px;
+margin-top:0;
+border-radius:0;
+}
+
+header{
+padding:20px;
+}
+
+header img{
+height:45px;
+}
+
+h1{
+font-size:22px;
+}
+
+.materiales{
+grid-template-columns:1fr;
+}
+
+.grid{
+grid-template-columns:1fr;
+gap:18px;
+}
+
+}
 </style>
 </head>
 
@@ -131,7 +161,7 @@ margin-bottom:10px;
 
 <header>
 
-<img src="logo.png">
+<img src="logo.PNG">
 
 <h1>Control Inteligente de Aires</h1>
 <div>Manual de armado y conexión</div>
@@ -190,7 +220,7 @@ Pin 7 → Botón → GND
 
 <div class="card">
 <h3>Sensor DS18B20</h3>
-<img src="ds18b20.pn" onclick="openImg(this)">
+<img src="ds18b20.PNG" onclick="openImg(this)">
 </div>
 
 <div class="card">
