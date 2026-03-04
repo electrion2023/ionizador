@@ -1,0 +1,257 @@
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monitor FK | Panel de Control</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root { --bg: #f0f2f5; --primary: #2563eb; --danger: #ef4444; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-top: 80px; }
+    
+    header {
+      background: #1e293b; color: white; padding: 15px 30px;
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+    }
+
+    .btn-config {
+      background: var(--primary); color: white; text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; font-weight: bold;
+    }
+
+    .btn-mapa {
+      background:#10b981;
+      border:none;
+      color:white;
+      padding:10px 20px;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-left:10px;
+    }
+
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    .camara-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+
+    .camara-card { 
+      background: white; border-radius: 15px; padding: 20px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .camara-card.alert { 
+      border-color: var(--danger); 
+      background: #fff5f5;
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+    .temp-val { font-size: 3rem; font-weight: 800; text-align: center; margin: 10px 0; color: var(--primary); }
+    .temp-val.high { color: var(--danger); }
+    
+    .limit-info { text-align: center; font-size: 0.9em; color: #64748b; margin-bottom: 10px; }
+    .chart-box { height: 180px; }
+
+    /* ===== MAPA ===== */
+
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:2000;
+      left:0; top:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+      background:white;
+      margin:5% auto;
+      width:95%;
+      max-width:900px;
+      padding:20px;
+      border-radius:12px;
+    }
+
+    .cerrar {
+      float:right;
+      cursor:pointer;
+      font-size:20px;
+      font-weight:bold;
+    }
+
+    .plano-container {
+      position:relative;
+      width:100%;
+    }
+
+    .plano-img {
+      width:100%;
+      height:auto;
+      display:block;
+    }
+
+    .camara-mapa {
+      position:absolute;
+      transform:translate(-50%,-50%);
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:bold;
+      color:white;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .online {
+      background:#22c55e;
+      box-shadow:0 0 15px #22c55e;
+    }
+
+    .offline {
+      background:#ef4444;
+      opacity:0.6;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div><i class="fas fa-snowflake"></i> MONITOR FK</div>
+  <div>
+    <a href="configuraciones.html" class="btn-config"><i class="fas fa-cog"></i> CONFIGURACIÓN</a>
+    <button class="btn-mapa" onclick="abrirMapa()">
+      <i class="fas fa-map"></i> VER MAPA
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="camara-grid" id="camaraGrid"></div>
+</div>
+
+<!-- ===== MODAL MAPA ===== -->
+
+<div id="modalMapa" class="modal">
+  <div class="modal-content">
+    <span class="cerrar" onclick="cerrarMapa()">✖</span>
+
+    <div class="plano-container">
+      <img src="plano.jpg" class="plano-img">
+
+      <div class="camara-mapa" id="map1" style="top:70%; left:75%;">1</div>
+      <div class="camara-mapa" id="map2" style="top:45%; left:85%;">2</div>
+      <div class="camara-mapa" id="map3" style="top:60%; left:85%;">3</div>
+      <div class="camara-mapa" id="map4" style="top:25%; left:20%;">4</div>
+      <div class="camara-mapa" id="map5" style="top:35%; left:30%;">5</div>
+      <div class="camara-mapa" id="map6" style="top:40%; left:25%;">6</div>
+      <div class="camara-mapa" id="map7" style="top:15%; left:55%;">7</div>
+      <div class="camara-mapa" id="map8" style="top:75%; left:55%;">8</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+  authDomain: "pagos-58644.firebaseapp.com",
+  databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+  projectId: "pagos-58644"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const charts = {};
+const tiempoLimite = 30;
+
+// ===== TARJETAS =====
+
+for (let i = 1; i <= 8; i++) {
+  const card = document.createElement("div");
+  card.className = "camara-card";
+  card.id = `card${i}`;
+  card.innerHTML = `
+    <div style="font-weight:bold; color:#64748b">Cámara 0${i}</div>
+    <div id="temp${i}" class="temp-val">--°C</div>
+    <div class="limit-info">Límite: <span id="limit${i}">--</span>°C</div>
+    <div class="chart-box"><canvas id="chart${i}"></canvas></div>
+  `;
+  document.getElementById("camaraGrid").appendChild(card);
+
+  db.ref(`/camarasFK/camara_${i}`).on("value", snap => {
+    const data = snap.val() || {};
+    const actual = data.actual?.temp || 0;
+    const max = data.tempMax || 99;
+    const ts = data.actual?.ts || 0;
+
+    document.getElementById(`temp${i}`).innerText = actual + "°C";
+    document.getElementById(`limit${i}`).innerText = max;
+
+    if (actual > max) {
+      card.classList.add("alert");
+    } else {
+      card.classList.remove("alert");
+    }
+
+    // ===== ONLINE/OFFLINE MAPA =====
+    const ahora = Math.floor(Date.now()/1000);
+    const puntoMapa = document.getElementById(`map${i}`);
+
+    if (ts && (ahora - ts) <= tiempoLimite) {
+      puntoMapa.classList.add("online");
+      puntoMapa.classList.remove("offline");
+    } else {
+      puntoMapa.classList.add("offline");
+      puntoMapa.classList.remove("online");
+    }
+
+    if (data.historial) updateChart(i, data.historial);
+  });
+}
+
+// ===== GRÁFICOS =====
+
+function updateChart(id, data) {
+  const ctx = document.getElementById(`chart${id}`).getContext('2d');
+  const keys = Object.keys(data).sort();
+  const labels = keys.map(k => new Date(parseInt(k) * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+  const values = keys.map(k => data[k]);
+
+  if (charts[id]) charts[id].destroy();
+
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        borderColor: '#2563eb',
+        tension: 0.4,
+        fill: true,
+        backgroundColor: 'rgba(37, 99, 235, 0.1)'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+// ===== MODAL =====
+
+function abrirMapa(){
+  document.getElementById("modalMapa").style.display="block";
+}
+
+function cerrarMapa(){
+  document.getElementById("modalMapa").style.display="none";
+}
+</script>
+
+</body>
+</html>
