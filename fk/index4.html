@@ -254,6 +254,12 @@ function cerrarMapa(){
   document.getElementById("btnCerrar").addEventListener("click", function() {
   document.getElementById("modalMapa").style.display = "none";
 });
+  window.addEventListener("click", function(e) {
+  const modal = document.getElementById("modalMapa");
+  if (e.target === modal) {
+    modal.style.display = "none";
+  }
+});
 </script>
 
 </body>
