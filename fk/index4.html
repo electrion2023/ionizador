@@ -140,7 +140,7 @@
 
 <div id="modalMapa" class="modal">
   <div class="modal-content">
-    <span class="cerrar" onclick="cerrarMapa()">✖</span>
+    <span class="cerrar" id="btnCerrar">✖</span>
 
     <div class="plano-container">
       <img src="plano.jpg" class="plano-img">
@@ -251,6 +251,9 @@ function abrirMapa(){
 function cerrarMapa(){
   document.getElementById("modalMapa").style.display="none";
 }
+  document.getElementById("btnCerrar").addEventListener("click", function() {
+  document.getElementById("modalMapa").style.display = "none";
+});
 </script>
 
 </body>
