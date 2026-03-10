@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Control Vending Agua</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f6fb;
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#2c3e50;
+}
+
+.panel{
+max-width:700px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.item{
+margin-bottom:20px;
+}
+
+label{
+font-weight:bold;
+display:block;
+margin-bottom:5px;
+}
+
+input{
+width:100%;
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:16px;
+}
+
+button{
+padding:10px 18px;
+margin-top:8px;
+margin-right:5px;
+background:#0077ff;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#005fd1;
+}
+
+.simular{
+background:#00a86b;
+}
+
+.simular:hover{
+background:#008e5a;
+}
+
+.comandos button{
+background:#555;
+}
+
+.estado{
+margin-top:20px;
+padding:15px;
+background:#eef4ff;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Panel Vending Agua</h1>
+
+<div class="panel">
+
+<div class="item">
+<label>Precio Mayor</label>
+<input id="preciomayor">
+<button onclick="guardar('preciomayor')">Guardar</button>
+</div>
+
+<div class="item">
+<label>Precio Menor</label>
+<input id="preciomenor">
+<button onclick="guardar('preciomenor')">Guardar</button>
+</div>
+
+<div class="item">
+<label>QR</label>
+<input id="qr">
+<button onclick="guardar('qr')">Guardar</button>
+</div>
+
+<div class="item">
+<label>Ubicación del dispositivo</label>
+<input id="ubicacion">
+<button onclick="guardarUbicacion()">Guardar</button>
+</div>
+
+
+<div class="item">
+
+<label>Simulación de Pago</label>
+
+<button class="simular" onclick="simularPago()">
+Simular pago $8
+</button>
+
+</div>
+
+
+<div class="item comandos">
+
+<label>Comandos de chequeo</label>
+
+<button onclick="enviarPaso('ir')">ir</button>
+<button onclick="enviarPaso('h')">h</button>
+<button onclick="enviarPaso('h1')">h1</button>
+<button onclick="enviarPaso('ll')">ll</button>
+<button onclick="enviarPaso('ok')">ok</button>
+
+</div>
+
+
+<div class="estado">
+
+<h3>Estado en tiempo real</h3>
+
+Precio Mayor: <span id="verPreciomayor">...</span><br>
+Precio Menor: <span id="verPreciomenor">...</span><br>
+QR: <span id="verQR">...</span><br>
+Ubicación: <span id="verUbicacion">...</span>
+
+</div>
+
+</div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+<script>
+
+const firebaseConfig = {
+apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+authDomain: "pagos-58644.firebaseapp.com",
+databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+projectId: "pagos-58644"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+
+function guardar(tag){
+
+let valor = document.getElementById(tag).value;
+
+db.ref("dispositivo/estado/"+tag).set(valor);
+
+}
+
+function guardarUbicacion(){
+
+let valor = document.getElementById("ubicacion").value;
+
+db.ref("ubicacion").set(valor);
+
+}
+
+
+function simularPago(){
+
+db.ref("dispositivo/estado/autorizado").set("true");
+
+db.ref("estado/monto").set("8");
+
+alert("Pago simulado");
+
+}
+
+
+function enviarPaso(p){
+
+db.ref("paso").set(p);
+
+}
+
+
+db.ref("dispositivo/estado/preciomayor").on("value",snap=>{
+document.getElementById("verPreciomayor").innerText = snap.val();
+document.getElementById("preciomayor").value = snap.val();
+});
+
+db.ref("dispositivo/estado/preciomenor").on("value",snap=>{
+document.getElementById("verPreciomenor").innerText = snap.val();
+document.getElementById("preciomenor").value = snap.val();
+});
+
+db.ref("dispositivo/estado/qr").on("value",snap=>{
+document.getElementById("verQR").innerText = snap.val();
+document.getElementById("qr").value = snap.val();
+});
+
+db.ref("ubicacion").on("value",snap=>{
+document.getElementById("verUbicacion").innerText = snap.val();
+document.getElementById("ubicacion").value = snap.val();
+});
+
+</script>
+
+</body>
+</html>
