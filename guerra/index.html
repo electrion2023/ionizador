@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Control Vending Agua</title>
+<title>Panel Vending Agua</title>
 
 <style>
 
@@ -96,19 +96,19 @@ border-radius:8px;
 <div class="item">
 <label>Precio Mayor</label>
 <input id="preciomayor">
-<button onclick="guardar('preciomayor')">Guardar</button>
+<button onclick="guardarPrecioMayor()">Guardar</button>
 </div>
 
 <div class="item">
 <label>Precio Menor</label>
 <input id="preciomenor">
-<button onclick="guardar('preciomenor')">Guardar</button>
+<button onclick="guardarPrecioMenor()">Guardar</button>
 </div>
 
 <div class="item">
 <label>QR</label>
 <input id="qr">
-<button onclick="guardar('qr')">Guardar</button>
+<button onclick="guardarQR()">Guardar</button>
 </div>
 
 <div class="item">
@@ -175,47 +175,62 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 
-function guardar(tag){
+// GUARDAR PRECIOS
 
-let valor = document.getElementById(tag).value;
-
-db.ref("dispositivo/estado/"+tag).set(valor);
-
+function guardarPrecioMayor(){
+let valor = document.getElementById("preciomayor").value;
+db.ref("dispositivo/preciomayor").set(valor);
 }
+
+function guardarPrecioMenor(){
+let valor = document.getElementById("preciomenor").value;
+db.ref("dispositivo/preciomenor").set(valor);
+}
+
+
+// GUARDAR QR
+
+function guardarQR(){
+let valor = document.getElementById("qr").value;
+db.ref("dispositivo/estado/qr").set(valor);
+}
+
+
+// UBICACION
 
 function guardarUbicacion(){
-
 let valor = document.getElementById("ubicacion").value;
-
-db.ref("ubicacion").set(valor);
-
+db.ref("dispositivo/estado/ubicacion").set(valor);
 }
 
+
+// SIMULACION PAGO
 
 function simularPago(){
 
 db.ref("dispositivo/estado/autorizado").set("true");
-
-db.ref("estado/monto").set("8");
+db.ref("dispositivo/estado/monto").set("8");
 
 alert("Pago simulado");
 
 }
 
 
+// COMANDOS
+
 function enviarPaso(p){
-
-db.ref("paso").set(p);
-
+db.ref("dispositivo/estado/paso").set(p);
 }
 
 
-db.ref("dispositivo/estado/preciomayor").on("value",snap=>{
+// LECTURA EN TIEMPO REAL
+
+db.ref("dispositivo/preciomayor").on("value",snap=>{
 document.getElementById("verPreciomayor").innerText = snap.val();
 document.getElementById("preciomayor").value = snap.val();
 });
 
-db.ref("dispositivo/estado/preciomenor").on("value",snap=>{
+db.ref("dispositivo/preciomenor").on("value",snap=>{
 document.getElementById("verPreciomenor").innerText = snap.val();
 document.getElementById("preciomenor").value = snap.val();
 });
