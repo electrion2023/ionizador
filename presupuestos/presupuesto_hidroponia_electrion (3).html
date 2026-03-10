@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electrion | Automatización Hidropónica</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+font-family:'Inter',sans-serif;
+background:#f3f6fb;
+color:#1f2937;
+line-height:1.6;
+}
+
+header{
+background:linear-gradient(135deg,#2563eb,#38bdf8);
+color:white;
+padding:36px 20px;
+text-align:center;
+}
+
+header h1{
+font-family:'Orbitron',sans-serif;
+font-size:32px;
+letter-spacing:2px;
+}
+
+header p{
+margin-top:8px;
+font-size:14px;
+opacity:0.95;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:25px 18px 40px 18px;
+}
+
+.intro{
+text-align:center;
+margin-bottom:30px;
+font-size:15px;
+color:#374151;
+}
+
+.cards{
+display:grid;
+gap:20px;
+grid-template-columns:1fr;
+}
+
+.card{
+background:white;
+border-radius:14px;
+padding:22px;
+border:1px solid #e5e7eb;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);
+position:relative;
+}
+
+.card h2{
+margin-bottom:6px;
+font-size:22px;
+}
+
+.badge{
+display:inline-block;
+font-size:11px;
+padding:6px 12px;
+border-radius:20px;
+margin-bottom:10px;
+letter-spacing:1px;
+color:white;
+}
+
+.basic .badge{background:#6b7280}
+.pro .badge{background:#2563eb}
+
+.price{
+font-size:28px;
+font-weight:600;
+color:#16a34a;
+margin:10px 0 15px 0;
+}
+
+.section{margin-top:15px}
+
+.section h3{
+font-size:13px;
+color:#2563eb;
+margin-bottom:6px;
+text-transform:uppercase;
+letter-spacing:1px;
+}
+
+ul{padding-left:18px;font-size:14px}
+li{margin-bottom:4px}
+
+.highlight{
+border:2px solid #2563eb;
+box-shadow:0 8px 25px rgba(37,99,235,0.15);
+}
+
+.recommended{
+position:absolute;
+top:-12px;
+right:15px;
+background:#22c55e;
+color:white;
+font-size:11px;
+padding:5px 10px;
+border-radius:20px;
+font-weight:600;
+}
+
+.benefits,
+.diagram,
+.optional,
+.conditions{
+margin-top:30px;
+background:white;
+border:1px solid #e5e7eb;
+border-radius:10px;
+padding:22px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+.benefits h3,
+.optional h3,
+.diagram h3,
+.conditions h3{
+margin-bottom:10px;
+color:#2563eb;
+}
+
+.diagram-box{
+display:flex;
+flex-direction:column;
+gap:10px;
+margin-top:15px;
+}
+
+.node{
+background:#f1f5f9;
+border:1px solid #e2e8f0;
+padding:10px;
+border-radius:8px;
+}
+
+.footer{
+margin-top:35px;
+text-align:center;
+font-size:13px;
+color:#6b7280;
+}
+
+.contact{
+margin-top:20px;
+text-align:center;
+}
+
+.button{
+display:inline-block;
+margin-top:12px;
+padding:10px 20px;
+border-radius:8px;
+background:#2563eb;
+color:white;
+text-decoration:none;
+font-size:14px;
+}
+
+.button:hover{
+background:#1d4ed8;
+}
+
+@media (min-width:800px){
+.cards{grid-template-columns:1fr 1fr;gap:30px}
+.card{padding:28px}
+header h1{font-size:36px}
+.diagram-box{flex-direction:row;justify-content:center}
+.node{min-width:160px}
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>ELECTRION</h1>
+<p>Propuesta de Automatización para Sistema Hidropónico</p>
+</header>
+
+<div class="container">
+
+<div class="intro">
+Automatización diseñada para optimizar el rendimiento del cultivo hidropónico mediante control inteligente de bombas, monitoreo ambiental y registro de variables clave del sistema.
+</div>
+
+<div class="cards">
+
+<div class="card basic">
+<span class="badge">OPCIÓN ECONÓMICA</span>
+<h2>Sistema de Control Básico</h2>
+<div class="price">$350.000</div>
+
+<p>Controlador local simple y robusto para automatizar ciclos de riego sin necesidad de conexión a internet.</p>
+
+<div class="section">
+<h3>Funciones</h3>
+<ul>
+<li>⚙ Programación de ciclos de bombas</li>
+<li>⏱ Control de tiempos de encendido y descanso</li>
+<li>🖥 Configuración manual desde el equipo</li>
+<li>📟 Visualización de datos en pantalla</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Salidas de Control</h3>
+<ul>
+<li>4 salidas a relé</li>
+<li>Control de hasta 4 bombas o dispositivos</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Sensores</h3>
+<ul>
+<li>🌡 Temperatura ambiente</li>
+<li>💧 Humedad ambiente</li>
+<li>🧪 Conductividad del agua</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Interfaz</h3>
+<ul>
+<li>Pantalla LCD</li>
+<li>Botones físicos de configuración</li>
+</ul>
+</div>
+
+</div>
+
+<div class="card pro highlight">
+<div class="recommended">RECOMENDADO</div>
+<span class="badge">VERSIÓN INTELIGENTE</span>
+<h2>Sistema Inteligente con Monitoreo Remoto</h2>
+<div class="price">$700.000</div>
+
+<p>Plataforma domótica conectada por WiFi que permite controlar y monitorear el sistema hidropónico desde el teléfono o computadora.</p>
+
+<div class="section">
+<h3>Funciones</h3>
+<ul>
+<li>📱 Programación remota de ciclos de riego</li>
+<li>📊 Monitoreo en tiempo real desde el celular</li>
+<li>📈 Registro histórico de variables</li>
+<li>🔌 Visualización de estado de bombas</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Salidas de Control</h3>
+<ul>
+<li>6 salidas a relé</li>
+<li>Control de bombas y dispositivos adicionales</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Sensores</h3>
+<ul>
+<li>🌡 Temperatura ambiente</li>
+<li>💧 Humedad ambiente</li>
+<li>🌡 Temperatura del agua</li>
+<li>🧪 Conductividad del agua</li>
+<li>🚰 Nivel de agua del tanque</li>
+<li>☀ Radiación UV</li>
+<li>🌿 Preparado para sensor de CO₂ (opcional)</li>
+</ul>
+</div>
+
+</div>
+
+</div>
+
+<div class="benefits">
+<h3>Beneficios para el Cultivo</h3>
+<ul>
+<li>Mayor estabilidad en los ciclos de riego</li>
+<li>Optimización del consumo de agua y energía</li>
+<li>Mejor control de nutrientes</li>
+<li>Reducción del trabajo manual</li>
+<li>Monitoreo constante del sistema</li>
+</ul>
+</div>
+
+<div class="diagram">
+<h3>Esquema Simplificado del Sistema</h3>
+<div class="diagram-box">
+<div class="node">Sensores</div>
+<div class="node">Controlador Electrion</div>
+<div class="node">Bombas</div>
+<div class="node">Cultivo</div>
+</div>
+</div>
+
+<div class="optional">
+<h3>Ampliaciones Futuras</h3>
+<ul>
+<li>Sensor de pH del agua</li>
+<li>Alertas automáticas al teléfono</li>
+<li>Automatización de iluminación</li>
+<li>Control automático de nutrientes</li>
+</ul>
+</div>
+
+<div class="conditions">
+<h3>Condiciones Comerciales</h3>
+<ul>
+<li>Reserva del proyecto: 50% del valor total</li>
+<li>Saldo contra entrega</li>
+<li>Plazo estimado de entrega: 20 días</li>
+<li>Validez del presupuesto: 10 días</li>
+</ul>
+</div>
+
+<div class="contact">
+<p><strong>Electrion</strong> | Desarrollo de sistemas electrónicos</p>
+<a class="button" href="#">Consultar disponibilidad</a>
+</div>
+
+<div class="footer">
+Documento técnico – Propuesta de automatización hidropónica
+</div>
+
+</div>
+
+</body>
+<
