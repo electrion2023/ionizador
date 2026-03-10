@@ -240,7 +240,7 @@ document.getElementById("verQR").innerText = snap.val();
 document.getElementById("qr").value = snap.val();
 });
 
-db.ref("ubicacion").on("value",snap=>{
+db.ref("dispositivo/estado/ubicacion").on("value",snap=>{
 document.getElementById("verUbicacion").innerText = snap.val();
 document.getElementById("ubicacion").value = snap.val();
 });
