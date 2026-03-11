@@ -122,10 +122,11 @@ border-radius:8px;
 
 <label>Simulación de Pago</label>
 
-<button class="simular" onclick="simularPago()">
-Simular pago $8
-</button>
+<input id="montoSimulado" placeholder="Ingrese monto">
 
+<button class="simular" onclick="simularPago()">
+Simular pago
+</button>
 </div>
 
 
@@ -208,10 +209,17 @@ db.ref("dispositivo/estado/ubicacion").set(valor);
 
 function simularPago(){
 
-db.ref("dispositivo/estado/autorizado").set("true");
-db.ref("dispositivo/estado/monto").set("8");
+let monto = document.getElementById("montoSimulado").value;
 
-alert("Pago simulado");
+if(monto == ""){
+alert("Ingrese un monto");
+return;
+}
+
+db.ref("dispositivo/estado/autorizado").set("true");
+db.ref("dispositivo/estado/monto").set(monto);
+
+alert("Pago simulado por $" + monto);
 
 }
 
