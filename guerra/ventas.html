@@ -165,11 +165,14 @@ entradas.slice(0,30).forEach(([fecha, valor]) => {
 
 let item = document.createElement("li");
 
-item.innerText = fecha + " → " + traducir(valor);
+item.innerText = fecha + " → " +let limpio = valor.replace(/"/g, "").toLowerCase();
+item.innerText = fecha + " → " + traducir(limpio); traducir(valor);
 
 lista.appendChild(item);
 
 // CONTAR
+valor = valor.replace(/"/g, "").toLowerCase();
+
 if(valor == "b20") c20++;
 if(valor == "b12") c12++;
 if(valor == "b8") c8++;
