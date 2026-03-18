@@ -2,11 +2,10 @@
 <html lang="es">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Panel Vending Agua</title>
+<title>Panel Vending Agua PRO</title>
 
 <style>
 
@@ -23,7 +22,7 @@ color:#2c3e50;
 }
 
 .panel{
-max-width:700px;
+max-width:750px;
 margin:auto;
 background:white;
 padding:25px;
@@ -50,14 +49,14 @@ font-size:16px;
 }
 
 button{
-padding:10px 18px;
+padding:10px 15px;
 margin-top:8px;
 margin-right:5px;
-background:#0077ff;
-color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
+background:#0077ff;
+color:white;
 }
 
 button:hover{
@@ -72,8 +71,10 @@ background:#00a86b;
 background:#008e5a;
 }
 
-.comandos button{
-background:#555;
+.rapido button{
+background:#34495e;
+margin-bottom:5px;
+width:100%;
 }
 
 .estado{
@@ -93,16 +94,24 @@ border-radius:8px;
 
 <div class="panel">
 
+<!-- PRECIOS -->
+
 <div class="item">
-<label>Precio Mayor</label>
+<label>Precio Mayor (20L)</label>
 <input id="preciomayor">
 <button onclick="guardarPrecioMayor()">Guardar</button>
 </div>
 
 <div class="item">
-<label>Precio Menor</label>
+<label>Precio Menor (10L)</label>
 <input id="preciomenor">
 <button onclick="guardarPrecioMenor()">Guardar</button>
+</div>
+
+<div class="item">
+<label>Precio Bidón 8L</label>
+<input id="preciobidon8">
+<button onclick="guardarPrecioBidon()">Guardar</button>
 </div>
 
 <div class="item">
@@ -112,36 +121,55 @@ border-radius:8px;
 </div>
 
 <div class="item">
-<label>Ubicación del dispositivo</label>
+<label>Ubicación</label>
 <input id="ubicacion">
 <button onclick="guardarUbicacion()">Guardar</button>
 </div>
 
 
+<!-- SIMULACION MANUAL -->
+
 <div class="item">
-
-<label>Simulación de Pago</label>
-
+<label>Simulación manual</label>
 <input id="montoSimulado" placeholder="Ingrese monto">
-
-<button class="simular" onclick="simularPago()">
-Simular pago
-</button>
+<button class="simular" onclick="simularPago()">Simular pago</button>
 </div>
 
 
-<div class="item comandos">
+<!-- BOTONES RAPIDOS -->
 
-<label>Comandos de chequeo</label>
+<div class="item rapido">
 
+<label>Simulación rápida (cliente)</label>
+
+<button onclick="comprar('menor')">
+10L - $<span id="btnMenor">...</span>
+</button>
+
+<button onclick="comprar('mayor')">
+20L - $<span id="btnMayor">...</span>
+</button>
+
+<button onclick="comprar('bidon8')">
+8L - $<span id="btnBidon8">...</span>
+</button>
+
+</div>
+
+
+<!-- COMANDOS -->
+
+<div class="item">
+<label>Comandos</label>
 <button onclick="enviarPaso('ir')">ir</button>
 <button onclick="enviarPaso('h')">h</button>
 <button onclick="enviarPaso('h1')">h1</button>
 <button onclick="enviarPaso('ll')">ll</button>
 <button onclick="enviarPaso('ok')">ok</button>
-
 </div>
 
+
+<!-- ESTADO -->
 
 <div class="estado">
 
@@ -149,6 +177,7 @@ Simular pago
 
 Precio Mayor: <span id="verPreciomayor">...</span><br>
 Precio Menor: <span id="verPreciomenor">...</span><br>
+Precio Bidón 8L: <span id="verPreciobidon8">...</span><br>
 QR: <span id="verQR">...</span><br>
 Ubicación: <span id="verUbicacion">...</span>
 
@@ -157,10 +186,8 @@ Ubicación: <span id="verUbicacion">...</span>
 </div>
 
 
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 
 <script>
 
@@ -179,33 +206,30 @@ const db = firebase.database();
 // GUARDAR PRECIOS
 
 function guardarPrecioMayor(){
-let valor = document.getElementById("preciomayor").value;
-db.ref("dispositivo/preciomayor").set(valor);
+db.ref("dispositivo/preciomayor").set(document.getElementById("preciomayor").value);
 }
 
 function guardarPrecioMenor(){
-let valor = document.getElementById("preciomenor").value;
-db.ref("dispositivo/preciomenor").set(valor);
+db.ref("dispositivo/preciomenor").set(document.getElementById("preciomenor").value);
+}
+
+function guardarPrecioBidon(){
+db.ref("dispositivo/preciobidon8").set(document.getElementById("preciobidon8").value);
 }
 
 
-// GUARDAR QR
+// QR Y UBICACION
 
 function guardarQR(){
-let valor = document.getElementById("qr").value;
-db.ref("dispositivo/estado/qr").set(valor);
+db.ref("dispositivo/estado/qr").set(document.getElementById("qr").value);
 }
-
-
-// UBICACION
 
 function guardarUbicacion(){
-let valor = document.getElementById("ubicacion").value;
-db.ref("dispositivo/estado/ubicacion").set(valor);
+db.ref("ubicacion").set(document.getElementById("ubicacion").value);
 }
 
 
-// SIMULACION PAGO
+// SIMULACION MANUAL
 
 function simularPago(){
 
@@ -219,7 +243,36 @@ return;
 db.ref("dispositivo/estado/autorizado").set("true");
 db.ref("dispositivo/estado/monto").set(monto);
 
-alert("Pago simulado por $" + monto);
+alert("Pago simulado $" + monto);
+
+}
+
+
+// BOTONES RAPIDOS
+
+function comprar(tipo){
+
+let ruta = "";
+
+if(tipo == "menor") ruta = "dispositivo/preciomenor";
+if(tipo == "mayor") ruta = "dispositivo/preciomayor";
+if(tipo == "bidon8") ruta = "dispositivo/preciobidon8";
+
+db.ref(ruta).once("value").then(snap => {
+
+let monto = snap.val();
+
+if(monto == null){
+alert("Precio no definido");
+return;
+}
+
+db.ref("dispositivo/estado/autorizado").set("true");
+db.ref("dispositivo/estado/monto").set(monto);
+
+alert("Compra simulada $" + monto);
+
+});
 
 }
 
@@ -231,16 +284,24 @@ db.ref("dispositivo/estado/paso").set(p);
 }
 
 
-// LECTURA EN TIEMPO REAL
+// LECTURA TIEMPO REAL
 
 db.ref("dispositivo/preciomayor").on("value",snap=>{
 document.getElementById("verPreciomayor").innerText = snap.val();
 document.getElementById("preciomayor").value = snap.val();
+document.getElementById("btnMayor").innerText = snap.val();
 });
 
 db.ref("dispositivo/preciomenor").on("value",snap=>{
 document.getElementById("verPreciomenor").innerText = snap.val();
 document.getElementById("preciomenor").value = snap.val();
+document.getElementById("btnMenor").innerText = snap.val();
+});
+
+db.ref("dispositivo/preciobidon8").on("value",snap=>{
+document.getElementById("verPreciobidon8").innerText = snap.val();
+document.getElementById("preciobidon8").value = snap.val();
+document.getElementById("btnBidon8").innerText = snap.val();
 });
 
 db.ref("dispositivo/estado/qr").on("value",snap=>{
@@ -248,7 +309,7 @@ document.getElementById("verQR").innerText = snap.val();
 document.getElementById("qr").value = snap.val();
 });
 
-db.ref("dispositivo/estado/ubicacion").on("value",snap=>{
+db.ref("ubicacion").on("value",snap=>{
 document.getElementById("verUbicacion").innerText = snap.val();
 document.getElementById("ubicacion").value = snap.val();
 });
