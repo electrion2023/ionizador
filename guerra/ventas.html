@@ -82,7 +82,6 @@ border-radius:10px;
 <div class="panel">
 
 <div class="estado">
-
 <h3>Ventas</h3>
 
 <div class="contadores">
@@ -95,25 +94,20 @@ border-radius:10px;
 
 
 <div class="estado">
-
 <h3>Historial</h3>
-
 <ul id="historialLista"></ul>
-
 </div>
 
 
 <div class="estado">
-
 <h3>Gráfico de ventas</h3>
-
 <canvas id="grafico" width="300" height="200"></canvas>
-
 </div>
 
 </div>
 
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -127,12 +121,17 @@ projectId: "pagos-58644"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
 
 
-// TRADUCCION
+// 🔥 LIMPIAR VALORES (CLAVE)
+function limpiarValor(v){
+if(!v) return "";
+return v.toString().replace(/"/g, "").trim().toLowerCase();
+}
 
+
+// 🔁 TRADUCIR
 function traducir(v){
 if(v == "b20") return "Bidón 20L";
 if(v == "b12") return "Bidón 12L";
@@ -141,14 +140,12 @@ return v;
 }
 
 
-// HISTORIAL + CONTADORES
-
+// 📊 HISTORIAL + CONTADORES
 db.ref("dispositivo/estado/historial").on("value", snap => {
 
 let data = snap.val();
 
 let lista = document.getElementById("historialLista");
-
 lista.innerHTML = "";
 
 let c20=0, c12=0, c8=0;
@@ -160,22 +157,20 @@ let entradas = Object.entries(data);
 // últimos primero
 entradas.reverse();
 
-// limitar a 30
+// mostrar últimos 30
 entradas.slice(0,30).forEach(([fecha, valor]) => {
 
+let limpio = limpiarValor(valor);
+
+// mostrar
 let item = document.createElement("li");
-
-item.innerText = fecha + " → " +let limpio = valor.replace(/"/g, "").toLowerCase();
-item.innerText = fecha + " → " + traducir(limpio); traducir(valor);
-
+item.innerText = fecha + " → " + traducir(limpio);
 lista.appendChild(item);
 
-// CONTAR
-valor = valor.replace(/"/g, "").toLowerCase();
-
-if(valor == "b20") c20++;
-if(valor == "b12") c12++;
-if(valor == "b8") c8++;
+// contar
+if(limpio == "b20") c20++;
+if(limpio == "b12") c12++;
+if(limpio == "b8") c8++;
 
 });
 
@@ -192,8 +187,7 @@ dibujarGrafico(c20, c12, c8);
 });
 
 
-// GRAFICO SIMPLE
-
+// 📈 GRAFICO
 function dibujarGrafico(v20, v12, v8){
 
 let canvas = document.getElementById("grafico");
@@ -202,7 +196,6 @@ let ctx = canvas.getContext("2d");
 ctx.clearRect(0,0,300,200);
 
 let max = Math.max(v20, v12, v8, 1);
-
 let escala = 150 / max;
 
 // barras
@@ -210,7 +203,7 @@ ctx.fillRect(30, 180 - v20*escala, 40, v20*escala);
 ctx.fillRect(120, 180 - v12*escala, 40, v12*escala);
 ctx.fillRect(210, 180 - v8*escala, 40, v8*escala);
 
-// labels
+// etiquetas
 ctx.fillText("20L", 35, 195);
 ctx.fillText("12L", 125, 195);
 ctx.fillText("8L", 215, 195);
