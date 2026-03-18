@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Vending PRO</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f6fb;
+margin:0;
+padding:20px;
+}
+
+h1{
+text-align:center;
+color:#2c3e50;
+}
+
+.panel{
+max-width:800px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.estado{
+margin-top:20px;
+padding:15px;
+background:#eef4ff;
+border-radius:8px;
+}
+
+ul{
+list-style:none;
+padding:0;
+max-height:250px;
+overflow:auto;
+}
+
+li{
+padding:8px;
+border-bottom:1px solid #ddd;
+}
+
+.contadores{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+text-align:center;
+}
+
+.card{
+flex:1;
+margin:5px;
+padding:15px;
+border-radius:8px;
+background:#0077ff;
+color:white;
+font-size:18px;
+}
+
+canvas{
+margin-top:20px;
+background:white;
+border-radius:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Dashboard Vending</h1>
+
+<div class="panel">
+
+<div class="estado">
+
+<h3>Ventas</h3>
+
+<div class="contadores">
+<div class="card">20L<br><span id="c20">0</span></div>
+<div class="card">12L<br><span id="c12">0</span></div>
+<div class="card">8L<br><span id="c8">0</span></div>
+</div>
+
+</div>
+
+
+<div class="estado">
+
+<h3>Historial</h3>
+
+<ul id="historialLista"></ul>
+
+</div>
+
+
+<div class="estado">
+
+<h3>Gráfico de ventas</h3>
+
+<canvas id="grafico" width="300" height="200"></canvas>
+
+</div>
+
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+authDomain: "pagos-58644.firebaseapp.com",
+databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+projectId: "pagos-58644"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+
+// TRADUCCION
+
+function traducir(v){
+if(v == ""b20"") return "Bidón 20L";
+if(v == "b12") return "Bidón 12L";
+if(v == "b8") return "Bidón 8L";
+return v;
+}
+
+
+// HISTORIAL + CONTADORES
+
+db.ref("dispositivo/historial").on("value", snap => {
+
+let data = snap.val();
+
+let lista = document.getElementById("historialLista");
+
+lista.innerHTML = "";
+
+let c20=0, c12=0, c8=0;
+
+if(data){
+
+let entradas = Object.entries(data);
+
+// últimos primero
+entradas.reverse();
+
+// limitar a 30
+entradas.slice(0,30).forEach(([fecha, valor]) => {
+
+let item = document.createElement("li");
+
+item.innerText = fecha + " → " + traducir(valor);
+
+lista.appendChild(item);
+
+// CONTAR
+if(valor == "b20") c20++;
+if(valor == "b12") c12++;
+if(valor == "b8") c8++;
+
+});
+
+// actualizar contadores
+document.getElementById("c20").innerText = c20;
+document.getElementById("c12").innerText = c12;
+document.getElementById("c8").innerText = c8;
+
+// dibujar gráfico
+dibujarGrafico(c20, c12, c8);
+
+}
+
+});
+
+
+// GRAFICO SIMPLE
+
+function dibujarGrafico(v20, v12, v8){
+
+let canvas = document.getElementById("grafico");
+let ctx = canvas.getContext("2d");
+
+ctx.clearRect(0,0,300,200);
+
+let max = Math.max(v20, v12, v8, 1);
+
+let escala = 150 / max;
+
+// barras
+ctx.fillRect(30, 180 - v20*escala, 40, v20*escala);
+ctx.fillRect(120, 180 - v12*escala, 40, v12*escala);
+ctx.fillRect(210, 180 - v8*escala, 40, v8*escala);
+
+// labels
+ctx.fillText("20L", 35, 195);
+ctx.fillText("12L", 125, 195);
+ctx.fillText("8L", 215, 195);
+
+}
+
+</script>
+
+</body>
+</html>
