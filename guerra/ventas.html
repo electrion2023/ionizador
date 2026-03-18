@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Vending PRO</title>
+<title>Dashboard Vending PRO MAX</title>
 
 <style>
 
@@ -21,7 +20,7 @@ color:#2c3e50;
 }
 
 .panel{
-max-width:800px;
+max-width:900px;
 margin:auto;
 background:white;
 padding:20px;
@@ -39,19 +38,18 @@ border-radius:8px;
 ul{
 list-style:none;
 padding:0;
-max-height:250px;
+max-height:200px;
 overflow:auto;
 }
 
 li{
-padding:8px;
+padding:6px;
 border-bottom:1px solid #ddd;
 }
 
 .contadores{
 display:flex;
 justify-content:space-between;
-margin-top:15px;
 text-align:center;
 }
 
@@ -66,48 +64,60 @@ font-size:18px;
 }
 
 canvas{
-margin-top:20px;
+margin-top:15px;
 background:white;
 border-radius:10px;
 }
 
-</style>
+.total{
+font-size:22px;
+text-align:center;
+margin-top:10px;
+color:#27ae60;
+font-weight:bold;
+}
 
+</style>
 </head>
 
 <body>
 
-<h1>Dashboard Vending</h1>
+<h1>Dashboard Vending PRO MAX</h1>
 
 <div class="panel">
 
 <div class="estado">
 <h3>Ventas</h3>
-
 <div class="contadores">
 <div class="card">20L<br><span id="c20">0</span></div>
 <div class="card">12L<br><span id="c12">0</span></div>
 <div class="card">8L<br><span id="c8">0</span></div>
 </div>
-
+<div class="total">💰 Total: $<span id="total">$0</span></div>
 </div>
-
 
 <div class="estado">
 <h3>Historial</h3>
 <ul id="historialLista"></ul>
 </div>
 
-
 <div class="estado">
-<h3>Gráfico de ventas</h3>
+<h3>Gráfico por tipo</h3>
 <canvas id="grafico" width="300" height="200"></canvas>
 </div>
 
+<div class="estado">
+<h3>Ventas por día</h3>
+<canvas id="graficoDias" width="300" height="200"></canvas>
 </div>
 
+<div class="estado">
+<h3>Ventas por hora</h3>
+<canvas id="graficoHoras" width="300" height="200"></canvas>
+</div>
 
-<!-- Firebase -->
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -123,24 +133,25 @@ projectId: "pagos-58644"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-
-// 🔥 LIMPIAR VALORES (CLAVE)
 function limpiarValor(v){
 if(!v) return "";
-return v.toString().replace(/"/g, "").trim().toLowerCase();
+return v.toString().replace(/"/g,"").trim().toLowerCase();
 }
 
-
-// 🔁 TRADUCIR
 function traducir(v){
-if(v == "b20") return "Bidón 20L";
-if(v == "b12") return "Bidón 12L";
-if(v == "b8") return "Bidón 8L";
+if(v=="b20") return "20L";
+if(v=="b12") return "12L";
+if(v=="b8") return "8L";
 return v;
 }
 
+// 💰 precios (ajustalos a los tuyos reales)
+const precios = {
+b20: 1000,
+b12: 700,
+b8: 500
+};
 
-// 📊 HISTORIAL + CONTADORES
 db.ref("dispositivo/estado/historial").on("value", snap => {
 
 let data = snap.val();
@@ -148,65 +159,123 @@ let data = snap.val();
 let lista = document.getElementById("historialLista");
 lista.innerHTML = "";
 
-let c20=0, c12=0, c8=0;
+let c20=0,c12=0,c8=0;
+let total=0;
+
+let ventasDia={};
+let ventasHora={};
 
 if(data){
 
-let entradas = Object.entries(data);
+let entradas = Object.entries(data).reverse();
 
-// últimos primero
-entradas.reverse();
-
-// mostrar últimos 30
-entradas.slice(0,30).forEach(([fecha, valor]) => {
+entradas.slice(0,100).forEach(([fecha, valor])=>{
 
 let limpio = limpiarValor(valor);
 
-// mostrar
-let item = document.createElement("li");
-item.innerText = fecha + " → " + traducir(limpio);
-lista.appendChild(item);
+// historial
+let li = document.createElement("li");
+li.innerText = fecha+" → "+traducir(limpio);
+lista.appendChild(li);
 
-// contar
-if(limpio == "b20") c20++;
-if(limpio == "b12") c12++;
-if(limpio == "b8") c8++;
+// contadores
+if(limpio=="b20"){c20++; total+=precios.b20;}
+if(limpio=="b12"){c12++; total+=precios.b12;}
+if(limpio=="b8"){c8++; total+=precios.b8;}
+
+// 📅 DIA
+let partes = fecha.split(" ");
+let dia = partes[0];
+if(!ventasDia[dia]) ventasDia[dia]={b20:0,b12:0,b8:0};
+
+if(limpio=="b20") ventasDia[dia].b20++;
+if(limpio=="b12") ventasDia[dia].b12++;
+if(limpio=="b8") ventasDia[dia].b8++;
+
+// ⏱️ HORA
+let hora = partes[1] ? partes[1].split("_")[0] : "00";
+
+if(!ventasHora[hora]) ventasHora[hora]=0;
+ventasHora[hora]++;
 
 });
 
-// actualizar contadores
-document.getElementById("c20").innerText = c20;
-document.getElementById("c12").innerText = c12;
-document.getElementById("c8").innerText = c8;
+// UI
+document.getElementById("c20").innerText=c20;
+document.getElementById("c12").innerText=c12;
+document.getElementById("c8").innerText=c8;
+document.getElementById("total").innerText=total;
 
-// dibujar gráfico
-dibujarGrafico(c20, c12, c8);
+// gráficos
+dibujarGrafico(c20,c12,c8);
+dibujarGraficoDias(ventasDia);
+dibujarGraficoHoras(ventasHora);
 
 }
 
 });
 
-
-// 📈 GRAFICO
-function dibujarGrafico(v20, v12, v8){
-
-let canvas = document.getElementById("grafico");
-let ctx = canvas.getContext("2d");
-
+// 📊 GRAFICO SIMPLE
+function dibujarGrafico(v20,v12,v8){
+let c=document.getElementById("grafico");
+let ctx=c.getContext("2d");
 ctx.clearRect(0,0,300,200);
 
-let max = Math.max(v20, v12, v8, 1);
-let escala = 150 / max;
+let max=Math.max(v20,v12,v8,1);
+let esc=150/max;
 
-// barras
-ctx.fillRect(30, 180 - v20*escala, 40, v20*escala);
-ctx.fillRect(120, 180 - v12*escala, 40, v12*escala);
-ctx.fillRect(210, 180 - v8*escala, 40, v8*escala);
+ctx.fillRect(30,180-v20*esc,40,v20*esc);
+ctx.fillRect(120,180-v12*esc,40,v12*esc);
+ctx.fillRect(210,180-v8*esc,40,v8*esc);
 
-// etiquetas
-ctx.fillText("20L", 35, 195);
-ctx.fillText("12L", 125, 195);
-ctx.fillText("8L", 215, 195);
+ctx.fillText("20L",35,195);
+ctx.fillText("12L",125,195);
+ctx.fillText("8L",215,195);
+}
+
+// 📅 POR DIA (PRO)
+function dibujarGraficoDias(data){
+let c=document.getElementById("graficoDias");
+let ctx=c.getContext("2d");
+ctx.clearRect(0,0,300,200);
+
+let dias=Object.keys(data);
+let max=1;
+
+dias.forEach(d=>{
+let t=data[d].b20+data[d].b12+data[d].b8;
+if(t>max) max=t;
+});
+
+dias.forEach((d,i)=>{
+let total=data[d].b20+data[d].b12+data[d].b8;
+let h=(total/max)*150;
+let x=20+i*60;
+
+ctx.fillRect(x,180-h,40,h);
+ctx.fillText(d,x,195);
+ctx.fillText(total,x,170-h);
+});
+
+}
+
+// ⏱️ POR HORA
+function dibujarGraficoHoras(data){
+let c=document.getElementById("graficoHoras");
+let ctx=c.getContext("2d");
+ctx.clearRect(0,0,300,200);
+
+let horas=Object.keys(data);
+let vals=Object.values(data);
+let max=Math.max(...vals,1);
+
+horas.forEach((h,i)=>{
+let v=data[h];
+let altura=(v/max)*150;
+let x=10+i*12;
+
+ctx.fillRect(x,180-altura,8,altura);
+});
 
 }
 
