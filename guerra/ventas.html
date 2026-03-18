@@ -134,7 +134,7 @@ const db = firebase.database();
 // TRADUCCION
 
 function traducir(v){
-if(v == ""b20"") return "Bidón 20L";
+if(v == "b20") return "Bidón 20L";
 if(v == "b12") return "Bidón 12L";
 if(v == "b8") return "Bidón 8L";
 return v;
@@ -143,7 +143,7 @@ return v;
 
 // HISTORIAL + CONTADORES
 
-db.ref("dispositivo/historial").on("value", snap => {
+db.ref("dispositivo/estado/historial").on("value", snap => {
 
 let data = snap.val();
 
