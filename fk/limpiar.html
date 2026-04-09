@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limpieza de Historial Cámaras</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f7fb;
+text-align:center;
+padding:20px;
+}
+
+h1{
+color:#2c3e50;
+}
+
+.panel{
+max-width:500px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+button{
+width:100%;
+padding:12px;
+margin:8px 0;
+font-size:16px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#e74c3c;
+color:white;
+}
+
+button:hover{
+background:#c0392b;
+}
+
+.all{
+background:#000;
+}
+
+.all:hover{
+background:#333;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Limpieza Historial Cámaras</h1>
+
+<div class="panel">
+
+<button onclick="borrarCamara(1)">Borrar Cámara 1</button>
+<button onclick="borrarCamara(2)">Borrar Cámara 2</button>
+<button onclick="borrarCamara(3)">Borrar Cámara 3</button>
+<button onclick="borrarCamara(4)">Borrar Cámara 4</button>
+<button onclick="borrarCamara(5)">Borrar Cámara 5</button>
+<button onclick="borrarCamara(6)">Borrar Cámara 6</button>
+<button onclick="borrarCamara(7)">Borrar Cámara 7</button>
+<button onclick="borrarCamara(8)">Borrar Cámara 8</button>
+
+<hr>
+
+<button class="all" onclick="borrarTodo()">🚨 BORRAR TODO</button>
+
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+authDomain: "pagos-58644.firebaseapp.com",
+databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+projectId: "pagos-58644"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+
+// BORRAR UNA CAMARA
+
+function borrarCamara(n){
+
+let ruta = "camarasFK/camara_" + n + "/historial";
+
+if(confirm("¿Seguro que querés borrar historial de cámara " + n + "?")){
+
+db.ref(ruta).remove()
+.then(()=> alert("Historial cámara " + n + " borrado"))
+.catch(()=> alert("Error al borrar"));
+
+}
+
+}
+
+
+// BORRAR TODAS
+
+function borrarTodo(){
+
+if(confirm("⚠️ Esto borra TODOS los historiales ¿Seguro?")){
+
+for(let i=1; i<=8; i++){
+
+let ruta = "camarasFK/camara_" + i + "/historial";
+db.ref(ruta).remove();
+
+}
+
+alert("Todos los historiales eliminados");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
