@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador de QR - Mercado Pago</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f2f2f2;
+    text-align:center;
+    margin:30px;
+}
+
+h1{
+    color:#009ee3;
+}
+
+.container{
+    width:700px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(0,0,0,.2);
+}
+
+input{
+    width:95%;
+    padding:10px;
+    font-size:16px;
+    margin:10px;
+}
+
+button{
+    padding:12px 30px;
+    font-size:18px;
+    margin:10px;
+    cursor:pointer;
+    border:none;
+    border-radius:8px;
+    background:#009ee3;
+    color:white;
+}
+
+button:hover{
+    background:#0077b6;
+}
+
+#qrcode{
+    margin-top:30px;
+}
+
+canvas{
+    margin:auto;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Generador de QR Mercado Pago</h1>
+
+<input
+id="link"
+placeholder="Pegá aquí el Link de Pago o la URL con pref_id">
+
+<br>
+
+<button onclick="generarQR()">
+Generar QR
+</button>
+
+<button onclick="descargarQR()">
+Descargar PNG
+</button>
+
+<button onclick="window.print()">
+Imprimir
+</button>
+
+<div id="qrcode"></div>
+
+</div>
+
+<script>
+
+function generarQR(){
+
+    let contenedor=document.getElementById("qrcode");
+
+    contenedor.innerHTML="";
+
+    let texto=document.getElementById("link").value.trim();
+
+    if(texto==""){
+        alert("Pegá un Link de Mercado Pago");
+        return;
+    }
+
+    new QRCode(contenedor,{
+        text:texto,
+        width:350,
+        height:350
+    });
+
+}
+
+function descargarQR(){
+
+    let canvas=document.querySelector("#qrcode canvas");
+
+    if(!canvas){
+        alert("Primero generá el QR");
+        return;
+    }
+
+    let enlace=document.createElement("a");
+    enlace.download="QR_MercadoPago.png";
+    enlace.href=canvas.toDataURL("image/png");
+    enlace.click();
+
+}
+
+</script>
+
+</body>
+</html>
