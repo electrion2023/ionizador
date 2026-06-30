@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador QR Mercado Pago</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#ececec;
+    text-align:center;
+}
+
+.contenedor{
+    width:700px;
+    margin:auto;
+    margin-top:30px;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 15px rgba(0,0,0,.2);
+}
+
+input{
+    width:95%;
+    padding:12px;
+    font-size:16px;
+}
+
+button{
+    padding:12px 25px;
+    margin:10px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+img{
+    margin-top:25px;
+    border:1px solid #ccc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="contenedor">
+
+<h2>Generador QR Mercado Pago</h2>
+
+<input id="url"
+placeholder="Pegá aquí el Link de Pago">
+
+<br>
+
+<button onclick="generar()">
+Generar QR
+</button>
+
+<button onclick="descargar()">
+Descargar PNG
+</button>
+
+<br>
+
+<img id="qr" style="display:none;">
+
+</div>
+
+<script>
+
+function generar(){
+
+    let url=document.getElementById("url").value.trim();
+
+    if(url==""){
+        alert("Pegá el link");
+        return;
+    }
+
+    let imagen=document.getElementById("qr");
+
+    imagen.src="https://api.qrserver.com/v1/create-qr-code/?size=800x800&data="+encodeURIComponent(url);
+
+    imagen.style.display="block";
+
+}
+
+function descargar(){
+
+    let img=document.getElementById("qr");
+
+    if(img.style.display=="none"){
+        alert("Primero generá el QR");
+        return;
+    }
+
+    let a=document.createElement("a");
+    a.href=img.src;
+    a.download="MercadoPagoQR.png";
+    a.click();
+
+}
+
+</script>
+
+</body>
+</html>
