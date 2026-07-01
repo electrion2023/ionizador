@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CONFIGURACIÓN BASE Y RESET CORRECCIONAL (ESTILO KIOSCO)
+   CONFIGURACIÓN BASE Y RESET (OPTIMIZADO PARA TABLET 7" PORTRAIT)
    ========================================================================== */
 
 * {
@@ -13,18 +13,18 @@
 }
 
 html, body {
-    width: 1080px;
-    height: 1920px;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
-    background-color: #000000; /* Negro absoluto para mimetizarse con el marco de la tablet */
+    background-color: #000000; /* Negro absoluto para mimetizarse con el marco */
     font-family: 'Inter', sans-serif;
     color: #FFFFFF;
 }
 
 /* Contenedor principal SPA */
 #app {
-    width: 1080px;
-    height: 1920px;
+    width: 100vw;
+    height: 100vh;
     position: relative;
 }
 
@@ -36,8 +36,8 @@ html, body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 1080px;
-    height: 1920px;
+    width: 100%;
+    height: 100%;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
@@ -58,7 +58,7 @@ html, body {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 120px 60px;
+    padding: 80px 40px; /* Reducido para 7" */
 }
 
 /* Videos en Background (Ocupan la zona superior/central dinámicamente) */
@@ -82,7 +82,7 @@ html, body {
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
-    padding-bottom: 200px;
+    padding-bottom: 120px; /* Ajustado para 7" */
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 100%);
     z-index: 3;
 }
@@ -91,18 +91,17 @@ html, body {
 .bottom-bar {
     height: 35%;
     justify-content: center;
-    padding: 0 80px 40px 80px;
+    padding: 0 40px 30px 40px;
     text-align: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 /* ==========================================================================
-   COMPONENTES GRÁFICOS PREMIUM
+   COMPONENTES GRÁFICOS PREMIUM Y TIPOGRAFÍA (AJUSTADO 7")
    ========================================================================== */
 
-/* Tipografías e Hitos Visuales */
 h1 {
-    font-size: 72px;
+    font-size: 48px;
     font-weight: 700;
     letter-spacing: -1px;
     text-transform: uppercase;
@@ -110,22 +109,22 @@ h1 {
 }
 
 h2 {
-    font-size: 56px;
+    font-size: 38px;
     font-weight: 500;
     color: #E2E8F0;
     text-align: center;
 }
 
 h3 {
-    font-size: 38px;
+    font-size: 28px;
     font-weight: 300;
     color: #94A3B8;
 }
 
 .logo-large {
-    width: 320px;
+    width: 220px;
     height: auto;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 /* 3) Tarjetas de Selección de Bidón (Estilo Tesla/Apple) */
@@ -133,15 +132,15 @@ h3 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 45px;
-    margin-top: 40px;
+    gap: 25px;
+    margin-top: 30px;
 }
 
 .card {
     background: rgba(255, 255, 255, 0.03);
     border: 3px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px;
-    padding: 40px 60px;
+    border-radius: 24px;
+    padding: 25px 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -150,21 +149,21 @@ h3 {
 }
 
 .card img {
-    height: 140px;
+    height: 90px;
     width: auto;
     filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.5));
 }
 
 .card h3 {
-    font-size: 48px;
+    font-size: 32px;
     font-weight: 500;
     color: #FFFFFF;
     flex-grow: 1;
-    margin-left: 50px;
+    margin-left: 30px;
 }
 
 .card .price {
-    font-size: 52px;
+    font-size: 36px;
     font-weight: 700;
     color: #00E676; /* Verde Mercado Pago / Éxito */
 }
@@ -183,24 +182,24 @@ h3 {
     align-items: center;
     justify-content: center;
     height: 100%;
-    gap: 60px;
+    gap: 40px;
 }
 
 .qr-box {
     background: #FFFFFF;
-    padding: 30px;
-    border-radius: 40px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 24px;
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 .qr-box img {
-    width: 450px;
-    height: 450px;
+    width: 300px;
+    height: 300px;
     display: block;
 }
 
 .subtitle {
-    font-size: 34px;
+    font-size: 24px;
     color: #94A3B8;
 }
 
@@ -212,14 +211,14 @@ h3 {
     justify-content: center;
     height: 100%;
     width: 100%;
-    gap: 80px;
+    gap: 60px;
 }
 
 .progress-wrapper {
     width: 85%;
-    height: 40px;
+    height: 30px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
     border: 2px solid rgba(255, 255, 255, 0.1);
     position: relative;
@@ -229,13 +228,13 @@ h3 {
     width: 0%;
     height: 100%;
     background: linear-gradient(90deg, #00B0FF, #00E5FF);
-    border-radius: 20px;
+    border-radius: 15px;
     transition: width 0.2s ease-out;
     box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
 }
 
 .liters-display {
-    font-size: 90px;
+    font-size: 72px;
     font-weight: 700;
     letter-spacing: -2px;
 }
@@ -246,18 +245,18 @@ h3 {
 
 /* Cuenta regresiva en pantalla de Lavado */
 .countdown {
-    font-size: 110px;
+    font-size: 80px;
     font-weight: 700;
     color: #FF5252;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 /* Loader premium discreto para transiciones de espera */
 .loader {
-    width: 70px;
-    height: 70px;
-    border: 6px solid rgba(255,255,255,0.05);
-    border-top: 6px solid #00E676;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255,255,255,0.05);
+    border-top: 5px solid #00E676;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
