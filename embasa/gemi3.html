@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Electrion App</title>
+    <style>
+        body { margin: 0; background: black; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        video { display: none; width: 100%; height: 100%; object-fit: cover; }
+        #overlay { position: fixed; z-index: 999; width: 100%; height: 100%; background: #000; color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">TOCA LA PANTALLA PARA INICIAR</div>
+
+    <video id="v-ir" src="videos/intro.mp4" muted playsinline></video>
+    <video id="v-h" src="videos/hidro.mp4" muted playsinline></video>
+    <video id="v-ll" src="videos/llenado.mp4" loop muted playsinline></video>
+    <video id="v-ok" src="videos/gracias.mp4" muted playsinline></video>
+    <video id="v-standby" src="videos/standby.mp4" loop muted playsinline></video>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        firebase.initializeApp({ databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com" });
+        const db = firebase.database();
+
+        // Esta función cambia el video basándose en el ID del elemento
+        function cambiarVideo(comando) {
+            console.log("Cambiando a:", comando);
+            document.querySelectorAll('video').forEach(v => {
+                v.style.display = 'none';
+                v.pause();
+                v.currentTime = 0;
+            });
+
+            // Si el comando no existe, volvemos a standby
+            const videoElement = document.getElementById('v-' + comando) || document.getElementById('v-standby');
+            videoElement.style.display = 'block';
+            videoElement.play().catch(e => console.log("Esperando interacción"));
+        }
+
+        // Desbloqueo inicial (necesario en Android)
+        document.getElementById('overlay').onclick = (e) => {
+            e.target.style.display = 'none';
+            cambiarVideo('standby');
+        };
+
+        // Escucha constante de Firebase
+        db.ref('dispositivo/estado/paso').on('value', (snap) => {
+            const comando = snap.val();
+            // Esto dispara el cambio de video automáticamente
+            cambiarVideo(comando);
+        });
+    </script>
+</body>
+</html>
