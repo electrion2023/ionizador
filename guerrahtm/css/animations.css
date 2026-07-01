@@ -1,0 +1,102 @@
+/* ==========================================================================
+   ANIMACIONES ACELERADAS POR HARDWARE (GPU)
+   ========================================================================== */
+
+/* Animación de pulso lento para el estado StandBy ("Acerque su bidón") */
+.pulse-text {
+    animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    will-change: opacity, transform;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.98);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+    100% {
+        opacity: 0.6;
+        transform: scale(0.98);
+    }
+}
+
+/* Animación de entrada suave hacia arriba (Slide Up Fade) para tarjetas y modales */
+.slide-up-fade {
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto de destello para el texto de éxito ("Gracias por su compra") */
+.success-text {
+    animation: successGlow 2s ease-in-out forwards;
+    will-change: text-shadow;
+}
+
+@keyframes successGlow {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+        text-shadow: 0 0 0 rgba(0, 230, 118, 0);
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1.05);
+        text-shadow: 0 0 40px rgba(0, 230, 118, 0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        text-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+    }
+}
+
+/* Animación de transición en la barra de progreso (Fluidez) */
+.progress-bar {
+    /* La transición base se maneja en style.css, pero agregamos un brillo dinámico aquí */
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Staggering (retraso en cascada) para las tarjetas de selección */
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
