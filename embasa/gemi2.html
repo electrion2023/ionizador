@@ -3,42 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistema de Llenado</title>
+    <title>App Llenado</title>
     <style>
         body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
-        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
+        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; position: absolute; width: 100%; }
         .active { display: flex; }
-        video { width: 100%; max-height: 80vh; }
-        .btn-container { display: flex; flex-direction: column; gap: 20px; }
-        button { padding: 30px 60px; font-size: 2rem; border-radius: 20px; border: none; background: #28a745; color: white; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        #debug-bar { position: fixed; top: 0; width: 100%; background: rgba(255,0,0,0.7); font-size: 12px; z-index: 9999; text-align: center; }
+        #btn-start { padding: 20px 40px; font-size: 24px; background: #007bff; color: white; border: none; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="pantalla-espera" class="screen active">
-        <video src="espera.mp4" autoplay muted loop playsinline></video>
-        <h2>Acerque su bidón</h2>
+    <div id="debug-bar">Estado: <span id="debug-valor">...</span></div>
+
+    <div id="pantalla-start" class="screen active">
+        <button id="btn-start" onclick="iniciarApp()">INICIAR SISTEMA</button>
+    </div>
+
+    <div id="pantalla-espera" class="screen">
+        <video id="vid-espera" src="espera.mp4" muted loop playsinline></video>
     </div>
 
     <div id="pantalla-seleccion" class="screen">
-        <div class="btn-container">
-            <button onclick="seleccionar('b6')">Bidón 6 L</button>
-            <button onclick="seleccionar('b12')">Bidón 12 L</button>
-            <button onclick="seleccionar('b20')">Bidón 20 L</button>
-        </div>
-    </div>
-
-    <div id="pantalla-qr" class="screen">
-        <h2>Escanee para pagar</h2>
-        <img src="qr.png" style="width: 80%;">
-    </div>
-
-    <div id="pantalla-lavado" class="screen">
-        <video id="video-lavado" src="intro.mp4"></video>
-    </div>
-
-    <div id="pantalla-llenando" class="screen">
-        <h1>Llenando...</h1>
+        <button onclick="enviarPaso('b6')">Bidón 6 L</button>
+        <button onclick="enviarPaso('b12')">Bidón 12 L</button>
+        <button onclick="enviarPaso('b20')">Bidón 20 L</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -47,33 +37,36 @@
     <script>
         firebase.initializeApp({ databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com" });
         const refPaso = firebase.database().ref('dispositivo/estado/paso');
-        
-        let bidonElegido = "";
 
-        // Funciones de navegación
+        function iniciarApp() {
+            document.getElementById('pantalla-start').classList.remove('active');
+            mostrarPantalla('pantalla-espera');
+        }
+
         function mostrarPantalla(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-
-        // Lógica de Firebase
-        refPaso.on('value', (snap) => {
-            const paso = snap.val();
+            const el = document.getElementById(id);
+            el.classList.add('active');
             
-            if (paso === 'ir') mostrarPantalla('pantalla-espera');
-            if (paso === 'pago_aprobado') { // Asumiendo que el ESP u otro backend escribe esto
-                mostrarPantalla('pantalla-lavado');
-                document.getElementById('video-lavado').play();
-                // Lógica de timer para enviar b6, b12 o b20
+            const vid = el.querySelector('video');
+            if(vid) {
+                vid.currentTime = 0;
+                vid.play().catch(e => console.log("Error play:", e));
             }
-            if (paso === 'll') mostrarPantalla('pantalla-llenando');
-            if (paso === 'ok') mostrarPantalla('pantalla-espera');
-        });
-
-        function seleccionar(tipo) {
-            bidonElegido = tipo;
-            mostrarPantalla('pantalla-qr');
         }
+
+        function enviarPaso(valor) {
+            refPaso.set(valor);
+        }
+
+        // Lógica de escucha de Firebase
+        refPaso.on('value', (snap) => {
+            const val = snap.val();
+            document.getElementById('debug-valor').innerText = val;
+            
+            if(val === 'ir') mostrarPantalla('pantalla-espera');
+            if(val === 'pago_ok') mostrarPantalla('pantalla-seleccion'); // Ajusta a tu lógica
+        });
     </script>
 </body>
 </html>
