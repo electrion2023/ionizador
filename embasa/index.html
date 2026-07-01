@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrion App</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <style>
+        body { background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        #debug { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #00ff00; }
+    </style>
+</head>
+<body>
+
+    <div id="debug">Iniciando...</div>
+    <h1 id="estado-pantalla">ESPERANDO DATOS...</h1>
+
+    <script>
+        // 1. CONFIGURACIÓN
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+            projectId: "pagos-58644"
+        };
+
+        // 2. INICIALIZAR
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const debug = document.getElementById('debug');
+        const pantalla = document.getElementById('estado-pantalla');
+
+        // 3. LISTENER (EL CORAZÓN)
+        db.ref('dispositivo/estado/paso').on('value', (snapshot) => {
+            const val = snapshot.val();
+            debug.innerText = "Recibido: " + val;
+            
+            if(val === "ir") {
+                pantalla.innerText = "ACERQUE SU BIDÓN";
+                // Aquí podrías disparar tu lógica de video
+            } else {
+                pantalla.innerText = "PASO: " + val;
+            }
+        });
+
+        console.log("Sistema cargado correctamente");
+    </script>
+</body>
+</html>
