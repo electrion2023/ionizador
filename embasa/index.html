@@ -2,49 +2,60 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electrion App</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
     <style>
-        body { background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
-        #debug { position: absolute; top: 10px; left: 10px; font-size: 12px; color: #00ff00; }
+        body { margin: 0; background: black; overflow: hidden; }
+        /* Los videos ocupan toda la pantalla */
+        video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+        #video-active { display: block; } /* Solo el video activo se muestra */
     </style>
 </head>
 <body>
 
-    <div id="debug">Iniciando...</div>
-    <h1 id="estado-pantalla">ESPERANDO DATOS...</h1>
+    <video id="v-standby" src="videos/standby.mp4" loop muted playsinline></video>
+    <video id="v-intro" src="videos/intro.mp4" playsinline></video>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // 1. CONFIGURACIÓN
-        const firebaseConfig = {
-            apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
-            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
-            projectId: "pagos-58644"
-        };
+        firebase.initializeApp({
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com"
+        });
 
-        // 2. INICIALIZAR
-        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const debug = document.getElementById('debug');
-        const pantalla = document.getElementById('estado-pantalla');
+        let currentVideo = null;
 
-        // 3. LISTENER (EL CORAZÓN)
+        function reproducir(id) {
+            // Ocultar todos
+            document.querySelectorAll('video').forEach(v => {
+                v.style.display = 'none';
+                v.pause();
+                v.currentTime = 0;
+            });
+
+            // Mostrar y reproducir el nuevo
+            const v = document.getElementById('v-' + id);
+            if(v) {
+                v.style.display = 'block';
+                v.play().catch(e => console.log("Autoplay bloqueado, toca la pantalla"));
+                currentVideo = v;
+            }
+        }
+
+        // Listener de Firebase
         db.ref('dispositivo/estado/paso').on('value', (snapshot) => {
-            const val = snapshot.val();
-            debug.innerText = "Recibido: " + val;
-            
-            if(val === "ir") {
-                pantalla.innerText = "ACERQUE SU BIDÓN";
-                // Aquí podrías disparar tu lógica de video
-            } else {
-                pantalla.innerText = "PASO: " + val;
+            const comando = snapshot.val();
+            console.log("Comando recibido:", comando);
+
+            if (comando === "ir") {
+                reproducir("intro");
+            } else if (comando === "" || !comando) {
+                reproducir("standby");
             }
         });
 
-        console.log("Sistema cargado correctamente");
+        // Iniciar en standby
+        reproducir("standby");
     </script>
 </body>
 </html>
