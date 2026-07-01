@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<!-- viewport optimizado para tablet Android en posición vertical -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lavado de Bidones - Autoservicio</title>
+
+<!-- Firebase v8 SDK (sintaxis clásica con namespaces) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<style>
+    /* =========================================================
+       RESET Y CONFIGURACIÓN BASE
+       ========================================================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        background: #0d0d0d;
+        color: #ffffff;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* Contenedor principal que ocupa toda la pantalla */
+    #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+    }
+
+    /* =========================================================
+       PANTALLAS - Sistema de transición FADE
+       ========================================================= */
+    .pantalla {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+        pointer-events: none;
+    }
+
+    .pantalla.activa {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* =========================================================
+       PANTALLA 1 - Selección de bidón
+       ========================================================= */
+    .titulo-principal {
+        font-size: 3.5rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+        background: linear-gradient(90deg, #FFC72C, #DA291C);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .subtitulo-principal {
+        font-size: 1.5rem;
+        color: #aaaaaa;
+        margin-bottom: 50px;
+        text-align: center;
+    }
+
+    .contenedor-tarjetas {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        width: 100%;
+        max-width: 700px;
+    }
+
+    .tarjeta {
+        background: linear-gradient(145deg, #1f1f1f, #151515);
+        border: 2px solid #2a2a2a;
+        border-radius: 25px;
+        padding: 30px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .tarjeta:hover,
+    .tarjeta:active {
+        transform: translateY(-4px) scale(1.02);
+        border-color: #DA291C;
+        box-shadow: 0 15px 40px rgba(218, 41, 28, 0.3);
+    }
+
+    .tarjeta-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tarjeta-titulo {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+    }
+
+    .tarjeta-precio {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #FFC72C;
+    }
+
+    .tarjeta-boton {
+        background: linear-gradient(135deg, #DA291C, #a31d13);
+        color: #ffffff;
+        border: none;
+        border-radius: 18px;
+        padding: 18px 40px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 15px rgba(218, 41, 28, 0.4);
+    }
+
+    .tarjeta-boton:hover,
+    .tarjeta-boton:active {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(218, 41, 28, 0.6);
+    }
+
+    /* =========================================================
+       PANTALLA 2 - Código QR y espera de pago
+       ========================================================= */
+    .qr-contenedor {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(255, 199, 44, 0.25);
+        animation: pulsoQR 2s ease-in-out infinite;
+    }
+
+    .qr-imagen {
+        display: block;
+        width: 380px;
+        height: 380px;
+        border-radius: 15px;
+    }
+
+    @keyframes pulsoQR {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 20px 60px rgba(255, 199, 44, 0.25);
+        }
+        50% {
+            transform: scale(1.03);
+            box-shadow: 0 25px 80px rgba(255, 199, 44, 0.5);
+        }
+    }
+
+    .qr-texto {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-top: 40px;
+        text-align: center;
+        max-width: 700px;
+    }
+
+    /* Animación de espera (tres puntos pulsantes) */
+    .espera-contenedor {
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .espera-texto {
+        font-size: 1.4rem;
+        color: #aaaaaa;
+        font-style: italic;
+    }
+
+    .espera-puntos {
+        display: flex;
+        gap: 8px;
+    }
+
+    .espera-punto {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #FFC72C;
+        animation: rebotePunto 1.4s infinite ease-in-out both;
+    }
+
+    .espera-punto:nth-child(1) { animation-delay: -0.32s; }
+    .espera-punto:nth-child(2) { animation-delay: -0.16s; }
+    .espera-punto:nth-child(3) { animation-delay: 0s; }
+
+    @keyframes rebotePunto {
+        0%, 80%, 100% {
+            transform: scale(0.4);
+            opacity: 0.4;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* =========================================================
+       PANTALLA 3 - Video de instrucciones
+       ========================================================= */
+    .video-contenedor {
+        width: 100%;
+        max-width: 800px;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        border: 3px solid #2a2a2a;
+    }
+
+    .video-elemento {
+        width: 100%;
+        height: auto;
+        display: block;
+        background: #000;
+    }
+
+    .video-texto {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-top: 40px;
+        text-align: center;
+        max-width: 900px;
+        line-height: 1.4;
+        padding: 0 20px;
+    }
+
+    .video-texto .resaltado {
+        color: #FFC72C;
+        font-weight: 800;
+    }
+
+    /* =========================================================
+       RESPONSIVE - Ajustes para tablet en vertical
+       ========================================================= */
+    @media (max-height: 900px) {
+        .titulo-principal { font-size: 2.8rem; }
+        .subtitulo-principal { font-size: 1.2rem; margin-bottom: 30px; }
+        .contenedor-tarjetas { gap: 20px; }
+        .tarjeta { padding: 22px 30px; }
+        .tarjeta-titulo { font-size: 1.8rem; }
+        .tarjeta-precio { font-size: 1.5rem; }
+        .tarjeta-boton { padding: 14px 30px; font-size: 1.3rem; }
+        .qr-imagen { width: 300px; height: 300px; }
+        .qr-texto { font-size: 1.6rem; margin-top: 30px; }
+        .video-texto { font-size: 1.6rem; margin-top: 30px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+    <!-- =========================================================
+         PANTALLA 1 - Selección de bidón
+         ========================================================= -->
+    <div id="pantalla1" class="pantalla activa">
+        <h1 class="titulo-principal">LAVADO DE BIDONES</h1>
+        <p class="subtitulo-principal">Seleccione el tamaño de su bidón</p>
+
+        <div class="contenedor-tarjetas">
+
+            <!-- Tarjeta Bidón 6 Litros -->
+            <div class="tarjeta" onclick="seleccionarBidon('b6')">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 6 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b6">$ --</div>
+                </div>
+                <button class="tarjeta-boton">Seleccionar</button>
+            </div>
+
+            <!-- Tarjeta Bidón 12 Litros -->
+            <div class="tarjeta" onclick="seleccionarBidon('b12')">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 12 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b12">$ --</div>
+                </div>
+                <button class="tarjeta-boton">Seleccionar</button>
+            </div>
+
+            <!-- Tarjeta Bidón 20 Litros -->
+            <div class="tarjeta" onclick="seleccionarBidon('b20')">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 20 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b20">$ --</div>
+                </div>
+                <button class="tarjeta-boton">Seleccionar</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         PANTALLA 2 - Código QR y espera de pago
+         ========================================================= -->
+    <div id="pantalla2" class="pantalla">
+        <div class="qr-contenedor">
+            <img id="qr-imagen" class="qr-imagen" src="" alt="Código QR de pago">
+        </div>
+        <p class="qr-texto">Escanee el código QR para realizar el pago.</p>
+
+        <div class="espera-contenedor">
+            <span class="espera-texto">Esperando pago</span>
+            <div class="espera-puntos">
+                <div class="espera-punto"></div>
+                <div class="espera-punto"></div>
+                <div class="espera-punto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         PANTALLA 3 - Video de instrucciones
+         ========================================================= -->
+    <div id="pantalla3" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-instrucciones" class="video-elemento"
+                   src="videos/posicionar.mp4"
+                   autoplay muted playsinline>
+            </video>
+        </div>
+        <p class="video-texto">
+            Coloque el bidón con el <span class="resaltado">pico hacia abajo</span>
+            y presione el <span class="resaltado">botón blanco</span> para comenzar el lavado.
+        </p>
+    </div>
+
+</div>
+
+<script>
+    /* =========================================================
+       CONFIGURACIÓN DE FIREBASE (v8 clásico - namespaces)
+       IMPORTANTE: Reemplazar con las credenciales reales del proyecto.
+       ========================================================= */
+    const firebaseConfig = {
+  apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
+  authDomain: "pagos-58644.firebaseapp.com",
+  databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+  projectId: "pagos-58644",
+  storageBucket: "pagos-58644.firebasestorage.app",
+  messagingSenderId: "118987640941",
+  appId: "1:118987640941:web:5ffc5c075d2051ef1bef64"
+};
+
+    // Inicializar Firebase con la sintaxis clásica de v8
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+
+    /* =========================================================
+       ESTADO GLOBAL DE LA APLICACIÓN
+       ========================================================= */
+    var bidonSeleccionado = null;      // 'b6' | 'b12' | 'b20'
+    var precioSeleccionado = 0;        // Precio del bidón elegido
+    var montoPagoActual = 0;           // Valor leído de /pago/monto
+    var pagoAutorizadoActual = false;  // Valor leído de /pago/autorizado
+
+    // Referencias a los listeners de pago (para poder desanclarlos luego)
+    var refMonto = null;
+    var refAutorizado = null;
+
+    /* =========================================================
+       LISTENERS DE PRECIOS - Pantalla 1
+       Se leen en tiempo real desde /precios/b6, /precios/b12, /precios/b20
+       ========================================================= */
+    database.ref('/precios/b6').on('value', function(snapshot) {
+        var precio = snapshot.val();
+        document.getElementById('precio-b6').textContent = '$ ' + precio;
+    });
+
+    database.ref('/precios/b12').on('value', function(snapshot) {
+        var precio = snapshot.val();
+        document.getElementById('precio-b12').textContent = '$ ' + precio;
+    });
+
+    database.ref('/precios/b20').on('value', function(snapshot) {
+        var precio = snapshot.val();
+        document.getElementById('precio-b20').textContent = '$ ' + precio;
+    });
+
+    /* =========================================================
+       FUNCIÓN: Cambiar de pantalla con transición FADE
+       ========================================================= */
+    function mostrarPantalla(numero) {
+        // Ocultar todas las pantallas
+        var pantallas = document.querySelectorAll('.pantalla');
+        for (var i = 0; i < pantallas.length; i++) {
+            pantallas[i].classList.remove('activa');
+        }
+        // Mostrar la pantalla solicitada
+        var pantallaDestino = document.getElementById('pantalla' + numero);
+        if (pantallaDestino) {
+            pantallaDestino.classList.add('activa');
+        }
+    }
+
+    /* =========================================================
+       FUNCIÓN: Seleccionar bidón (disparada al tocar una tarjeta)
+       - Guarda el tipo de bidón y su precio
+       - Muestra la pantalla 2 con el QR correspondiente
+       - Inicia la escucha del pago en Firebase
+       ========================================================= */
+    function seleccionarBidon(tipo) {
+        // Guardar internamente el bidón seleccionado
+        bidonSeleccionado = tipo;
+
+        // Leer el precio actual desde la tarjeta correspondiente
+        var elementoPrecio = document.getElementById('precio-' + tipo);
+        var textoPrecio = elementoPrecio.textContent.replace('$', '').trim();
+        precioSeleccionado = parseFloat(textoPrecio) || 0;
+
+        // Configurar la imagen del QR según el bidón elegido
+        var qrImagen = document.getElementById('qr-imagen');
+        qrImagen.src = 'img/qr_' + tipo + '.png';
+
+        // Resetear el estado del pago antes de empezar a escuchar
+        montoPagoActual = 0;
+        pagoAutorizadoActual = false;
+
+        // Cambiar a la pantalla 2 (QR)
+        mostrarPantalla(2);
+
+        // Iniciar los listeners de pago en Firebase
+        iniciarEscuchaPago();
+    }
+
+    /* =========================================================
+       FUNCIÓN: Iniciar escucha de pago en Firebase
+       Escucha /pago/monto y /pago/autorizado en tiempo real.
+       No utiliza polling, solo listeners de Firebase v8.
+       ========================================================= */
+    function iniciarEscuchaPago() {
+        // Listener del monto del pago
+        refMonto = database.ref('/pago/monto');
+        refMonto.on('value', function(snapshot) {
+            var valor = snapshot.val();
+            // Asegurar que se interprete como número
+            montoPagoActual = parseFloat(valor) || 0;
+            verificarPagoCompletado();
+        });
+
+        // Listener del estado de autorización del pago
+        refAutorizado = database.ref('/pago/autorizado');
+        refAutorizado.on('value', function(snapshot) {
+            var valor = snapshot.val();
+            // Solo se considera autorizado si es exactamente true
+            pagoAutorizadoActual = (valor === true);
+            verificarPagoCompletado();
+        });
+    }
+
+    /* =========================================================
+       FUNCIÓN: Verificar si se cumplen ambas condiciones de pago
+       - monto == precio del bidón seleccionado
+       - autorizado == true
+       Cuando se cumplen, desancla los listeners y muestra el video.
+       ========================================================= */
+    function verificarPagoCompletado() {
+        // Comparar monto con precio (usando pequeña tolerancia para decimales)
+        var montoCorrecto = (Math.abs(montoPagoActual - precioSeleccionado) < 0.01);
+        var autorizado = (pagoAutorizadoActual === true);
+
+        if (montoCorrecto && autorizado) {
+            // Desanclar los listeners para dejar de escuchar
+            if (refMonto) refMonto.off();
+            if (refAutorizado) refAutorizado.off();
+
+            // Cambiar a la pantalla 3 (video)
+            mostrarPantalla(3);
+
+            // Asegurar que el video comience a reproducirse
+            var video = document.getElementById('video-instrucciones');
+            video.currentTime = 0;
+            var promesa = video.play();
+            // Manejo defensivo por si el navegador bloquea el autoplay
+            if (promesa !== undefined) {
+                promesa.catch(function(error) {
+                    console.log('Autoplay bloqueado, reintentando con muted:', error);
+                    video.muted = true;
+                    video.play();
+                });
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
