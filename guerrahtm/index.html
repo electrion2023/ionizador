@@ -1,1 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HMI Expendedora Premium</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <main id="app">
+        
+        <section id="screen-standby" class="screen active">
+            <video id="video-standby" class="bg-video" loop muted playsinline preload="auto">
+                <source src="assets/videos/standby.mp4" type="video/mp4">
+            </video>
+            <div class="overlay">
+                <img src="assets/logo/logo.png" alt="Logo" class="logo-large">
+                <h1 class="pulse-text">Acerque su bidón</h1>
+            </div>
+        </section>
 
+        <section id="screen-intro" class="screen">
+            <video id="video-intro" class="bg-video" muted playsinline preload="auto">
+                <source src="assets/videos/intro.mp4" type="video/mp4">
+            </video>
+        </section>
+
+        <section id="screen-seleccion" class="screen dark-bg">
+            <div class="header">
+                <h2>Seleccione el tamaño</h2>
+            </div>
+            <div class="cards-container">
+                <div class="card" data-litros="6">
+                    <img src="assets/img/bidon_6l.png" alt="6 Litros">
+                    <h3>6 Litros</h3>
+                    <p class="price">$ XXX</p>
+                </div>
+                <div class="card" data-litros="12">
+                    <img src="assets/img/bidon_12l.png" alt="12 Litros">
+                    <h3>12 Litros</h3>
+                    <p class="price">$ XXX</p>
+                </div>
+                <div class="card" data-litros="20">
+                    <img src="assets/img/bidon_20l.png" alt="20 Litros">
+                    <h3>20 Litros</h3>
+                    <p class="price">$ XXX</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-qr" class="screen dark-bg">
+            <div class="qr-container">
+                <h2>Escanee con Mercado Pago</h2>
+                <div class="qr-box">
+                    <img id="qr-image" src="assets/img/qr_placeholder.png" alt="Código QR">
+                </div>
+                <p class="subtitle">Esperando confirmación de pago...</p>
+                <div class="loader"></div>
+            </div>
+        </section>
+
+        <section id="screen-lavado" class="screen">
+            <video id="video-lavado" class="bg-video" muted playsinline preload="auto">
+                <source src="assets/videos/lavado.mp4" type="video/mp4">
+            </video>
+            <div class="overlay bottom-bar">
+                <h2>Coloque el bidón boca abajo</h2>
+                <h3>Presione el botón blanco para lavar</h3>
+                <div id="countdown-lavado" class="countdown">10</div>
+            </div>
+        </section>
+
+        <section id="screen-girar" class="screen">
+            <video id="video-girar" class="bg-video" muted playsinline preload="auto">
+                <source src="assets/videos/girar.mp4" type="video/mp4">
+            </video>
+            <div class="overlay bottom-bar">
+                <h2>Dé vuelta el bidón</h2>
+                <h3>Presione el botón de llenado</h3>
+            </div>
+        </section>
+
+        <section id="screen-llenando" class="screen dark-bg">
+            <div class="fill-container">
+                <h2>Llenando...</h2>
+                <div class="progress-wrapper">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <div class="liters-display">
+                    <span id="litros-actuales">0.0</span> / <span id="litros-objetivo">0</span> L
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-gracias" class="screen">
+            <video id="video-gracias" class="bg-video" muted playsinline preload="auto">
+                <source src="assets/videos/gracias.mp4" type="video/mp4">
+            </video>
+            <div class="overlay">
+                <h1 class="success-text">Gracias por su compra</h1>
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/videos.js"></script>
+    <script type="module" src="js/countdown.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/estados.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
