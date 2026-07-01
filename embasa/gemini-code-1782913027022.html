@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body style="background: black; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white;">
+
+    <h2 id="status">Esperando...</h2>
+    
+    <video id="video-test" src="intro.mp4" width="80%" playsinline muted></video>
+
+    <button id="btn-play" style="padding: 20px; font-size: 20px; margin-top: 20px;">REPRODUCIR INTRO.MP4</button>
+
+    <script>
+        const video = document.getElementById('video-test');
+        const btn = document.getElementById('btn-play');
+        const status = document.getElementById('status');
+
+        btn.onclick = () => {
+            status.innerText = "Intentando reproducir...";
+            video.play()
+                .then(() => status.innerText = "✅ ¡Reproduciendo!")
+                .catch(err => {
+                    status.innerText = "❌ Error: " + err.message;
+                    console.error(err);
+                });
+        };
+    </script>
+</body>
+</html>
