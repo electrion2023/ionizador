@@ -13,13 +13,13 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth
 
 // TODO: Reemplazar con las credenciales reales del proyecto
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "tu-proyecto.firebaseapp.com",
-    databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-    projectId: "tu-proyecto",
-    storageBucket: "tu-proyecto.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+  apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
+  authDomain: "pagos-58644.firebaseapp.com",
+  databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+  projectId: "pagos-58644",
+  storageBucket: "pagos-58644.firebasestorage.app",
+  messagingSenderId: "118987640941",
+  appId: "1:118987640941:web:5ffc5c075d2051ef1bef64"
 };
 
 // Inicialización
