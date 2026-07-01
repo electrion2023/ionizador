@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrion App</title>
+    <style>
+        body { margin: 0; background: black; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        /* Capa para desbloquear el navegador */
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">TOCA AQUÍ PARA INICIAR SISTEMA</div>
+
+    <video id="v-intro" src="intro.mp4" loop muted playsinline></video>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        const overlay = document.getElementById('overlay');
+        const video = document.getElementById('v-intro');
+
+        // 1. Desbloqueo de navegador
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            console.log("Sistema iniciado");
+        });
+
+        // 2. Inicializar Firebase
+        firebase.initializeApp({
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com"
+        });
+
+        // 3. Lógica de Listener
+        firebase.database().ref('dispositivo/estado/paso').on('value', (snapshot) => {
+            const comando = snapshot.val();
+            console.log("Comando recibido:", comando);
+
+            if (comando === "ir") {
+                video.style.display = 'block';
+                video.play().catch(e => console.log("Esperando interacción..."));
+            } else {
+                video.style.display = 'none';
+                video.pause();
+                video.currentTime = 0;
+            }
+        });
+    </script>
+</body>
+</html>
