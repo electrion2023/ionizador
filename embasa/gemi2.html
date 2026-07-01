@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistema de Llenado</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        .screen { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
+        .active { display: flex; }
+        video { width: 100%; max-height: 80vh; }
+        .btn-container { display: flex; flex-direction: column; gap: 20px; }
+        button { padding: 30px 60px; font-size: 2rem; border-radius: 20px; border: none; background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-espera" class="screen active">
+        <video src="espera.mp4" autoplay muted loop playsinline></video>
+        <h2>Acerque su bidón</h2>
+    </div>
+
+    <div id="pantalla-seleccion" class="screen">
+        <div class="btn-container">
+            <button onclick="seleccionar('b6')">Bidón 6 L</button>
+            <button onclick="seleccionar('b12')">Bidón 12 L</button>
+            <button onclick="seleccionar('b20')">Bidón 20 L</button>
+        </div>
+    </div>
+
+    <div id="pantalla-qr" class="screen">
+        <h2>Escanee para pagar</h2>
+        <img src="qr.png" style="width: 80%;">
+    </div>
+
+    <div id="pantalla-lavado" class="screen">
+        <video id="video-lavado" src="intro.mp4"></video>
+    </div>
+
+    <div id="pantalla-llenando" class="screen">
+        <h1>Llenando...</h1>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        firebase.initializeApp({ databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com" });
+        const refPaso = firebase.database().ref('dispositivo/estado/paso');
+        
+        let bidonElegido = "";
+
+        // Funciones de navegación
+        function mostrarPantalla(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Lógica de Firebase
+        refPaso.on('value', (snap) => {
+            const paso = snap.val();
+            
+            if (paso === 'ir') mostrarPantalla('pantalla-espera');
+            if (paso === 'pago_aprobado') { // Asumiendo que el ESP u otro backend escribe esto
+                mostrarPantalla('pantalla-lavado');
+                document.getElementById('video-lavado').play();
+                // Lógica de timer para enviar b6, b12 o b20
+            }
+            if (paso === 'll') mostrarPantalla('pantalla-llenando');
+            if (paso === 'ok') mostrarPantalla('pantalla-espera');
+        });
+
+        function seleccionar(tipo) {
+            bidonElegido = tipo;
+            mostrarPantalla('pantalla-qr');
+        }
+    </script>
+</body>
+</html>
