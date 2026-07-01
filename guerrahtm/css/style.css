@@ -1,1 +1,268 @@
+/* ==========================================================================
+   CONFIGURACIÓN BASE Y RESET CORRECCIONAL (ESTILO KIOSCO)
+   ========================================================================== */
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Deshabilitar selección de texto y menús contextuales para entorno industrial */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background-color: #000000; /* Negro absoluto para mimetizarse con el marco de la tablet */
+    font-family: 'Inter', sans-serif;
+    color: #FFFFFF;
+}
+
+/* Contenedor principal SPA */
+#app {
+    width: 1080px;
+    height: 1920px;
+    position: relative;
+}
+
+/* ==========================================================================
+   ESTRUCTURA DE PANTALLAS (SCREENS)
+   ========================================================================== */
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 1920px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                visibility 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+/* Pantalla activa con transición suave (Fade) */
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+}
+
+.dark-bg {
+    background: radial-gradient(circle at center, #121824 0%, #05070B 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 120px 60px;
+}
+
+/* Videos en Background (Ocupan la zona superior/central dinámicamente) */
+.bg-video {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Capa superior para textos y logos */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 200px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0) 100%);
+    z-index: 3;
+}
+
+/* Barra inferior reforzada para instrucciones durante videos */
+.bottom-bar {
+    height: 35%;
+    justify-content: center;
+    padding: 0 80px 40px 80px;
+    text-align: center;
+    gap: 20px;
+}
+
+/* ==========================================================================
+   COMPONENTES GRÁFICOS PREMIUM
+   ========================================================================== */
+
+/* Tipografías e Hitos Visuales */
+h1 {
+    font-size: 72px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+h2 {
+    font-size: 56px;
+    font-weight: 500;
+    color: #E2E8F0;
+    text-align: center;
+}
+
+h3 {
+    font-size: 38px;
+    font-weight: 300;
+    color: #94A3B8;
+}
+
+.logo-large {
+    width: 320px;
+    height: auto;
+    margin-bottom: 60px;
+}
+
+/* 3) Tarjetas de Selección de Bidón (Estilo Tesla/Apple) */
+.cards-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+    margin-top: 40px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.3s ease, background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.card img {
+    height: 140px;
+    width: auto;
+    filter: drop-shadow(0px 10px 20px rgba(0,0,0,0.5));
+}
+
+.card h3 {
+    font-size: 48px;
+    font-weight: 500;
+    color: #FFFFFF;
+    flex-grow: 1;
+    margin-left: 50px;
+}
+
+.card .price {
+    font-size: 52px;
+    font-weight: 700;
+    color: #00E676; /* Verde Mercado Pago / Éxito */
+}
+
+/* Estado activo/Feedback táctil de la tarjeta */
+.card:active {
+    transform: scale(0.97);
+    border-color: #00E676;
+    background: rgba(0, 230, 118, 0.05);
+}
+
+/* 4) Interfaz del QR */
+.qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 60px;
+}
+
+.qr-box {
+    background: #FFFFFF;
+    padding: 30px;
+    border-radius: 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.qr-box img {
+    width: 450px;
+    height: 450px;
+    display: block;
+}
+
+.subtitle {
+    font-size: 34px;
+    color: #94A3B8;
+}
+
+/* 7) Barra de Progreso Industrial (Llenado) */
+.fill-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    gap: 80px;
+}
+
+.progress-wrapper {
+    width: 85%;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00B0FF, #00E5FF);
+    border-radius: 20px;
+    transition: width 0.2s ease-out;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.liters-display {
+    font-size: 90px;
+    font-weight: 700;
+    letter-spacing: -2px;
+}
+
+.liters-display span {
+    color: #00E5FF;
+}
+
+/* Cuenta regresiva en pantalla de Lavado */
+.countdown {
+    font-size: 110px;
+    font-weight: 700;
+    color: #FF5252;
+    margin-top: 20px;
+}
+
+/* Loader premium discreto para transiciones de espera */
+.loader {
+    width: 70px;
+    height: 70px;
+    border: 6px solid rgba(255,255,255,0.05);
+    border-top: 6px solid #00E676;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
