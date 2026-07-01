@@ -1,12 +1,4 @@
-/**
- * ============================================================================
- * MÓDULO: FIREBASE CONEXIÓN (SDK Modular v9+)
- * ============================================================================
- * Inicializa la conexión y expone funciones de lectura/escritura.
- * Diseñado para no bloquear el hilo principal y mantener listeners vivos.
- */
-// Usamos el SDK v8 (más estable para tu configuración actual)
-import * as firebase from "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js";
+import "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js";
 import "https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -19,7 +11,7 @@ const firebaseConfig = {
     appId: "1:118987640941:web:5ffc5c075d2051ef1bef64"
 };
 
-// Inicializar Firebase
+// Inicializar Firebase (usando el namespace global firebase)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -29,6 +21,8 @@ export function escucharNodo(path, callback) {
         const data = snapshot.val();
         console.log("Firebase Recibido:", data);
         callback(data);
+    }, (error) => {
+        console.error("Error Firebase:", error);
     });
 }
 
@@ -36,18 +30,13 @@ export function escribirNodo(path, valor) {
     db.ref(path).set(valor);
 }
 
-/**
- * Lee un nodo una sola vez (Ideal para configuraciones iniciales o precios).
- * @param {string} path - Ruta del nodo a leer.
- * @returns {Promise<any>} - El valor contenido en el nodo.
- */
+// Corregido: Ahora usa la sintaxis v8 (.once)
 export async function leerNodoUnaVez(path) {
-    const nodoRef = ref(db, path);
     try {
-        const snapshot = await get(nodoRef);
+        const snapshot = await db.ref(path).once('value');
         return snapshot.exists() ? snapshot.val() : null;
     } catch (error) {
-        console.error(`[Firebase Error] Fallo lectura única en ${path}:`, error);
+        console.error(`Error leyendo ${path}:`, error);
         return null;
     }
 }
