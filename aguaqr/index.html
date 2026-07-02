@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lavado de Bidones - Autoservicio</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+        width: 100%; height: 100%; overflow: hidden;
+        font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        background: #0d0d0d; color: #ffffff;
+        user-select: none; -webkit-user-select: none; touch-action: none;
+    }
+    #app {
+        position: relative; width: 100vw; height: 100vh; overflow: hidden;
+        background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+    }
+    .pantalla {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 30px; opacity: 0; visibility: hidden;
+        transition: opacity 0.6s ease, visibility 0.6s ease; pointer-events: none;
+    }
+    .pantalla.activa { opacity: 1; visibility: visible; pointer-events: auto; }
+    .titulo-principal {
+        font-size: 3.5rem; font-weight: 800; text-align: center; margin-bottom: 10px;
+        letter-spacing: 1px;
+        background: linear-gradient(90deg, #FFC72C, #DA291C);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .subtitulo-principal { font-size: 1.5rem; color: #aaaaaa; margin-bottom: 30px; text-align: center; }
+    .instruccion-botones {
+        font-size: 1.3rem; color: #FFC72C; margin-bottom: 40px; text-align: center;
+        padding: 15px 30px; background: rgba(255, 199, 44, 0.1);
+        border-radius: 15px; border: 2px solid rgba(255, 199, 44, 0.3);
+    }
+    .contenedor-tarjetas { display: flex; flex-direction: column; gap: 25px; width: 100%; max-width: 700px; }
+    .tarjeta {
+        background: linear-gradient(145deg, #1f1f1f, #151515);
+        border: 3px solid #2a2a2a; border-radius: 25px; padding: 30px 40px;
+        display: flex; align-items: center; justify-content: space-between;
+        transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0.5;
+    }
+    .tarjeta.seleccionada {
+        border-color: #FFC72C; background: linear-gradient(145deg, #2a2510, #1f1a0a);
+        box-shadow: 0 0 40px rgba(255, 199, 44, 0.4), 0 10px 30px rgba(0,0,0,0.5);
+        opacity: 1; transform: scale(1.05);
+    }
+    .tarjeta-info { display: flex; flex-direction: column; }
+    .tarjeta-titulo { font-size: 2.2rem; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
+    .tarjeta-precio { font-size: 1.8rem; font-weight: 600; color: #FFC72C; }
+    .tarjeta-indicador {
+        width: 60px; height: 60px; border-radius: 50%; background: #2a2a2a;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; transition: all 0.3s ease;
+    }
+    .tarjeta.seleccionada .tarjeta-indicador {
+        background: #FFC72C; color: #000; box-shadow: 0 0 20px rgba(255, 199, 44, 0.6);
+    }
+    .qr-contenedor {
+        background: #ffffff; padding: 25px; border-radius: 30px;
+        box-shadow: 0 20px 60px rgba(255, 199, 44, 0.25);
+        animation: pulsoQR 2s ease-in-out infinite;
+    }
+    .qr-imagen { display: block; width: 380px; height: 380px; border-radius: 15px; }
+    @keyframes pulsoQR {
+        0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(255, 199, 44, 0.25); }
+        50% { transform: scale(1.03); box-shadow: 0 25px 80px rgba(255, 199, 44, 0.5); }
+    }
+    .qr-texto { font-size: 2rem; font-weight: 600; color: #ffffff; margin-top: 40px; text-align: center; max-width: 700px; }
+    .instruccion-cancelar { font-size: 1.1rem; color: #aaaaaa; margin-top: 15px; text-align: center; font-style: italic; }
+    .espera-contenedor { margin-top: 30px; display: flex; align-items: center; gap: 15px; }
+    .espera-texto { font-size: 1.4rem; color: #aaaaaa; font-style: italic; }
+    .espera-puntos { display: flex; gap: 8px; }
+    .espera-punto {
+        width: 14px; height: 14px; border-radius: 50%; background: #FFC72C;
+        animation: rebotePunto 1.4s infinite ease-in-out both;
+    }
+    .espera-punto:nth-child(1) { animation-delay: -0.32s; }
+    .espera-punto:nth-child(2) { animation-delay: -0.16s; }
+    .espera-punto:nth-child(3) { animation-delay: 0s; }
+    @keyframes rebotePunto {
+        0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+        40% { transform: scale(1); opacity: 1; }
+    }
+    .video-contenedor {
+        width: 100%; max-width: 800px; border-radius: 25px; overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7); border: 3px solid #2a2a2a;
+    }
+    .video-elemento { width: 100%; height: auto; display: block; background: #000; }
+    .video-texto {
+        font-size: 2rem; font-weight: 600; color: #ffffff; margin-top: 40px;
+        text-align: center; max-width: 900px; line-height: 1.4; padding: 0 20px;
+    }
+    .video-texto .resaltado { color: #FFC72C; font-weight: 800; }
+    .contador-contenedor {
+        margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 15px;
+    }
+    .contador-numero {
+        font-size: 8rem; font-weight: 900; color: #FFC72C;
+        text-shadow: 0 0 30px rgba(255, 199, 44, 0.6); line-height: 1;
+        animation: pulsoContador 1s ease-in-out infinite;
+    }
+    .contador-label { font-size: 1.5rem; color: #aaaaaa; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+    @keyframes pulsoContador {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .progreso-contenedor {
+        margin-top: 30px; width: 100%; max-width: 600px; background: #1a1a1a;
+        border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .progreso-paso { text-align: center; flex: 1; }
+    .progreso-numero {
+        width: 50px; height: 50px; border-radius: 50%; background: #2a2a2a;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; font-weight: 700; margin: 0 auto 10px; transition: all 0.3s ease;
+    }
+    .progreso-paso.activo .progreso-numero {
+        background: #FFC72C; color: #000; box-shadow: 0 0 20px rgba(255, 199, 44, 0.6);
+    }
+    .progreso-paso.completado .progreso-numero { background: #28a745; color: #fff; }
+    .progreso-label { font-size: 0.9rem; color: #aaaaaa; }
+    @media (max-height: 900px) {
+        .titulo-principal { font-size: 2.8rem; }
+        .subtitulo-principal { font-size: 1.2rem; margin-bottom: 20px; }
+        .instruccion-botones { font-size: 1.1rem; margin-bottom: 30px; padding: 12px 25px; }
+        .contenedor-tarjetas { gap: 18px; }
+        .tarjeta { padding: 22px 30px; }
+        .tarjeta-titulo { font-size: 1.8rem; }
+        .tarjeta-precio { font-size: 1.5rem; }
+        .tarjeta-indicador { width: 50px; height: 50px; font-size: 1.6rem; }
+        .qr-imagen { width: 300px; height: 300px; }
+        .qr-texto { font-size: 1.6rem; margin-top: 30px; }
+        .video-texto { font-size: 1.6rem; margin-top: 30px; }
+        .contador-numero { font-size: 6rem; }
+        .contador-label { font-size: 1.2rem; }
+        .progreso-numero { width: 40px; height: 40px; font-size: 1.2rem; }
+        .progreso-label { font-size: 0.8rem; }
+    }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+    <div id="pantalla1" class="pantalla activa">
+        <h1 class="titulo-principal">AUTOLLENADO DE BIDONES</h1>
+        <p class="subtitulo-principal">Seleccione el tamaño de su bidón</p>
+        <div class="instruccion-botones">
+            🔘 Use el botón <strong>LAVADO</strong> para seleccionar<br>
+            🔘 Use el botón <strong>LLENADO</strong> para confirmar
+        </div>
+        <div class="contenedor-tarjetas">
+            <div class="tarjeta" id="tarjeta-b6">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 6 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b6">$ --</div>
+                </div>
+                <div class="tarjeta-indicador">○</div>
+            </div>
+            <div class="tarjeta" id="tarjeta-b12">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 12 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b12">$ --</div>
+                </div>
+                <div class="tarjeta-indicador">○</div>
+            </div>
+            <div class="tarjeta" id="tarjeta-b20">
+                <div class="tarjeta-info">
+                    <div class="tarjeta-titulo">Bidón 20 Litros</div>
+                    <div class="tarjeta-precio" id="precio-b20">$ --</div>
+                </div>
+                <div class="tarjeta-indicador">○</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pantalla2" class="pantalla">
+        <div class="qr-contenedor">
+            <img id="qr-imagen" class="qr-imagen" src="" alt="Código QR de pago">
+        </div>
+        <p class="qr-texto">Escanee el código QR para realizar el pago.</p>
+        <div class="espera-contenedor">
+            <span class="espera-texto">Esperando pago</span>
+            <div class="espera-puntos">
+                <div class="espera-punto"></div>
+                <div class="espera-punto"></div>
+                <div class="espera-punto"></div>
+            </div>
+        </div>
+        <p class="instruccion-cancelar">Presione cualquier botón para cancelar</p>
+    </div>
+
+    <div id="pantalla3" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-posicionar" class="video-elemento"
+                   src="videos/posicionar.mp4" autoplay muted playsinline loop></video>
+        </div>
+        <p class="video-texto">
+            Coloque el bidón con el <span class="resaltado">pico hacia abajo</span>
+            y presione el <span class="resaltado">botón blanco</span> para comenzar el lavado.
+        </p>
+    </div>
+
+    <div id="pantalla4" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-hidrolavado" class="video-elemento"
+                   src="videos/hidrolavado.mp4" autoplay muted playsinline></video>
+        </div>
+        <p class="video-texto">
+            <span class="resaltado">Hidrolavado en proceso...</span><br>
+            Espere mientras se lava el bidón.
+        </p>
+        <div class="contador-contenedor">
+            <div class="contador-numero" id="contador-numero">15</div>
+            <div class="contador-label">segundos restantes</div>
+        </div>
+        <div class="progreso-contenedor">
+            <div class="progreso-paso completado"><div class="progreso-numero">1</div><div class="progreso-label">Pago</div></div>
+            <div class="progreso-paso activo"><div class="progreso-numero">2</div><div class="progreso-label">Lavado</div></div>
+            <div class="progreso-paso"><div class="progreso-numero">3</div><div class="progreso-label">Llenado</div></div>
+            <div class="progreso-paso"><div class="progreso-numero">4</div><div class="progreso-label">Retiro</div></div>
+        </div>
+    </div>
+
+    <div id="pantalla5" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-enderezar" class="video-elemento"
+                   src="videos/enderezar.mp4" autoplay muted playsinline loop></video>
+        </div>
+        <p class="video-texto">
+            <span class="resaltado">Enderece el bidón</span> y presione el 
+            <span class="resaltado">botón azul</span> para comenzar el llenado.
+        </p>
+        <div class="progreso-contenedor">
+            <div class="progreso-paso completado"><div class="progreso-numero">1</div><div class="progreso-label">Pago</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">2</div><div class="progreso-label">Lavado</div></div>
+            <div class="progreso-paso activo"><div class="progreso-numero">3</div><div class="progreso-label">Llenado</div></div>
+            <div class="progreso-paso"><div class="progreso-numero">4</div><div class="progreso-label">Retiro</div></div>
+        </div>
+    </div>
+
+    <div id="pantalla6" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-llenando" class="video-elemento"
+                   src="videos/llenando.mp4" autoplay muted playsinline></video>
+        </div>
+        <p class="video-texto">
+            <span class="resaltado">Llenando su bidón...</span><br>
+            Espere a que se complete el proceso.
+        </p>
+        <div class="progreso-contenedor">
+            <div class="progreso-paso completado"><div class="progreso-numero">1</div><div class="progreso-label">Pago</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">2</div><div class="progreso-label">Lavado</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">3</div><div class="progreso-label">Llenado</div></div>
+            <div class="progreso-paso activo"><div class="progreso-numero">4</div><div class="progreso-label">Retiro</div></div>
+        </div>
+    </div>
+
+    <div id="pantalla7" class="pantalla">
+        <div class="video-contenedor">
+            <video id="video-retiro" class="video-elemento"
+                   src="videos/retiro.mp4" autoplay muted playsinline loop></video>
+        </div>
+        <p class="video-texto">
+            <span class="resaltado">¡Proceso completado!</span><br>
+            Retire su bidón. ¡Gracias por usar nuestro servicio!
+        </p>
+        <div class="progreso-contenedor">
+            <div class="progreso-paso completado"><div class="progreso-numero">1</div><div class="progreso-label">Pago</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">2</div><div class="progreso-label">Lavado</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">3</div><div class="progreso-label">Llenado</div></div>
+            <div class="progreso-paso completado"><div class="progreso-numero">4</div><div class="progreso-label">Retiro</div></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
+        authDomain: "pagos-58644.firebaseapp.com",
+        databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+        projectId: "pagos-58644",
+        storageBucket: "pagos-58644.firebasestorage.app",
+        messagingSenderId: "118987640941",
+        appId: "1:118987640941:web:5ffc5c075d2051ef1bef64"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+    console.log('✅ Firebase inicializado');
+
+    var bidones = ['b6', 'b12', 'b20'];
+    var litrosBidones = { 'b6': 6, 'b12': 12, 'b20': 20 };
+    var indiceSeleccionado = 0;
+    var precioSeleccionado = 0;
+    var montoPagoActual = 0;
+    var pagoAutorizadoActual = false;
+    var appLista = false;
+    var pantallaActual = 1;
+    var pasoActual = 0;
+    var intervaloContador = null;
+
+    var refMonto = null;
+    var refAutorizado = null;
+
+    // Listeners de precios
+    database.ref('/dispositivo/estado/precios/b6').on('value', function(snapshot) {
+        document.getElementById('precio-b6').textContent = '$ ' + snapshot.val();
+        verificarAppLista();
+    });
+    database.ref('/dispositivo/estado/precios/b12').on('value', function(snapshot) {
+        document.getElementById('precio-b12').textContent = '$ ' + snapshot.val();
+        verificarAppLista();
+    });
+    database.ref('/dispositivo/estado/precios/b20').on('value', function(snapshot) {
+        document.getElementById('precio-b20').textContent = '$ ' + snapshot.val();
+        verificarAppLista();
+    });
+
+    function verificarAppLista() {
+        var p6 = document.getElementById('precio-b6').textContent;
+        var p12 = document.getElementById('precio-b12').textContent;
+        var p20 = document.getElementById('precio-b20').textContent;
+        if (p6 !== '$ --' && p12 !== '$ --' && p20 !== '$ --') {
+            appLista = true;
+            actualizarSeleccionVisual();
+        }
+    }
+
+    // Listener de selecyconfirm
+    database.ref('/dispositivo/estado/selecyconfirm').on('value', function(snapshot) {
+        var valor = snapshot.val();
+        console.log('🔘 selecyconfirm:', valor, '| Pantalla:', pantallaActual);
+        if (valor === 0 || valor === null) return;
+
+        if (pantallaActual === 1) {
+            if (valor === 1) ciclarSeleccion();
+            else if (valor === 3) confirmarSeleccion();
+        }
+        else if (pantallaActual === 2) {
+            cancelarPago();
+        }
+    });
+
+    // 🔥 LISTENER DE PASO - REACCIONA SIEMPRE (incluso si Arduino reinicia)
+    database.ref('/dispositivo/estado/paso').on('value', function(snapshot) {
+        var paso = snapshot.val();
+        if (paso === null || paso === undefined) return;
+        
+        console.log('📍 Paso recibido:', paso, '| Pantalla actual:', pantallaActual);
+        
+        // 🔥 SIEMPRE reaccionar al paso 0 (reset completo, ej: Arduino reinició)
+        if (paso === 0 && pantallaActual !== 1) {
+            console.log('🔄 RESET DETECTADO - Volviendo a pantalla 1');
+            resetearProceso();
+            return;
+        }
+
+        pasoActual = paso;
+
+        // Solo cambiar pantallas si estamos en proceso activo (pantallas 3+)
+        if (pantallaActual >= 3) {
+            switch(paso) {
+                case 1:
+                    console.log('▶️ Paso 1: Hidrolavado');
+                    mostrarPantalla(4);
+                    reproducirVideo('video-hidrolavado');
+                    iniciarContador(15);
+                    break;
+                case 2:
+                    console.log('▶️ Paso 2: Enderezar');
+                    detenerContador();
+                    mostrarPantalla(5);
+                    reproducirVideo('video-enderezar');
+                    break;
+                case 3:
+                    console.log('▶️ Paso 3: Llenando');
+                    detenerContador();
+                    mostrarPantalla(6);
+                    reproducirVideo('video-llenando');
+                    break;
+                case 4:
+                    console.log('✅ Paso 4: Retiro');
+                    detenerContador();
+                    mostrarPantalla(7);
+                    reproducirVideo('video-retiro');
+                    break;
+            }
+        }
+    });
+
+    function iniciarContador(segundos) {
+        detenerContador();
+        var restantes = segundos;
+        var elem = document.getElementById('contador-numero');
+        elem.textContent = restantes;
+        intervaloContador = setInterval(function() {
+            restantes--;
+            elem.textContent = restantes;
+            if (restantes <= 0) detenerContador();
+        }, 1000);
+    }
+
+    function detenerContador() {
+        if (intervaloContador) {
+            clearInterval(intervaloContador);
+            intervaloContador = null;
+        }
+    }
+
+    function reproducirVideo(videoId) {
+        var video = document.getElementById(videoId);
+        if (video) {
+            video.currentTime = 0;
+            video.play().catch(function(error) {
+                video.muted = true;
+                video.play();
+            });
+        }
+    }
+
+    function ciclarSeleccion() {
+        indiceSeleccionado = (indiceSeleccionado + 1) % bidones.length;
+        actualizarSeleccionVisual();
+    }
+
+    function actualizarSeleccionVisual() {
+        for (var i = 0; i < bidones.length; i++) {
+            var tarjeta = document.getElementById('tarjeta-' + bidones[i]);
+            if (tarjeta) tarjeta.classList.remove('seleccionada');
+        }
+        var bidonActual = bidones[indiceSeleccionado];
+        var tarjeta = document.getElementById('tarjeta-' + bidonActual);
+        if (tarjeta) tarjeta.classList.add('seleccionada');
+    }
+
+    // 🔥 CONFIRMAR SELECCIÓN - Solo guarda precio y muestra QR (NO escribe bidonSel)
+    function confirmarSeleccion() {
+        if (!appLista) return;
+        var bidonSeleccionado = bidones[indiceSeleccionado];
+        
+        database.ref('/dispositivo/estado/precios/' + bidonSeleccionado).once('value', function(snapshot) {
+            precioSeleccionado = Number(snapshot.val()) || 0;
+            console.log('💰 Bidón:', bidonSeleccionado, 'Precio:', precioSeleccionado);
+
+            // 🔥 Guardar el bidón seleccionado (para usarlo después del pago)
+            window.bidonPendiente = bidonSeleccionado;
+
+            var qrImagen = document.getElementById('qr-imagen');
+            qrImagen.src = 'img/qr_' + bidonSeleccionado + '.png';
+
+            montoPagoActual = 0;
+            pagoAutorizadoActual = false;
+            mostrarPantalla(2);
+            iniciarEscuchaPago();
+        });
+    }
+
+    function cancelarPago() {
+        console.log('🚫 Cancelando pago...');
+        if (refMonto) { refMonto.off(); refMonto = null; }
+        if (refAutorizado) { refAutorizado.off(); refAutorizado = null; }
+
+        database.ref('/dispositivo/estado/monto').set(0);
+        database.ref('/dispositivo/estado/autorizado').set(false);
+        database.ref('/dispositivo/estado/bidonSel').set(0);
+        
+        window.bidonPendiente = null;
+        mostrarPantalla(1);
+    }
+
+    function resetearProceso() {
+        console.log('🔄 Reseteando proceso completo...');
+        var videos = document.querySelectorAll('video');
+        for (var i = 0; i < videos.length; i++) {
+            videos[i].pause();
+            videos[i].currentTime = 0;
+        }
+        detenerContador();
+        
+        // 🔥 Resetear todo en Firebase
+        database.ref('/dispositivo/estado/bidonSel').set(0);
+        database.ref('/dispositivo/estado/monto').set(0);
+        database.ref('/dispositivo/estado/autorizado').set(false);
+        
+        window.bidonPendiente = null;
+        indiceSeleccionado = 0;
+        pasoActual = 0;
+        actualizarSeleccionVisual();
+        mostrarPantalla(1);
+    }
+
+    function mostrarPantalla(numero) {
+        pantallaActual = numero;
+        var pantallas = document.querySelectorAll('.pantalla');
+        for (var i = 0; i < pantallas.length; i++) pantallas[i].classList.remove('activa');
+        var destino = document.getElementById('pantalla' + numero);
+        if (destino) destino.classList.add('activa');
+    }
+
+    function iniciarEscuchaPago() {
+        refMonto = database.ref('/dispositivo/estado/monto');
+        refMonto.on('value', function(snapshot) {
+            montoPagoActual = Number(snapshot.val()) || 0;
+            verificarPagoCompletado();
+        });
+        refAutorizado = database.ref('/dispositivo/estado/autorizado');
+        refAutorizado.on('value', function(snapshot) {
+            pagoAutorizadoActual = (snapshot.val() === true);
+            verificarPagoCompletado();
+        });
+    }
+
+    // 🔥 VERIFICAR PAGO - AQUÍ se escribe bidonSel (después del pago)
+    function verificarPagoCompletado() {
+        var montoCorrecto = (Math.abs(montoPagoActual - precioSeleccionado) < 0.01);
+        var autorizado = (pagoAutorizadoActual === true);
+
+        if (montoCorrecto && autorizado) {
+            console.log('✅✅✅ PAGO COMPLETADO');
+            
+            if (refMonto) { refMonto.off(); refMonto = null; }
+            if (refAutorizado) { refAutorizado.off(); refAutorizado = null; }
+
+            // Resetear valores de pago
+            database.ref('/dispositivo/estado/autorizado').set(false);
+            database.ref('/dispositivo/estado/monto').set(0);
+            
+            // 🔥 AHORA SÍ escribir bidonSel (después del pago)
+            var litros = litrosBidones[window.bidonPendiente] || 0;
+            database.ref('/dispositivo/estado/bidonSel').set(litros);
+            console.log('📦 bidonSel enviado:', litros);
+            
+            database.ref('/dispositivo/estado/paso').set(0);
+
+            mostrarPantalla(3);
+            reproducirVideo('video-posicionar');
+        }
+    }
+</script>
+
+</body>
+</html>
