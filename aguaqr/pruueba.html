@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calendario de Reservas de Oficinas</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background-color: #007BFF; color: white; }
+    .libre { background-color: #d4edda; cursor: pointer; }
+    .ocupado { background-color: #f8d7da; cursor: pointer; }
+    #resumen, #recurrente-form { background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 5px; margin-top: 30px; }
+    label { display: block; margin-top: 10px; }
+    input, select { padding: 5px; width: 100%; max-width: 300px; }
+    button { margin-top: 15px; padding: 10px 20px; }
+
+    #modalReserva {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    #modalContenido {
+      background: white; padding: 20px; border-radius: 10px;
+      width: 300px; margin: 100px auto; position: relative;
+    }
+    #cerrarModal {
+      position: absolute; top: 10px; right: 15px;
+      cursor: pointer; font-weight: bold;
+    }
+    #eliminarReserva {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      margin-top: 15px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calendario solo Administradores</h1>
+
+  <label for="fecha">Seleccionar fecha: </label>
+  <input type="date" id="fecha" />
+
+  <table id="calendario">
+    <tr>
+      <th>Hora</th>
+      <th>Recepcion</th>
+      <th>Ofi 1 (med)</th>
+      <th>Ofi 2 (1°piso)</th>
+      <th>Ofi 3 (gde)</th>
+    </tr>
+  </table>
+
+  <div id="resumen">
+    <h3>Resumen de Reservas</h3>
+    <p id="totalReservas">Total de reservas activas: 0</p>
+  </div>
+
+  <div id="recurrente-form">
+    <h3>Reservas Recurrentes</h3>
+    <label for="nombre">Nombre del cliente:</label>
+    <input type="text" id="nombre">
+
+    <label for="telefono">Teléfono:</label>
+    <input type="text" id="telefono">
+
+    <label for="horasContratadas">Horas contratadas:</label>
+    <input type="number" id="horasContratadas" min="1" id="horasContratadas">
+
+
+    <label for="observaciones">Observaciones:</label>
+    <input type="text" id="observaciones">
+
+    <label for="oficina">Oficina (1 a 4):</label>
+    <select id="oficina">
+      <option value="oficina1">Recepcion</option>
+      <option value="oficina2">Ofi 1 (med)</option>
+      <option value="oficina3">Ofi 2 (1°piso)</option>
+      <option value="oficina4">Ofi 3 (gde)</option>
+    </select>
+
+    <label for="diaSemana">Día de la semana:</label>
+    <select id="diaSemana">
+      <option value="0">Lunes</option>
+      <option value="1">Martes</option>
+      <option value="2">Miércoles</option>
+      <option value="3">Jueves</option>
+      <option value="4">Viernes</option>
+      <option value="5">Sábado</option>
+      <option value="6">Domingo</option>
+    </select>
+
+    <label for="desde">Hora desde:</label>
+    <input type="time" id="desde">
+
+    <label for="hasta">Hora hasta:</label>
+    <input type="time" id="hasta">
+
+    <label for="inicio">Fecha de inicio:</label>
+    <input type="date" id="inicio">
+
+    <label for="fin">Fecha de fin:</label>
+    <input type="date" id="fin">
+
+    <button id="crearRecurrentes">Crear Reservas</button>
+  </div>
+
+  <div id="modalReserva">
+    <div id="modalContenido">
+      <span id="cerrarModal">&times;</span>
+      <h3>Detalles de la Reserva</h3>
+      <p id="modalCliente"></p>
+      <p id="modalTelefono"></p>
+      <p id="modalEmail"></p>
+      <p id="modalObs"></p>
+      <button id="eliminarReserva">Eliminar Reserva</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, query, where, onSnapshot, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoTNjnjkkgUBDaVI2To5ScA83_q6ZMy-s",
+      authDomain: "gamers-a1763.firebaseapp.com",
+      projectId: "gamers-a1763",
+      storageBucket: "gamers-a1763.appspot.com",
+      messagingSenderId: "279036766390",
+      appId: "1:279036766390:web:e67ce235630f444d0f5e17"
+    };
+    document.getElementById("eliminarReservasCliente").addEventListener("click", async () => {
+  const nombre = document.getElementById("clienteBorrar").value.trim();
+  if (!nombre) {
+    alert("Por favor, ingresá un nombre.");
+    return;
+  }
+
+  if (!confirm(`¿Estás seguro de eliminar TODAS las reservas de "${nombre}"? Esta acción no se puede deshacer.`)) return;
+
+  const reservasRef = collection(db, "reservas");
+  const q = query(reservasRef, where("cliente", "==", nombre));
+  const snapshot = await getDocs(q);
+
+  let eliminadas = 0;
+  for (const docu of snapshot.docs) {
+    await deleteDoc(doc(db, "reservas", docu.id));
+    eliminadas++;
+  }
+
+  alert(`Se eliminaron ${eliminadas} reserva(s) de "${nombre}".`);
+});
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const horarios = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
+    const calendario = document.getElementById('calendario');
+    const fechaInput = document.getElementById('fecha');
+    const totalReservas = document.getElementById('totalReservas');
+    const modal = document.getElementById('modalReserva');
+    const cerrarModal = document.getElementById('cerrarModal');
+    const eliminarReservaBtn = document.getElementById('eliminarReserva');
+
+    let reservaIdActual = null;
+
+    cerrarModal.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
+
+    function actualizarCalendario() {
+      calendario.innerHTML = `<tr><th>Hora</th><th>Recepcion</th><th>Ofi 1 (med)</th><th>Ofi 2 (1°piso)</th><th>Ofi 3 (gde)</th></tr>`;
+      horarios.forEach(hora => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${hora}</td>`;
+        for (let i = 1; i <= 4; i++) {
+          const celda = document.createElement('td');
+          celda.className = 'libre';
+          celda.textContent = 'Libre';
+          celda.dataset.hora = hora;
+          celda.dataset.oficina = `oficina${i}`;
+          celda.addEventListener('click', gestionarReserva);
+          fila.appendChild(celda);
+        }
+        calendario.appendChild(fila);
+      });
+      escucharReservas();
+    }
+
+    async function gestionarReserva(event) {
+      const celda = event.target;
+      if (!celda.dataset.hora) return;
+
+      const fecha = fechaInput.value;
+      const hora = celda.dataset.hora;
+      const oficina = celda.dataset.oficina;
+
+      if (celda.classList.contains('libre')) {
+  const cliente = prompt('Nombre del cliente:');
+  if (!cliente) return;
+
+  const telefono = prompt('Teléfono:');
+  const horasContratadasStr = prompt('¿Cuántas horas contrató este cliente en total?');
+  const horasContratadas = parseInt(horasContratadasStr);
+
+  if (!horasContratadas || isNaN(horasContratadas)) {
+    alert("Debés ingresar una cantidad válida de horas contratadas.");
+    return;
+  }
+
+  const observaciones = prompt('Observaciones:');
+
+  // Verificar cuántas reservas ya tiene este cliente
+  const reservasQuery = query(collection(db, "reservas"), where("cliente", "==", cliente));
+  const snapshot = await getDocs(reservasQuery);
+
+  if (snapshot.size >= horasContratadas) {
+    alert(`${cliente} ya alcanzó su límite de ${horasContratadas} hora(s).`);
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "reservas"), {
+      fecha,
+      hora,
+      oficina,
+      cliente,
+      telefono,
+      horasContratadas,
+      observaciones
+    });
+  } catch (error) {
+    alert("Error al reservar: " + error.message);
+  }
+}
+ else {
+        const reservaId = celda.dataset.id;
+        if (!reservaId) return;
+        const docRef = doc(db, "reservas", reservaId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("modalCliente").textContent = "Cliente: " + data.cliente;
+          document.getElementById("modalTelefono").textContent = "Teléfono: " + (data.telefono || "No registrado");
+          document.getElementById("modalEmail").textContent = "Email: " + (data.email || "No registrado");
+          document.getElementById("modalObs").textContent = "Observaciones: " + (data.observaciones || "Ninguna");
+          reservaIdActual = reservaId;
+          modal.style.display = "block";
+        }
+      }
+    }
+
+    eliminarReservaBtn.addEventListener("click", async () => {
+      if (reservaIdActual && confirm("¿Estás seguro que querés eliminar esta reserva?")) {
+        await deleteDoc(doc(db, "reservas", reservaIdActual));
+        modal.style.display = "none";
+        reservaIdActual = null;
+      }
+    });
+
+    function escucharReservas() {
+  const reservasQuery = collection(db, "reservas");
+  onSnapshot(reservasQuery, (snapshot) => {
+    const reservas = {};
+    const conteoPorCliente = {};
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const key = `${data.fecha}-${data.hora}-${data.oficina}`;
+      reservas[key] = { cliente: data.cliente, id: doc.id };
+
+      if (data.cliente) {
+        conteoPorCliente[data.cliente] = (conteoPorCliente[data.cliente] || 0) + 1;
+      }
+    });
+
+    // Actualizar calendario solo si hay una fecha seleccionada
+    if (fechaInput.value) {
+      document.querySelectorAll('td.libre, td.ocupado').forEach(celda => {
+        const key = `${fechaInput.value}-${celda.dataset.hora}-${celda.dataset.oficina}`;
+        if (reservas[key]) {
+          celda.className = 'ocupado';
+          celda.textContent = reservas[key].cliente;
+          celda.dataset.id = reservas[key].id;
+        } else {
+          celda.className = 'libre';
+          celda.textContent = 'Libre';
+          delete celda.dataset.id;
+        }
+      });
+
+      const totalEnFecha = Object.keys(reservas).filter(k => k.startsWith(fechaInput.value)).length;
+      totalReservas.textContent = `Total de reservas activas en la fecha: ${totalEnFecha}`;
+    }
+
+    // Mostrar resumen por cliente (global)
+    const lista = document.getElementById("listaClientes");
+    lista.innerHTML = '';
+    for (const [cliente, horas] of Object.entries(conteoPorCliente)) {
+      const li = document.createElement('li');
+      li.textContent = `${cliente}: ${horas} hora(s) reservada(s) en total`;
+      lista.appendChild(li);
+    }
+  });
+}
+
+
+async function crearReservasRecurrentes() {
+  const nombre = document.getElementById("nombre").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const horasContratadas = parseInt(document.getElementById("horasContratadas").value);
+  const observaciones = document.getElementById("observaciones").value.trim();
+  const oficina = document.getElementById("oficina").value;
+  const diaSemana = parseInt(document.getElementById("diaSemana").value);
+  const desde = document.getElementById("desde").value;
+  const hasta = document.getElementById("hasta").value;
+  const inicio = new Date(document.getElementById("inicio").value);
+  const fin = new Date(document.getElementById("fin").value);
+
+  if (!nombre || !horasContratadas || isNaN(horasContratadas)) {
+    alert("Por favor completá el nombre y las horas contratadas correctamente.");
+    return;
+  }
+
+  // Calcular las horas ya usadas por este cliente
+  const reservasExistentes = await getDocs(query(collection(db, "reservas"), where("cliente", "==", nombre)));
+  let horasUsadas = reservasExistentes.size;
+
+  const nuevasReservas = [];
+
+  for (let fecha = new Date(inicio); fecha <= fin; fecha.setDate(fecha.getDate() + 1)) {
+    if (fecha.getDay() !== diaSemana) continue;
+
+    const desdeHora = parseInt(desde.split(":")[0]);
+    const hastaHora = parseInt(hasta.split(":")[0]);
+
+    for (let h = desdeHora; h < hastaHora; h++) {
+      if (horasUsadas >= horasContratadas) {
+        alert(`No se pueden agregar más horarios. "${nombre}" ya alcanzó su límite de ${horasContratadas} hora(s).`);
+        return;
+      }
+
+      const horaStr = `${h.toString().padStart(2, '0')}:00`;
+      nuevasReservas.push({
+        fecha: fecha.toISOString().split('T')[0],
+        hora: horaStr,
+        oficina,
+        cliente: nombre,
+        telefono,
+        horasContratadas,
+        observaciones
+      });
+
+      horasUsadas++;
+    }
+  }
+
+  // Agregar reservas
+  for (const reserva of nuevasReservas) {
+    await addDoc(collection(db, "reservas"), reserva);
+  }
+
+  alert(`Se crearon ${nuevasReservas.length} reserva(s) para ${nombre}.`);
+}
+
+
+    document.getElementById("crearRecurrentes").addEventListener("click", crearReservasRecurrentes);
+    fechaInput.addEventListener("change", actualizarCalendario);
+  </script>
+</body>
+<div id="resumenClientes" style="margin-top: 30px; background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+    <h3>Horas utilizadas por cliente</h3>
+    <ul id="listaClientes"></ul>
+  </div>
+  <div id="borrarCliente" style="margin-top: 30px; background: #fff; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+    <h3>Eliminar todas las reservas de un cliente</h3>
+    <label for="clienteBorrar">Nombre del cliente:</label>
+    <input type="text" id="clienteBorrar" placeholder="Ej: Juan">
+    <button id="eliminarReservasCliente">Eliminar todas las reservas</button>
+  </div>
+  
+</html>
