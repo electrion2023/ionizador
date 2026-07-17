@@ -365,10 +365,40 @@
     var timerPago = null;        // Timer de 60 segundos
     var tiempoLimitePago = 60;   // Segundos
     var segundosTranscurridos = 0;
+    // URLs de QR (se cargan desde Firebase)
+    var qrUrls = {
+    'b6': 'img/qr_b6.png',    // Valor por defecto
+    'b12': 'img/qr_b12.png',
+    'b20': 'img/qr_b20.png'
+};
     // ============================================
     // LISTENERS DE PRECIOS
     // ============================================
     // NUEVO: Leer token de MP desde Firebase
+    // NUEVO: Leer URLs de QR desde Firebase
+database.ref('/dispositivo/config/qrUrls/b6').on('value', function(snapshot) {
+    var url = snapshot.val();
+    if (url) {
+        qrUrls['b6'] = url;
+        console.log('QR b6 cargado desde Firebase');
+    }
+});
+
+database.ref('/dispositivo3/config/qrUrls/b12').on('value', function(snapshot) {
+    var url = snapshot.val();
+    if (url) {
+        qrUrls['b12'] = url;
+        console.log('QR b12 cargado desde Firebase');
+    }
+});
+
+database.ref('/dispositivo3/config/qrUrls/b20').on('value', function(snapshot) {
+    var url = snapshot.val();
+    if (url) {
+        qrUrls['b20'] = url;
+        console.log('QR b20 cargado desde Firebase');
+    }
+});
 database.ref('/dispositivo3/config/mpToken').on('value', function(snapshot) {
     var token = snapshot.val();
     if (token) {
@@ -527,7 +557,10 @@ database.ref('/dispositivo3/config/mpToken').on('value', function(snapshot) {
         bidonPendiente = bidonSeleccionado;
 
         var qrImagen = document.getElementById('qr-imagen');
-        qrImagen.src = 'img/qr_' + bidonSeleccionado + '.png';
+        // Usar URL de Firebase o fallback a local
+        var qrUrl = qrUrls[bidonSeleccionado] || 'img/qr_' + bidonSeleccionado + '.png';
+        qrImagen.src = qrUrl;
+        console.log('QR URL:', qrUrl);
 
         // NUEVO: Actualizar texto del QR con el precio
         document.getElementById('precio-a-pagar').textContent = '$ ' + precioSeleccionado;

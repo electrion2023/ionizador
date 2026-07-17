@@ -183,8 +183,27 @@
     <span class="precio-actual" id="token-actual" style="font-size: 0.9rem;">--</span>
     <input type="text" id="input-token" placeholder="Nuevo token" style="width: 200px; font-size: 0.9rem;">
 </div>
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 6L</span>
+    <input type="text" id="input-qr-b6" placeholder="URL del QR 6L" style="width: 100%; font-size: 0.85rem;">
+</div>
+
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 12L</span>
+    <input type="text" id="input-qr-b12" placeholder="URL del QR 12L" style="width: 100%; font-size: 0.85rem;">
+</div>
+
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 20L</span>
+    <input type="text" id="input-qr-b20" placeholder="URL del QR 20L" style="width: 100%; font-size: 0.85rem;">
+</div>
     <button class="boton-guardar" onclick="guardarPrecios()">Guardar Precios</button>
-    
+    <button class="boton-guardar" onclick="guardarQRs()" style="
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    margin-top: 10px;
+">
+    Guardar URLs de QR
+</button>
     <div class="mensaje" id="mensaje"></div>
     <div class="estado"><span class="punto"></span>Conectado a Firebase</div>
 </div>
@@ -226,7 +245,42 @@ database.ref('/dispositivo3/config/mpToken').on('value', function(snapshot) {
         document.getElementById('token-actual').textContent = token;
     }
 });
-
+        // Función para guardar URLs de QR
+function guardarQRs() {
+    var qrB6 = document.getElementById('input-qr-b6').value;
+    var qrB12 = document.getElementById('input-qr-b12').value;
+    var qrB20 = document.getElementById('input-qr-b20').value;
+    
+    var cambios = 0;
+    
+    if (qrB6 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b6').set(qrB6);
+        cambios++;
+    }
+    if (qrB12 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b12').set(qrB12);
+        cambios++;
+    }
+    if (qrB20 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b20').set(qrB20);
+        cambios++;
+    }
+    
+    if (cambios > 0) {
+        var mensaje = document.getElementById('mensaje');
+        mensaje.textContent = 'Se actualizaron ' + cambios + ' QR(s)';
+        mensaje.style.color = '#28a745';
+        
+        // Limpiar inputs
+        document.getElementById('input-qr-b6').value = '';
+        document.getElementById('input-qr-b12').value = '';
+        document.getElementById('input-qr-b20').value = '';
+        
+        setTimeout(function() {
+            mensaje.textContent = '';
+        }, 3000);
+    }
+}
 // Modificar la función guardarPrecios para incluir el token
 function guardarPrecios() {
     var b6 = document.getElementById('input-b6').value;
