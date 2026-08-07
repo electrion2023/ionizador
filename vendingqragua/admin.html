@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Precios Bidones</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #0d0d0d;
+        color: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .contenedor {
+        background: linear-gradient(145deg, #1f1f1f, #151515);
+        border: 2px solid #2a2a2a;
+        border-radius: 25px;
+        padding: 40px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+
+    .titulo {
+        font-size: 2rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 10px;
+        background: linear-gradient(90deg, #FFC72C, #DA291C);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .subtitulo {
+        text-align: center;
+        color: #aaaaaa;
+        margin-bottom: 30px;
+        font-size: 1rem;
+    }
+
+    .fila-precio {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #0d0d0d;
+        border: 2px solid #2a2a2a;
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        transition: border-color 0.3s ease;
+    }
+
+    .fila-precio:hover {
+        border-color: #FFC72C;
+    }
+
+    .fila-precio .etiqueta {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #ffffff;
+        min-width: 120px;
+    }
+
+    .fila-precio .precio-actual {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #FFC72C;
+        min-width: 100px;
+        text-align: center;
+    }
+
+    .fila-precio input {
+        width: 120px;
+        padding: 10px 15px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: #1a1a1a;
+        border: 2px solid #3a3a3a;
+        border-radius: 10px;
+        color: #ffffff;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    .fila-precio input:focus {
+        border-color: #FFC72C;
+    }
+
+    .boton-guardar {
+        width: 100%;
+        padding: 18px;
+        margin-top: 10px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #DA291C, #a31d13);
+        color: #ffffff;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 6px 15px rgba(218, 41, 28, 0.4);
+    }
+
+    .boton-guardar:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(218, 41, 28, 0.6);
+    }
+
+    .boton-guardar:active {
+        transform: scale(0.98);
+    }
+
+    .mensaje {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1rem;
+        min-height: 24px;
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .estado {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 0.9rem;
+        color: #aaaaaa;
+    }
+
+    .estado .punto {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #28a745;
+        margin-right: 8px;
+        animation: pulso 2s infinite;
+    }
+
+    @keyframes pulso {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+</style>
+</head>
+<body>
+
+<div class="contenedor">
+    <h1 class="titulo">ADMINISTRAR PRECIOS</h1>
+    <p class="subtitulo">Modifique los precios de los bidones</p>
+
+    <div class="fila-precio">
+        <span class="etiqueta">Bidón 6L</span>
+        <span class="precio-actual" id="actual-b6">$ --</span>
+        <input type="number" id="input-b6" placeholder="Nuevo" min="0" step="100">
+    </div>
+
+    <div class="fila-precio">
+        <span class="etiqueta">Bidón 12L</span>
+        <span class="precio-actual" id="actual-b12">$ --</span>
+        <input type="number" id="input-b12" placeholder="Nuevo" min="0" step="100">
+    </div>
+
+    <div class="fila-precio">
+        <span class="etiqueta">Bidón 20L</span>
+        <span class="precio-actual" id="actual-b20">$ --</span>
+        <input type="number" id="input-b20" placeholder="Nuevo" min="0" step="100">
+    </div>
+    <div class="fila-precio">
+    <span class="etiqueta">Token MP</span>
+    <span class="precio-actual" id="token-actual" style="font-size: 0.9rem;">--</span>
+    <input type="text" id="input-token" placeholder="Nuevo token" style="width: 200px; font-size: 0.9rem;">
+</div>
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 6L</span>
+    <input type="text" id="input-qr-b6" placeholder="URL del QR 6L" style="width: 100%; font-size: 0.85rem;">
+</div>
+
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 12L</span>
+    <input type="text" id="input-qr-b12" placeholder="URL del QR 12L" style="width: 100%; font-size: 0.85rem;">
+</div>
+
+<div class="fila-precio">
+    <span class="etiqueta">QR Bidón 20L</span>
+    <input type="text" id="input-qr-b20" placeholder="URL del QR 20L" style="width: 100%; font-size: 0.85rem;">
+</div>
+    <button class="boton-guardar" onclick="guardarPrecios()">Guardar Precios</button>
+    <button class="boton-guardar" onclick="guardarQRs()" style="
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    margin-top: 10px;
+">
+    Guardar URLs de QR
+</button>
+    <div class="mensaje" id="mensaje"></div>
+    <div class="estado"><span class="punto"></span>Conectado a Firebase</div>
+</div>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyBTsbxqJ0mVAi4DVp_vqZmJehvQspBo-S8",
+        authDomain: "pagos-58644.firebaseapp.com",
+        databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com",
+        projectId: "pagos-58644",
+        storageBucket: "pagos-58644.firebasestorage.app",
+        messagingSenderId: "118987640941",
+        appId: "1:118987640941:web:5ffc5c075d2051ef1bef64"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+
+    // Leer precios en tiempo real
+    database.ref('/dispositivo3/estado/precios/b6').on('value', function(snapshot) {
+        document.getElementById('actual-b6').textContent = '$ ' + snapshot.val();
+    });
+
+    database.ref('/dispositivo3/estado/precios/b12').on('value', function(snapshot) {
+        document.getElementById('actual-b12').textContent = '$ ' + snapshot.val();
+    });
+
+    database.ref('/dispositivo3/estado/precios/b20').on('value', function(snapshot) {
+        document.getElementById('actual-b20').textContent = '$ ' + snapshot.val();
+    });
+
+    // Leer token actual
+database.ref('/dispositivo3/config/mpToken').on('value', function(snapshot) {
+    var token = snapshot.val() || '--';
+    // Mostrar solo los primeros y últimos caracteres por seguridad
+    if (token.length > 20) {
+        document.getElementById('token-actual').textContent = token.substring(0, 10) + '...' + token.substring(token.length - 10);
+    } else {
+        document.getElementById('token-actual').textContent = token;
+    }
+});
+        // Función para guardar URLs de QR
+function guardarQRs() {
+    var qrB6 = document.getElementById('input-qr-b6').value;
+    var qrB12 = document.getElementById('input-qr-b12').value;
+    var qrB20 = document.getElementById('input-qr-b20').value;
+    
+    var cambios = 0;
+    
+    if (qrB6 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b6').set(qrB6);
+        cambios++;
+    }
+    if (qrB12 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b12').set(qrB12);
+        cambios++;
+    }
+    if (qrB20 !== '') {
+        database.ref('/dispositivo3/config/qrUrls/b20').set(qrB20);
+        cambios++;
+    }
+    
+    if (cambios > 0) {
+        var mensaje = document.getElementById('mensaje');
+        mensaje.textContent = 'Se actualizaron ' + cambios + ' QR(s)';
+        mensaje.style.color = '#28a745';
+        
+        // Limpiar inputs
+        document.getElementById('input-qr-b6').value = '';
+        document.getElementById('input-qr-b12').value = '';
+        document.getElementById('input-qr-b20').value = '';
+        
+        setTimeout(function() {
+            mensaje.textContent = '';
+        }, 3000);
+    }
+}
+// Modificar la función guardarPrecios para incluir el token
+function guardarPrecios() {
+    var b6 = document.getElementById('input-b6').value;
+    var b12 = document.getElementById('input-b12').value;
+    var b20 = document.getElementById('input-b20').value;
+    var token = document.getElementById('input-token').value;
+
+    var cambios = 0;
+
+    if (b6 !== '') {
+        database.ref('/dispositivo3/estado/precios/b6').set(Number(b6));
+        cambios++;
+    }
+    if (b12 !== '') {
+        database.ref('/dispositivo3/estado/precios/b12').set(Number(b12));
+        cambios++;
+    }
+    if (b20 !== '') {
+        database.ref('/dispositivo3/estado/precios/b20').set(Number(b20));
+        cambios++;
+    }
+    
+    // NUEVO: Guardar token si se ingresó
+    if (token !== '') {
+        database.ref('/dispositivo3/config/mpToken').set(token);
+        cambios++;
+    }
+
+    if (cambios > 0) {
+        document.getElementById('mensaje').textContent = 'Se actualizaron ' + cambios + ' campo(s)';
+        document.getElementById('mensaje').style.color = '#28a745';
+        
+        // Limpiar inputs
+        document.getElementById('input-b6').value = '';
+        document.getElementById('input-b12').value = '';
+        document.getElementById('input-b20').value = '';
+        document.getElementById('input-token').value = '';
+    } else {
+        document.getElementById('mensaje').textContent = 'Complete al menos un campo';
+        document.getElementById('mensaje').style.color = '#DA291C';
+    }
+
+    setTimeout(function() {
+        document.getElementById('mensaje').textContent = '';
+    }, 3000);
+}
+</script>
+
+</body>
+</html>
