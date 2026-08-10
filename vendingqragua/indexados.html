@@ -32,14 +32,14 @@
     .titulo-principal {
         font-size: 3.5rem; font-weight: 800; text-align: center; margin-bottom: 10px;
         letter-spacing: 1px;
-        background: linear-gradient(90deg, #FFC72C, #DA291C);
+        background: linear-gradient(90deg, #2cbcff, #2f1cda);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .subtitulo-principal { font-size: 1.5rem; color: #aaaaaa; margin-bottom: 30px; text-align: center; }
     .instruccion-botones {
-        font-size: 1.3rem; color: #FFC72C; margin-bottom: 40px; text-align: center;
+        font-size: 1.3rem; color: #2cb2ff; margin-bottom: 40px; text-align: center;
         padding: 15px 30px; background: rgba(255, 199, 44, 0.1);
-        border-radius: 15px; border: 2px solid rgba(255, 199, 44, 0.3);
+        border-radius: 15px; border: 2px solid rgba(100, 44, 255, 0.3);
     }
     .contenedor-tarjetas { display: flex; flex-direction: column; gap: 25px; width: 100%; max-width: 700px; }
     .tarjeta {
@@ -49,8 +49,8 @@
         transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0.5;
     }
     .tarjeta.seleccionada {
-        border-color: #FFC72C; background: linear-gradient(145deg, #2a2510, #1f1a0a);
-        box-shadow: 0 0 40px rgba(255, 199, 44, 0.4), 0 10px 30px rgba(0,0,0,0.5);
+        border-color: #2c99ff; background: linear-gradient(145deg, #2a2510, #1f1a0a);
+        box-shadow: 0 0 40px rgba(83, 44, 255, 0.4), 0 10px 30px rgba(0,0,0,0.5);
         opacity: 1; transform: scale(1.05);
     }
     .tarjeta-info { display: flex; flex-direction: column; }
@@ -376,7 +376,7 @@
     // ============================================
     // NUEVO: Leer token de MP desde Firebase
     // NUEVO: Leer URLs de QR desde Firebase
-database.ref('/dispositivo/config/qrUrls/b6').on('value', function(snapshot) {
+database.ref('/dispositivo3/config/qrUrls/b6').on('value', function(snapshot) {
     var url = snapshot.val();
     if (url) {
         qrUrls['b6'] = url;
@@ -922,3 +922,4 @@ function mostrarCartelRechazo() {
 
 </body>
 </html>
+
