@@ -154,13 +154,13 @@
     .progreso-paso.completado .progreso-numero { background: #28a745; color: #fff; }
     .progreso-label { font-size: 0.9rem; color: #aaaaaa; }
     @media (max-height: 900px) {
-        .titulo-principal { font-size: 2.8rem; }
+        .titulo-principal { font-size: 1.6rem; }
         .subtitulo-principal { font-size: 1.2rem; margin-bottom: 20px; }
         .instruccion-botones { font-size: 1.1rem; margin-bottom: 30px; padding: 12px 25px; }
-        .contenedor-tarjetas { gap: 18px; }
+        .contenedor-tarjetas { gap: 10px; }
         .tarjeta { padding: 22px 30px; }
         .tarjeta-titulo { font-size: 1.8rem; }
-        .tarjeta-precio { font-size: 1.5rem; }
+        .tarjeta-precio { font-size: 1.0rem; }
         .tarjeta-indicador { width: 50px; height: 50px; font-size: 1.6rem; }
         .qr-imagen { width: 300px; height: 300px; }
         .qr-texto { font-size: 1.6rem; margin-top: 30px; }
@@ -177,6 +177,7 @@
 <div id="app">
 
     <div id="pantalla1" class="pantalla activa">
+        
         <h1 class="titulo-principal">LLENADO DE BIDONES</h1>
         <p class="subtitulo-principal">Seleccione el tamano de su bidon</p>
         <div class="instruccion-botones">
@@ -205,7 +206,9 @@
                 </div>
                 <div class="tarjeta-indicador">○</div>
             </div>
+            
         </div>
+        <img src="logo.png" alt="Logo">
     </div>
 
     <div id="pantalla2" class="pantalla">
@@ -922,4 +925,3 @@ function mostrarCartelRechazo() {
 
 </body>
 </html>
-
