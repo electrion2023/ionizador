@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lavado de Bidones - Autoservicio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: clamp(1.5em, 5vw, 2.5em);
+            margin-bottom: 10px;
+            text-align: center;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+
+        .pantalla {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s;
+        }
+
+        .pantalla.activa { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* PANTALLA 0: SELECCIÓN */
+        .instruccion {
+            text-align: center;
+            font-size: clamp(0.9em, 3vw, 1.2em);
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .bidones-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .bidon-card {
+            background: rgba(255,255,255,0.08);
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            width: 180px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .bidon-card.activo {
+            border-color: #00d4ff;
+            background: rgba(0,212,255,0.15);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+        }
+
+        .bidon-card h3 {
+            font-size: clamp(1.5em, 4vw, 2.2em);
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .bidon-card .precio {
+            font-size: clamp(1.2em, 3.5vw, 1.8em);
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .bidon-card .litros {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        /* PANTALLA 1: PAGO */
+        .pago-container { text-align: center; }
+
+        .monto-display {
+            font-size: clamp(2.5em, 10vw, 4em);
+            color: #00d4ff;
+            font-weight: bold;
+            margin: 15px 0;
+            text-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+
+        .qr-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .qr-box img { max-width: 250px; width: 100%; }
+
+        .estado-pago {
+            font-size: clamp(1em, 3vw, 1.5em);
+            padding: 12px 25px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .estado-pago.esperando { background: rgba(255,255,255,0.1); color: #aaa; }
+        .estado-pago.procesando { background: rgba(255,165,0,0.2); color: #ffa500; border: 2px solid #ffa500; }
+        .estado-pago.aprobado { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; font-weight: bold; }
+
+        .cancelar-info { margin-top: 20px; color: #666; font-size: 0.85em; }
+
+        /* PANTALLA 2: OPERATIVA */
+        .operativa-container { text-align: center; }
+
+        .titulo-operativa {
+            font-size: clamp(1.5em, 5vw, 2em);
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo-operativa {
+            font-size: clamp(0.9em, 3vw, 1.3em);
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+
+        .instrucciones-op {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .instruccion-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            max-width: 280px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .instruccion-card h4 { color: #00d4ff; margin-bottom: 8px; font-size: 1.1em; }
+        .instruccion-card p { color: #aaa; font-size: 0.95em; }
+
+        .progreso-container { margin: 30px 0; }
+
+        .progreso-label {
+            font-size: clamp(0.9em, 2.5vw, 1.2em);
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .barra-fondo {
+            width: 100%;
+            max-width: 600px;
+            height: clamp(35px, 6vw, 50px);
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .barra-progreso {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #0099cc);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 25px;
+            box-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+
+        .litros-display {
+            font-size: clamp(2em, 7vw, 3em);
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .litros-display .actual { color: #00d4ff; }
+        .litros-display .total { color: #aaa; }
+
+        /* INDICADORES */
+        .indicadores {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .indicador {
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            color: #666;
+            font-size: clamp(0.75em, 2.5vw, 1em);
+            transition: all 0.3s;
+        }
+
+        .indicador.activo {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+            font-weight: bold;
+        }
+
+        .indicador.completado {
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+            border: 2px solid #00ff88;
+        }
+
+        /* ============================================
+           MEDIA QUERIES PARA CELULAR (pantallas chicas)
+           ============================================ */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            
+            .pantalla { padding: 15px; border-radius: 15px; }
+            
+            .bidon-card { width: 100%; max-width: 280px; }
+            
+            .indicador { padding: 8px 12px; }
+            
+            .instruccion-card { max-width: 100%; }
+        }
+
+        /* Tablet en horizontal */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .bidon-card { width: 200px; }
+        }
+
+        /* Evitar zoom en inputs en iOS */
+        @media (max-width: 768px) {
+            input, select, textarea { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>AUTO-LLENADO DE BIDONES</h1>
+
+    <!-- PANTALLA 0: SELECCIÓN -->
+    <div id="pantalla-seleccion" class="pantalla activa">
+        <div class="instruccion">
+            <p><b>Seleccione el tamaño de su bidón</b></p>
+            <p style="margin-top:10px; font-size:0.9em;">Use el botón <b>LAVADO</b> para seleccionar | <b>LLENADO</b> para confirmar</p>
+        </div>
+
+        <div class="bidones-container">
+            <div id="card-6" class="bidon-card">
+                <h3>6 L</h3>
+                <div class="precio">$1000</div>
+                <div class="litros">Bidón chico</div>
+            </div>
+            <div id="card-12" class="bidon-card">
+                <h3>12 L</h3>
+                <div class="precio">$1800</div>
+                <div class="litros">Bidón mediano</div>
+            </div>
+            <div id="card-20" class="bidon-card">
+                <h3>20 L</h3>
+                <div class="precio">$2800</div>
+                <div class="litros">Bidón grande</div>
+            </div>
+        </div>
+
+        <div class="indicadores">
+            <div class="indicador">1 Pago</div>
+            <div class="indicador">2 Lavado</div>
+            <div class="indicador">3 Llenado</div>
+            <div class="indicador">4 Retiro</div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 1: PAGO -->
+    <div id="pantalla-pago" class="pantalla">
+        <div class="pago-container">
+            <h2 style="font-size:clamp(1.2em,4vw,1.8em); margin-bottom:15px;">Escanee el código QR y pague EXACTAMENTE</h2>
+            
+            <div class="monto-display" id="monto-pagar">$ --</div>
+
+            <div class="qr-box">
+                <p style="color:#000; font-size:1.1em; font-weight:bold;">[ QR DE MERCADO PAGO ]</p>
+                <p style="color:#666; font-size:0.9em; margin-top:10px;">El sistema detectará el pago automáticamente</p>
+            </div>
+
+            <div>
+                <p style="color:#aaa; margin-bottom:10px;">Estado del pago:</p>
+                <div id="estado-pago" class="estado-pago esperando">Esperando...</div>
+            </div>
+
+            <p class="cancelar-info">Presione cualquier botón para cancelar</p>
+        </div>
+
+        <div class="indicadores">
+            <div class="indicador activo">1 Pago</div>
+            <div class="indicador">2 Lavado</div>
+            <div class="indicador">3 Llenado</div>
+            <div class="indicador">4 Retiro</div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: OPERATIVA -->
+    <div id="pantalla-operativa" class="pantalla">
+        <div class="operativa-container">
+            <div class="titulo-operativa">¡PAGO ACREDITADO!</div>
+            <div class="subtitulo-operativa">Use los botones físicos para controlar el proceso</div>
+
+            <div class="instrucciones-op">
+                <div class="instruccion-card">
+                    <h4>🔵 Botón LAVADO</h4>
+                    <p>Activa/Desactiva el <b>LLENADO</b> de agua</p>
+                </div>
+                <div class="instruccion-card">
+                    <h4>⚪ Botón LLENADO</h4>
+                    <p>Activa/Desactiva la <b>HIDROLAVADORA</b></p>
+                </div>
+            </div>
+
+            <div class="progreso-container">
+                <div class="progreso-label">Progreso de Llenado</div>
+                <div class="barra-fondo">
+                    <div id="barra-progreso" class="barra-progreso"></div>
+                </div>
+            </div>
+
+            <div class="litros-display">
+                <span class="actual" id="litros-actuales">0.0</span>
+                <span class="total"> / <span id="litros-objetivo">0</span> Litros</span>
+            </div>
+        </div>
+
+        <div class="indicadores">
+            <div class="indicador completado">1 Pago</div>
+            <div class="indicador activo">2 Lavado</div>
+            <div class="indicador activo">3 Llenado</div>
+            <div class="indicador">4 Retiro</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const PRECIOS = { 6: 1000, 12: 1800, 20: 2800 };
+        const mpAccessToken = "APP_USR-2810750186006731-100215-622273e07eb1e512705bb80b2aaccf90-2278176942";
+        
+        let intervaloMP = null;
+        let bidonSeleccionado = 0;
+        let ultimoIdConocido = 0;
+
+        const firebaseConfig = {
+            apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+            authDomain: "pagos-58644.firebaseapp.com",
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
+            projectId: "pagos-58644",
+            storageBucket: "pagos-58644.appspot.com",
+            messagingSenderId: "123",
+            appId: "1:123:web:abc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const ruta = 'nuevaVersion/prueba1/';
+
+        onValue(ref(db, ruta + 'paso'), (snap) => {
+            const paso = snap.val() || 0;
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            if (paso === 0) document.getElementById('pantalla-seleccion').classList.add('activa');
+            else if (paso === 1) document.getElementById('pantalla-pago').classList.add('activa');
+            else if (paso === 2) document.getElementById('pantalla-operativa').classList.add('activa');
+        });
+
+        onValue(ref(db, ruta + 'bidonSel'), (snap) => {
+            const val = snap.val() || 0;
+            bidonSeleccionado = val;
+            document.querySelectorAll('.bidon-card').forEach(c => c.classList.remove('activo'));
+            if (val > 0) {
+                document.getElementById('card-' + val).classList.add('activo');
+                document.getElementById('monto-pagar').innerText = "$" + PRECIOS[val];
+                document.getElementById('litros-objetivo').innerText = val;
+            }
+        });
+
+        onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
+            const val = snap.val() || 0;
+            const estadoDiv = document.getElementById('estado-pago');
+            if (val === 1 && bidonSeleccionado > 0) {
+                estadoDiv.textContent = 'Obteniendo ID base...';
+                estadoDiv.className = 'estado-pago procesando';
+                obtenerIdBase();
+            } else if (val === 0) {
+                if (intervaloMP) clearInterval(intervaloMP);
+                estadoDiv.textContent = 'Esperando...';
+                estadoDiv.className = 'estado-pago esperando';
+            }
+        });
+
+        onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
+            const litros = (snap.val() || 0) / 10;
+            document.getElementById('litros-actuales').innerText = litros.toFixed(1);
+            if (bidonSeleccionado > 0) {
+                const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
+                document.getElementById('barra-progreso').style.width = porcentaje + '%';
+            }
+        });
+
+        function obtenerIdBase() {
+            const url = `https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=1&access_token=${mpAccessToken}`;
+            fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    ultimoIdConocido = Number(data.results[0].id); 
+                    console.log('🛡️ ID Base:', ultimoIdConocido);
+                } else { ultimoIdConocido = 0; }
+                document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
+                iniciarConsultaMercadoPago();
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                document.getElementById('estado-pago').textContent = 'Error de conexión';
+            });
+        }
+
+        function iniciarConsultaMercadoPago() {
+            if (intervaloMP) clearInterval(intervaloMP);
+            intervaloMP = setInterval(() => {
+                const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const pagos = data.results || [];
+                    for (let pago of pagos) {
+                        const pagoId = Number(pago.id);
+                        const pagoMonto = Number(pago.transaction_amount);
+                        const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
+                        if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
+                            console.log('✅ Pago válido ID:', pagoId);
+                            procesarPagoExitoso();
+                            break;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error MP:', error));
+            }, 3000);
+        }
+
+        function procesarPagoExitoso() {
+            clearInterval(intervaloMP);
+            const estadoDiv = document.getElementById('estado-pago');
+            estadoDiv.textContent = '¡PAGO ACREDITADO!';
+            estadoDiv.className = 'estado-pago aprobado';
+            set(ref(db, ruta + 'pagoOk'), 1)
+                .then(() => console.log('pagoOk=1 OK'))
+                .catch(err => console.error('Error Firebase:', err));
+        }
+    </script>
+</body>
+</html>

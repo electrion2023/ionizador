@@ -1,3 +1,5 @@
+Aun en proceso 6/10/26-  falta qr real y direccionamiento
+
 qwen "esp8266lavadodeBidones"
 maquina Lavado de Bidones
 Estado actual: Lógica y hardware funcionando.
