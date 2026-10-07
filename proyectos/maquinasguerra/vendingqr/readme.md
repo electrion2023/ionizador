@@ -1,6 +1,8 @@
 Aun en proceso 6/10/26-  falta qr real y direccionamiento
 
 qwen "esp8266lavadodeBidones"
+nueva Version 3.1
+
 maquina Lavado de Bidones
 Estado actual: Lógica y hardware funcionando.
 ⚠️ Pendiente: Probar generación de QR real de Mercado Pago en el HTML (actualmente se usa el simulador_pago.html).
