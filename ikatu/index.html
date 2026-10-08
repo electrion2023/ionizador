@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Valla Inalámbrica Inteligente</title>
+
+<meta name="description" content="Valla Inalámbrica Inteligente - Tecnología para el control, localización y seguridad del ganado.">
+
+<style>
+
+:root {
+    --verde: #173d2b;
+    --verde-claro: #2f6848;
+    --campo: #6f8f45;
+    --tierra: #8a6847;
+    --azul: #1598d4;
+    --azul-claro: #55c8f5;
+    --blanco: #ffffff;
+    --gris: #eef2ef;
+    --oscuro: #10231a;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f2;
+    color: var(--oscuro);
+    line-height: 1.6;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+
+    background: rgba(16, 35, 26, 0.90);
+    backdrop-filter: blur(10px);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px 6%;
+}
+
+.logo {
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: var(--azul-claro);
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 25px;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: var(--azul-claro);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            rgba(8, 28, 18, 0.55),
+            rgba(8, 28, 18, 0.75)
+        ),
+        url("imagen1.jpg");
+
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    align-items: center;
+
+    padding: 120px 8% 80px;
+
+    color: white;
+}
+
+.hero-content {
+    max-width: 850px;
+}
+
+.badge {
+    display: inline-block;
+
+    padding: 8px 15px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 30px;
+
+    font-size: 13px;
+    margin-bottom: 25px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(5px);
+}
+
+.hero h1 {
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: 0.98;
+    margin-bottom: 25px;
+}
+
+.hero h1 span {
+    color: var(--azul-claro);
+}
+
+.hero p {
+    font-size: clamp(18px, 2vw, 23px);
+    max-width: 700px;
+    color: #e5eee9;
+}
+
+.hero-buttons {
+    margin-top: 35px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 14px 25px;
+    border-radius: 8px;
+
+    text-decoration: none;
+    font-weight: bold;
+
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.btn-primary {
+    background: var(--azul);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0c82b9;
+}
+
+.btn-secondary {
+    border: 1px solid white;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: white;
+    color: var(--verde);
+}
+
+/* =========================
+   INTRO
+========================= */
+
+.intro {
+    padding: 90px 8%;
+    text-align: center;
+}
+
+.section-label {
+    color: var(--azul);
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.intro h2 {
+    font-size: clamp(30px, 4vw, 50px);
+    margin: 12px auto 20px;
+    color: var(--verde);
+}
+
+.intro p {
+    max-width: 850px;
+    margin: auto;
+    color: #53635a;
+    font-size: 18px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.features {
+    padding: 20px 8% 90px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 10px 35px rgba(20,50,30,0.08);
+
+    border-top: 4px solid var(--azul);
+
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 15px 40px rgba(20,50,30,0.15);
+}
+
+.icon {
+    font-size: 35px;
+    margin-bottom: 15px;
+}
+
+.card h3 {
+    color: var(--verde);
+    margin-bottom: 10px;
+}
+
+.card p {
+    color: #66736b;
+    font-size: 15px;
+}
+
+/* =========================
+   IMAGEN + TEXTO
+========================= */
+
+.split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+}
+
+.split-image {
+    background-image: url("imagen2.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.split-content {
+    background: var(--verde);
+    color: white;
+
+    padding: 70px 9%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.split-content h2 {
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.1;
+    margin: 15px 0 25px;
+}
+
+.split-content p {
+    color: #dce8df;
+    font-size: 17px;
+    margin-bottom: 25px;
+}
+
+.list {
+    list-style: none;
+}
+
+.list li {
+    margin: 13px 0;
+    padding-left: 28px;
+    position: relative;
+}
+
+.list li::before {
+    content: "✓";
+
+    position: absolute;
+    left: 0;
+
+    color: var(--azul-claro);
+    font-weight: bold;
+}
+
+/* =========================
+   TECNOLOGIA
+========================= */
+
+.tech {
+    padding: 100px 8%;
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(21,152,212,0.12),
+            transparent 50%
+        ),
+        #eef3ef;
+}
+
+.tech h2 {
+    color: var(--verde);
+    font-size: clamp(32px, 4vw, 50px);
+    margin: 12px 0 50px;
+}
+
+.tech-grid {
+    max-width: 1000px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.tech-box {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+.tech-box strong {
+    display: block;
+    color: var(--verde);
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.tech-box span {
+    color: #68756d;
+    font-size: 14px;
+}
+
+/* =========================
+   SEGURIDAD
+========================= */
+
+.security {
+    padding: 100px 8%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #102b1e,
+            #1e5135
+        );
+
+    color: white;
+}
+
+.security-container {
+    max-width: 1100px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+
+    align-items: center;
+}
+
+.security h2 {
+    font-size: clamp(32px, 4vw, 52px);
+    margin: 12px 0 20px;
+}
+
+.security p {
+    color: #dce8df;
+    font-size: 17px;
+}
+
+.alert-box {
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    padding: 30px;
+    border-radius: 18px;
+
+    backdrop-filter: blur(8px);
+}
+
+.alert {
+    display: flex;
+    align-items: center;
+
+    padding: 15px;
+
+    background: rgba(210,50,50,0.15);
+
+    border-left: 4px solid #ff5c5c;
+
+    margin-bottom: 12px;
+}
+
+.alert-icon {
+    font-size: 25px;
+    margin-right: 15px;
+}
+
+/* =========================
+   FRASE FINAL
+========================= */
+
+.final {
+    padding: 110px 8%;
+    text-align: center;
+
+    background:
+        linear-gradient(
+            rgba(20,55,35,0.72),
+            rgba(20,55,35,0.72)
+        ),
+        url("imagen1.jpg");
+
+    background-size: cover;
+    background-position: center;
+
+    color: white;
+}
+
+.final h2 {
+    font-size: clamp(35px, 5vw, 60px);
+    max-width: 900px;
+    margin: auto;
+}
+
+.final p {
+    margin: 25px auto;
+    max-width: 700px;
+
+    font-size: 18px;
+    color: #e4eee7;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    background: #0b1c13;
+    color: #9aada0;
+
+    text-align: center;
+
+    padding: 30px 20px;
+
+    font-size: 13px;
+}
+
+footer strong {
+    color: white;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+    nav {
+        padding: 14px 5%;
+    }
+
+    nav .links {
+        display: none;
+    }
+
+    .features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tech-grid {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+    }
+
+    .security-container {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .hero {
+        min-height: 90vh;
+        padding: 120px 7% 70px;
+    }
+
+    .hero h1 {
+        font-size: 45px;
+    }
+
+    .hero p {
+        font-size: 17px;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+        padding-left: 6%;
+        padding-right: 6%;
+    }
+
+    .split {
+        grid-template-columns: 1fr;
+    }
+
+    .split-image {
+        min-height: 380px;
+    }
+
+    .split-content {
+        padding: 60px 8%;
+    }
+
+    .intro {
+        padding: 70px 7%;
+    }
+
+    .tech {
+        padding: 70px 7%;
+    }
+
+    .security {
+        padding: 70px 7%;
+    }
+
+    .final {
+        padding: 80px 7%;
+    }
+
+    .btn {
+        display: block;
+        text-align: center;
+        margin-right: 0;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<nav>
+
+    <div class="logo">
+        VALLA <span>INTELIGENTE</span>
+    </div>
+
+    <div class="links">
+        <a href="#sistema">Sistema</a>
+        <a href="#tecnologia">Tecnología</a>
+        <a href="#seguridad">Seguridad</a>
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="badge">
+            TECNOLOGÍA APLICADA AL CAMPO
+        </div>
+
+        <h1>
+            Valla<br>
+            <span>Inalámbrica</span><br>
+            Inteligente
+        </h1>
+
+        <p>
+            La nueva forma de controlar, localizar y proteger el ganado
+            mediante una valla virtual configurable.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="#sistema" class="btn btn-primary">
+                Conocer el sistema
+            </a>
+
+            <a href="#tecnologia" class="btn btn-secondary">
+                Tecnología
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     INTRO
+========================= -->
+
+<section class="intro" id="sistema">
+
+    <div class="section-label">
+        Una nueva generación de manejo rural
+    </div>
+
+    <h2>
+        El alambrado también puede ser inteligente
+    </h2>
+
+    <p>
+        La Valla Inalámbrica Inteligente combina localización GPS,
+        comunicación inalámbrica y tecnología de monitoreo para
+        crear límites virtuales y controlar el movimiento de los animales.
+    </p>
+
+</section>
+
+
+<!-- =========================
+     CARACTERISTICAS
+========================= -->
+
+<section class="features">
+
+    <div class="card">
+
+        <div class="icon">📍</div>
+
+        <h3>Localización</h3>
+
+        <p>
+            Conocer la ubicación del animal y consultar
+            su posición desde el sistema de monitoreo.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="icon">〰️</div>
+
+        <h3>Valla virtual</h3>
+
+        <p>
+            Crear zonas permitidas o restringidas
+            sin necesidad de modificar físicamente el campo.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="icon">🛡️</div>
+
+        <h3>Seguridad</h3>
+
+        <p>
+            Detectar salidas de zona, movimientos
+            anormales y posibles manipulaciones del collar.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="icon">📡</div>
+
+        <h3>Conectividad</h3>
+
+        <p>
+            Comunicación entre los collares y el sistema
+            para disponer de información actualizada.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     IMAGEN 2 + TEXTO
+========================= -->
+
+<section class="split">
+
+    <div class="split-image"></div>
+
+    <div class="split-content">
+
+        <div class="section-label">
+            Collar inteligente
+        </div>
+
+        <h2>
+            Toda la tecnología integrada en el collar
+        </h2>
+
+        <p>
+            El sistema electrónico está integrado dentro del propio
+            collar para mantener un diseño compacto, resistente
+            y adecuado para el uso rural.
+        </p>
+
+        <ul class="list">
+
+            <li>GPS / GNSS para localización</li>
+
+            <li>Comunicación inalámbrica</li>
+
+            <li>Sensor de movimiento</li>
+
+            <li>Detección de manipulación</li>
+
+            <li>Identificación individual</li>
+
+            <li>Batería de larga duración</li>
+
+        </ul>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     TECNOLOGIA
+========================= -->
+
+<section class="tech" id="tecnologia">
+
+    <div class="section-label">
+        Tecnología
+    </div>
+
+    <h2>
+        Un sistema pensado para el campo
+    </h2>
+
+    <div class="tech-grid">
+
+        <div class="tech-box">
+
+            <strong>GPS / GNSS</strong>
+
+            <span>
+                Localización precisa del animal.
+            </span>
+
+        </div>
+
+
+        <div class="tech-box">
+
+            <strong>Comunicación</strong>
+
+            <span>
+                Transmisión de información desde el establecimiento.
+            </span>
+
+        </div>
+
+
+        <div class="tech-box">
+
+            <strong>Valla virtual</strong>
+
+            <span>
+                Zonas configurables según cada necesidad.
+            </span>
+
+        </div>
+
+
+        <div class="tech-box">
+
+            <strong>Monitoreo</strong>
+
+            <span>
+                Visualización de animales y eventos.
+            </span>
+
+        </div>
+
+
+        <div class="tech-box">
+
+            <strong>Alertas</strong>
+
+            <span>
+                Avisos ante situaciones anormales.
+            </span>
+
+        </div>
+
+
+        <div class="tech-box">
+
+            <strong>Escalable</strong>
+
+            <span>
+                Pensado para trabajar con múltiples animales.
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     SEGURIDAD
+========================= -->
+
+<section class="security" id="seguridad">
+
+    <div class="security-container">
+
+        <div>
+
+            <div class="section-label">
+                Seguridad
+            </div>
+
+            <h2>
+                Más que una valla
+            </h2>
+
+            <p>
+                El sistema permite transformar el collar en una
+                herramienta de seguridad para el establecimiento.
+            </p>
+
+        </div>
+
+
+        <div class="alert-box">
+
+            <div class="alert">
+
+                <div class="alert-icon">⚠️</div>
+
+                <div>
+                    <strong>Animal fuera de zona</strong><br>
+                    <small>Se detectó una salida del área autorizada.</small>
+                </div>
+
+            </div>
+
+
+            <div class="alert">
+
+                <div class="alert-icon">🔒</div>
+
+                <div>
+                    <strong>Manipulación del collar</strong><br>
+                    <small>Se detectó una posible alteración.</small>
+                </div>
+
+            </div>
+
+
+            <div class="alert">
+
+                <div class="alert-icon">📍</div>
+
+                <div>
+                    <strong>Última ubicación</strong><br>
+                    <small>Registro de la posición conocida del animal.</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     FINAL
+========================= -->
+
+<section class="final">
+
+    <h2>
+        Tecnología para un campo más inteligente
+    </h2>
+
+    <p>
+        Una nueva forma de delimitar, controlar, localizar
+        y proteger el ganado.
+    </p>
+
+    <a href="#sistema" class="btn btn-primary">
+        Conocer el proyecto
+    </a>
+
+</section>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+    <strong>Valla Inalámbrica Inteligente</strong>
+
+    <br>
+
+    Sistema de control, localización y seguridad para animales rurales.
+
+</footer>
+
+
+</body>
+</html>
