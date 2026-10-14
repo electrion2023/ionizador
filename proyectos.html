@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Proyectos</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 4rem;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .header-content {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            transition: all 0.2s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+            background-color: var(--card-bg);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb .separator { color: var(--text-secondary); }
+        .breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-img-container {
+            width: 100%;
+            height: 160px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-img { transform: scale(1.05); }
+
+        .card-icon-placeholder {
+            font-size: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .card-body {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: capitalize;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .file-item:hover {
+            background-color: #f1f3f5;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-icon { font-size: 1.5rem; flex-shrink: 0; }
+        
+        .file-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-path {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-primary:hover { background-color: var(--accent-hover); }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover { background-color: #dee2e6; }
+
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.85rem; }
+
+        .readme-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .readme-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .readme-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+            word-wrap: break-word;
+        }
+
+        .readme-content h1, .readme-content h2, .readme-content h3 {
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .readme-content h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+        .readme-content h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+        .readme-content h3 { font-size: 1.15rem; }
+        .readme-content h4 { font-size: 1rem; }
+
+        .readme-content p { margin-bottom: 1rem; }
+        .readme-content ul, .readme-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        .readme-content li { margin-bottom: 0.25rem; }
+
+        .readme-content code {
+            background-color: #f1f3f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85em;
+        }
+
+        .readme-content pre {
+            background-color: #f6f8fa;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .readme-content pre code { background: none; padding: 0; }
+
+        .readme-content blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+
+        .readme-content a { color: var(--accent-color); text-decoration: none; }
+        .readme-content a:hover { text-decoration: underline; }
+
+        .readme-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 0.5rem 0;
+        }
+
+        .readme-content hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 1.5rem 0;
+        }
+
+        .readme-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .readme-content th, .readme-content td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        .readme-content th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: #ccc; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>📂 Mis Proyectos</h1>
+            <input type="text" id="searchInput" placeholder="🔍 Buscar proyecto, archivo..." autocomplete="off">
+        </div>
+    </header>
+
+    <main id="app">
+        <div id="loading" class="status-message">
+            ⏳ Cargando estructura del repositorio...
+        </div>
+        <div id="error" class="error-message hidden"></div>
+        <div id="content" class="hidden"></div>
+    </main>
+
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg" src="" alt="Vista previa">
+    </div>
+
+    <script>
+        const GITHUB_USER = "electrion2023";
+        const GITHUB_REPO = "ionizador";
+        const GITHUB_BRANCH = "main";
+        const BASE_FOLDER = "proyectos";
+
+        let fullTree = [];
+        let isSearching = false;
+
+        const COVER_NAMES = ['portada.jpg', 'portada.jpeg', 'portada.png', 'cover.jpg', 'cover.png', 'foto.jpg', 'foto.jpeg', 'foto.png'];
+        const README_NAMES = ['readme.md', 'readme.txt', 'readme', 'readme.markdown'];
+        const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+        const FILE_ICONS = {
+            'ino': '', 'pdf': '📕', 'html': '🌐', 'htm': '',
+            'js': '🟨', 'css': '🎨', 'json': '⚙️',
+            'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'webp': '🖼️', 'gif': '🖼️',
+            'zip': '📦', 'rar': '📦', '7z': '📦',
+            'xlsx': '📊', 'xls': '', 'csv': '📊',
+            'md': '📝', 'txt': '📄'
+        };
+
+        const readmeCache = {};
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadRepoData();
+            window.addEventListener('hashchange', handleRoute);
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            
+            document.getElementById('imageModal').addEventListener('click', (e) => {
+                if (e.target.id === 'imageModal') closeModal();
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            handleRoute();
+        });
+
+        async function loadRepoData() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const contentEl = document.getElementById('content');
+
+            const cacheKey = `gh_tree_${GITHUB_USER}_${GITHUB_REPO}_${GITHUB_BRANCH}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < 5 * 60 * 1000) {
+                    fullTree = data;
+                    loadingEl.classList.add('hidden');
+                    contentEl.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            try {
+                const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error("El repositorio no existe o es privado.");
+                    if (response.status === 403) throw new Error("Límite de peticiones a la API de GitHub alcanzado. Espera una hora.");
+                    throw new Error(`Error al conectar con GitHub: ${response.status}`);
+                }
+
+                const data = await response.json();
+                fullTree = data.tree || [];
+
+                localStorage.setItem(cacheKey, JSON.stringify({ data: fullTree, timestamp: Date.now() }));
+
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                loadingEl.classList.add('hidden');
+                errorEl.textContent = `❌ ${err.message}`;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function handleRoute() {
+            if (isSearching) return;
+
+            let hash = decodeURIComponent(window.location.hash.substring(1));
+            
+            if (!hash || !hash.startsWith(BASE_FOLDER)) {
+                window.location.replace(`#${BASE_FOLDER}`);
+                return;
+            }
+            
+            renderView(hash);
+        }
+
+        function navigateTo(path) {
+            window.location.hash = path;
+        }
+
+        function renderView(currentPath) {
+            const contentEl = document.getElementById('content');
+            contentEl.innerHTML = '';
+
+            const prefix = currentPath + '/';
+            
+            const directChildren = fullTree.filter(node => {
+                if (!node.path.startsWith(prefix)) return false;
+                const relativePath = node.path.substring(prefix.length);
+                return !relativePath.includes('/');
+            });
+
+            const folders = directChildren.filter(n => n.type === 'tree').sort((a, b) => a.path.localeCompare(b.path));
+            const files = directChildren.filter(n => n.type === 'blob').sort((a, b) => a.path.localeCompare(b.path));
+
+            if (currentPath === BASE_FOLDER) {
+                renderRootView(folders, contentEl);
+            } else {
+                renderFolderView(currentPath, folders, files, contentEl);
+            }
+        }
+
+        function renderRootView(folders, container) {
+            if (folders.length === 0) {
+                container.innerHTML = `<div class="status-message"> La carpeta "${BASE_FOLDER}" está vacía.</div>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+
+            folders.forEach(folder => {
+                const folderName = folder.path.split('/').pop();
+                const coverPath = findCoverImage(folder.path);
+                const rawUrl = coverPath ? getRawUrl(coverPath) : null;
+
+                const card = document.createElement('a');
+                card.className = 'card';
+                card.href = `#${folder.path}`;
+                card.onclick = (e) => { e.preventDefault(); navigateTo(folder.path); };
+
+                // Contenedor de imagen con fallback mejorado
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'card-img-container';
+                
+                if (rawUrl) {
+                    const img = document.createElement('img');
+                    img.className = 'card-img';
+                    img.src = rawUrl;
+                    img.alt = 'Portada';
+                    img.loading = 'lazy';
+                    img.onerror = function() {
+                        // Si falla, mostrar icono de carpeta
+                        this.style.display = 'none';
+                        const placeholder = document.createElement('span');
+                        placeholder.className = 'card-icon-placeholder';
+                        placeholder.textContent = '📁';
+                        this.parentElement.appendChild(placeholder);
+                    };
+                    imgContainer.appendChild(img);
+                } else {
+                    const placeholder = document.createElement('span');
+                    placeholder.className = 'card-icon-placeholder';
+                    placeholder.textContent = '';
+                    imgContainer.appendChild(placeholder);
+                }
+
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+                cardBody.innerHTML = `
+                    <div class="card-title">${escapeHtml(folderName)}</div>
+                    <div class="card-subtitle">Carpeta de proyecto</div>
+                `;
+
+                card.appendChild(imgContainer);
+                card.appendChild(cardBody);
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        async function renderFolderView(path, folders, files, container) {
+            const relativePath = path.substring(BASE_FOLDER.length + 1);
+            const pathParts = relativePath ? relativePath.split('/') : [];
+            
+            const breadcrumb = document.createElement('div');
+            breadcrumb.className = 'breadcrumb';
+            breadcrumb.innerHTML = `<a href="#${BASE_FOLDER}" onclick="event.preventDefault(); navigateTo('${BASE_FOLDER}');">📁 ${BASE_FOLDER.toUpperCase()}</a>`;
+            
+            let currentPathAccum = BASE_FOLDER;
+            pathParts.forEach((part, index) => {
+                currentPathAccum += '/' + part;
+                const isLast = index === pathParts.length - 1;
+                if (isLast) {
+                    breadcrumb.innerHTML += `<span class="separator">/</span><span class="current">${escapeHtml(part)}</span>`;
+                } else {
+                    breadcrumb.innerHTML += `<span class="separator">/</span><a href="#${currentPathAccum}" onclick="event.preventDefault(); navigateTo('${currentPathAccum}');">${escapeHtml(part)}</a>`;
+                }
+            });
+            container.appendChild(breadcrumb);
+
+            if (folders.length === 0 && files.length === 0) {
+                container.innerHTML += '<div class="status-message">📂 Esta carpeta está vacía.</div>';
+                return;
+            }
+
+            if (folders.length > 0) {
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+                grid.style.marginBottom = '2rem';
+                
+                folders.forEach(folder => {
+                    const folderName = folder.path.split('/').pop();
+                    const card = document.createElement('a');
+                    card.className = 'card';
+                    card.href = `#${folder.path}`;
+                    card.onclick = (e) => { e.preventDefault(); navigateTo(folder.path); };
+                    card.innerHTML = `
+                        <div class="card-img-container" style="height: 100px; background-color: #f1f3f5;">
+                            <span class="card-icon-placeholder">📁</span>
+                        </div>
+                        <div class="card-body" style="padding: 0.75rem;">
+                            <div class="card-title" style="font-size: 1rem;">${escapeHtml(folderName)}</div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+                container.appendChild(grid);
+            }
+
+            if (files.length > 0) {
+                const list = document.createElement('div');
+                list.className = 'file-list';
+
+                files.forEach(file => {
+                    const fileName = file.path.split('/').pop();
+                    const ext = fileName.split('.').pop().toLowerCase();
+                    const icon = FILE_ICONS[ext] || '📄';
+                    const rawUrl = getRawUrl(file.path);
+                    const isImage = IMAGE_EXTENSIONS.includes(ext);
+                    const displayPath = file.path.substring(BASE_FOLDER.length + 1, file.path.length - fileName.length - 1);
+
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+
+                    let actionsHtml = `<a href="${rawUrl}" target="_blank" class="btn btn-secondary btn-sm" download>⬇ Descargar</a>`;
+                    if (isImage) {
+                        actionsHtml += `<button class="btn btn-primary btn-sm" onclick="openModal('${rawUrl}')">👁 Ver</button>`;
+                    }
+
+                    item.innerHTML = `
+                        <div class="file-info">
+                            <span class="file-icon">${icon}</span>
+                            <div style="min-width: 0; flex: 1;">
+                                <div class="file-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                                ${displayPath ? `<div class="file-path" title="${escapeHtml(displayPath)}"> ${escapeHtml(displayPath)}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            ${actionsHtml}
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+                container.appendChild(list);
+            }
+
+            const readmeFile = findReadmeInFolder(path, files);
+            if (readmeFile) {
+                const readmeContainer = document.createElement('div');
+                readmeContainer.className = 'readme-container';
+                readmeContainer.innerHTML = `
+                    <div class="readme-header">
+                         ${escapeHtml(readmeFile.path.split('/').pop())}
+                    </div>
+                    <div class="readme-content" id="readme-content">
+                        <p class="text-muted">⏳ Cargando...</p>
+                    </div>
+                `;
+                container.appendChild(readmeContainer);
+                
+                loadAndRenderReadme(readmeFile.path);
+            }
+        }
+
+        function findReadmeInFolder(folderPath, files) {
+            for (const file of files) {
+                const fileName = file.path.split('/').pop().toLowerCase();
+                if (README_NAMES.includes(fileName)) {
+                    return file;
+                }
+            }
+            return null;
+        }
+
+        async function loadAndRenderReadme(filePath) {
+            const contentEl = document.getElementById('readme-content');
+            if (!contentEl) return;
+
+            if (readmeCache[filePath]) {
+                renderReadmeContent(readmeCache[filePath], filePath, contentEl);
+                return;
+            }
+
+            try {
+                const rawUrl = getRawUrl(filePath);
+                const response = await fetch(rawUrl);
+                
+                if (!response.ok) {
+                    contentEl.innerHTML = '<p class="text-muted">⚠️ No se pudo cargar el README.</p>';
+                    return;
+                }
+
+                const text = await response.text();
+                readmeCache[filePath] = text;
+                renderReadmeContent(text, filePath, contentEl);
+            } catch (err) {
+                console.error('Error cargando README:', err);
+                contentEl.innerHTML = '<p class="text-muted">⚠️ Error al cargar el README.</p>';
+            }
+        }
+
+        function renderReadmeContent(text, filePath, container) {
+            const ext = filePath.split('.').pop().toLowerCase();
+            
+            if (ext === 'md' || ext === 'markdown') {
+                container.innerHTML = renderMarkdown(text);
+            } else {
+                container.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${escapeHtml(text)}</pre>`;
+            }
+        }
+
+        function renderMarkdown(text) {
+            let html = escapeHtml(text);
+            
+            html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `<pre><code>${code.trim()}</code></pre>`;
+            });
+
+            const lines = html.split('\n');
+            const result = [];
+            let inList = false;
+            let inParagraph = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                
+                const hMatch = line.match(/^(#{1,6})\s+(.+)$/);
+                if (hMatch) {
+                    if (inList) { result.push('</ul>'); inList = false; }
+                    if (inParagraph) { result.push('</p>'); inParagraph = false; }
+                    const level = hMatch[1].length;
+                    result.push(`<h${level}>${inlineFormat(hMatch[2])}</h${level}>`);
+                    continue;
+                }
+
+                if (/^(\*{3,}|-{3,}|_{3,})\s*$/.test(line)) {
+                    if (inList) { result.push('</ul>'); inList = false; }
+                    if (inParagraph) { result.push('</p>'); inParagraph = false; }
+                    result.push('<hr>');
+                    continue;
+                }
+
+                if (line.startsWith('&gt; ')) {
+                    if (inList) { result.push('</ul>'); inList = false; }
+                    if (inParagraph) { result.push('</p>'); inParagraph = false; }
+                    result.push(`<blockquote>${inlineFormat(line.substring(5))}</blockquote>`);
+                    continue;
+                }
+
+                const ulMatch = line.match(/^[\-\*]\s+(.+)$/);
+                if (ulMatch) {
+                    if (!inList) { result.push('<ul>'); inList = true; }
+                    result.push(`<li>${inlineFormat(ulMatch[1])}</li>`);
+                    continue;
+                }
+
+                const olMatch = line.match(/^\d+\.\s+(.+)$/);
+                if (olMatch) {
+                    if (!inList) { result.push('<ol>'); inList = true; }
+                    result.push(`<li>${inlineFormat(olMatch[1])}</li>`);
+                    continue;
+                }
+
+                if (inList && line.trim() !== '') {
+                    result.push('</ul>');
+                    inList = false;
+                } else if (inList && line.trim() === '') {
+                    result.push('</ul>');
+                    inList = false;
+                    continue;
+                }
+
+                if (line.trim() === '') {
+                    if (inParagraph) { result.push('</p>'); inParagraph = false; }
+                    continue;
+                }
+
+                if (!inParagraph) {
+                    result.push(`<p>${inlineFormat(line)}`);
+                    inParagraph = true;
+                } else {
+                    result.push(`<br>${inlineFormat(line)}`);
+                }
+            }
+
+            if (inList) result.push('</ul>');
+            if (inParagraph) result.push('</p>');
+
+            return result.join('\n');
+        }
+
+        function inlineFormat(text) {
+            text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            return text;
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value.trim().toLowerCase();
+            const contentEl = document.getElementById('content');
+            
+            if (query.length < 2) {
+                isSearching = false;
+                handleRoute();
+                return;
+            }
+
+            isSearching = true;
+            contentEl.innerHTML = '';
+
+            const results = fullTree.filter(node => 
+                node.type === 'blob' && 
+                node.path.startsWith(BASE_FOLDER + '/') && 
+                node.path.toLowerCase().includes(query)
+            ).sort((a, b) => a.path.localeCompare(b.path));
+
+            const breadcrumb = document.createElement('div');
+            breadcrumb.className = 'breadcrumb';
+            breadcrumb.innerHTML = `
+                <a href="#" onclick="event.preventDefault(); document.getElementById('searchInput').value=''; handleSearch({target: {value: ''}});">✖ Limpiar</a>
+                <span class="separator">|</span>
+                <span class="current">Resultados en ${BASE_FOLDER} (${results.length})</span>
+            `;
+            contentEl.appendChild(breadcrumb);
+
+            if (results.length === 0) {
+                contentEl.innerHTML += '<div class="status-message">No se encontraron archivos.</div>';
+                return;
+            }
+
+            const list = document.createElement('div');
+            list.className = 'file-list';
+
+            results.forEach(file => {
+                const fileName = file.path.split('/').pop();
+                const filePath = file.path.substring(BASE_FOLDER.length + 1, file.path.length - fileName.length - 1);
+                const ext = fileName.split('.').pop().toLowerCase();
+                const icon = FILE_ICONS[ext] || '';
+                const rawUrl = getRawUrl(file.path);
+                const isImage = IMAGE_EXTENSIONS.includes(ext);
+
+                const item = document.createElement('div');
+                item.className = 'file-item';
+
+                let actionsHtml = `<a href="${rawUrl}" target="_blank" class="btn btn-secondary btn-sm" download> Descargar</a>`;
+                if (isImage) {
+                    actionsHtml += `<button class="btn btn-primary btn-sm" onclick="openModal('${rawUrl}')">👁 Ver</button>`;
+                }
+
+                item.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-icon">${icon}</span>
+                        <div style="min-width: 0; flex: 1;">
+                            <div class="file-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                            <div class="file-path" title="${escapeHtml(filePath)}">📁 ${escapeHtml(filePath || BASE_FOLDER)}</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        ${actionsHtml}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+
+            contentEl.appendChild(list);
+        }
+
+        // FUNCIÓN CORREGIDA: Busca portada de forma más robusta
+        function findCoverImage(folderPath) {
+            const prefix = folderPath + '/';
+            
+            console.log('Buscando portada para:', folderPath);
+            
+            // 1. Primero buscar nombres específicos (portada.jpg, cover.jpg, foto.jpg, etc.)
+            for (const node of fullTree) {
+                if (node.type === 'blob' && node.path.startsWith(prefix)) {
+                    const relativePath = node.path.substring(prefix.length);
+                    // Solo archivos directamente en la carpeta (no en subcarpetas)
+                    if (!relativePath.includes('/')) {
+                        const fileName = relativePath.toLowerCase();
+                        if (COVER_NAMES.includes(fileName)) {
+                            console.log('Portada encontrada (nombre específico):', node.path);
+                            return node.path;
+                        }
+                    }
+                }
+            }
+
+            // 2. Si no encuentra, buscar cualquier imagen en la carpeta raíz del proyecto
+            for (const node of fullTree) {
+                if (node.type === 'blob' && node.path.startsWith(prefix)) {
+                    const relativePath = node.path.substring(prefix.length);
+                    // Solo archivos directamente en la carpeta (no en subcarpetas)
+                    if (!relativePath.includes('/')) {
+                        const ext = relativePath.split('.').pop().toLowerCase();
+                        if (IMAGE_EXTENSIONS.includes(ext)) {
+                            console.log('Portada encontrada (primera imagen):', node.path);
+                            return node.path;
+                        }
+                    }
+                }
+            }
+
+            // 3. Si no hay en la raíz, buscar en subcarpeta "fotos" o "img"
+            for (const node of fullTree) {
+                if (node.type === 'blob' && node.path.startsWith(prefix)) {
+                    const relativePath = node.path.substring(prefix.length).toLowerCase();
+                    // Buscar en subcarpetas comunes de imágenes
+                    if ((relativePath.startsWith('fotos/') || relativePath.startsWith('img/') || relativePath.startsWith('images/')) && 
+                        !relativePath.substring(relativePath.indexOf('/') + 1).includes('/')) {
+                        const ext = relativePath.split('.').pop().toLowerCase();
+                        if (IMAGE_EXTENSIONS.includes(ext)) {
+                            console.log('Portada encontrada (en subcarpeta):', node.path);
+                            return node.path;
+                        }
+                    }
+                }
+            }
+
+            console.log('No se encontró portada para:', folderPath);
+            return null;
+        }
+
+        function getRawUrl(path) {
+            const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+            return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodedPath}`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openModal(url) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImg');
+            img.src = url;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            document.getElementById('modalImg').src = '';
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html>
