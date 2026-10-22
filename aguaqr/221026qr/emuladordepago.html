@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emulador de Pago</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            user-select: none;
+        }
+        h1 { margin-bottom: 30px; color: #00d4ff; }
+        
+        #btnPago {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 5px solid #555;
+            background: #333;
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        #btnPago:active, #btnPago.presionado {
+            background: #00d4ff;
+            border-color: #00ff88;
+            color: #000;
+            transform: scale(0.95);
+            box-shadow: 0 0 40px rgba(0,212,255,0.6);
+        }
+        
+        #estado {
+            margin-top: 30px;
+            font-size: 1.3em;
+            padding: 15px 30px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        #estado.ok { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; }
+        #estado.off { background: rgba(255,255,255,0.1); color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>EMULADOR DE PAGO</h1>
+    
+    <button id="btnPago">
+        <span>MANTENER</span>
+        <span>PRESIONADO</span>
+        <span style="font-size:0.7em;">para pagar</span>
+    </button>
+
+    <div id="estado" class="off">pagoOk = 0</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+            authDomain: "pagos-58644.firebaseapp.com",
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
+            projectId: "pagos-58644",
+            storageBucket: "pagos-58644.appspot.com",
+            messagingSenderId: "123",
+            appId: "1:123:web:abc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const ruta = 'nuevaVersion/prueba1/pagoOk';
+
+        const btn = document.getElementById('btnPago');
+        const estado = document.getElementById('estado');
+
+        // Presionar -> pagoOk = 1
+        function activarPago(e) {
+            e.preventDefault();
+            btn.classList.add('presionado');
+            estado.textContent = 'pagoOk = 1 (PAGANDO...)';
+            estado.className = 'ok';
+            set(ref(db, ruta), 1);
+        }
+
+        // Soltar -> pagoOk = 0
+        function cancelarPago(e) {
+            e.preventDefault();
+            btn.classList.remove('presionado');
+            estado.textContent = 'pagoOk = 0';
+            estado.className = 'off';
+            set(ref(db, ruta), 0);
+        }
+
+        // Eventos para mouse y touch
+        btn.addEventListener('mousedown', activarPago);
+        btn.addEventListener('touchstart', activarPago);
+
+        btn.addEventListener('mouseup', cancelarPago);
+        btn.addEventListener('mouseleave', cancelarPago);
+        btn.addEventListener('touchend', cancelarPago);
+        btn.addEventListener('touchcancel', cancelarPago);
+    </script>
+</body>
+</html>
