@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Autoservicio</title>
+    <title>Lavado de Bidones - Autoservicio</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -47,7 +47,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* PANTALLA 0: SELECCIÓN */
         .instruccion {
             text-align: center;
             font-size: clamp(0.9em, 3vw, 1.2em);
@@ -85,7 +84,6 @@
         .bidon-card .precio { font-size: clamp(1.2em, 3.5vw, 1.8em); color: #00d4ff; font-weight: bold; }
         .bidon-card .litros { font-size: 0.9em; color: #aaa; margin-top: 5px; }
 
-        /* PANTALLA 1: PAGO */
         .pago-container { text-align: center; }
 
         .monto-display {
@@ -127,7 +125,6 @@
 
         .cancelar-info { margin-top: 20px; color: #666; font-size: 0.85em; }
 
-        /* PANTALLA 2: OPERATIVA */
         .operativa-container { text-align: center; }
         .titulo-operativa { font-size: clamp(1.5em, 5vw, 2em); color: #00d4ff; margin-bottom: 10px; }
         .subtitulo-operativa { font-size: clamp(0.9em, 3vw, 1.3em); color: #aaa; margin-bottom: 20px; }
@@ -178,7 +175,6 @@
         .litros-display .actual { color: #00d4ff; }
         .litros-display .total { color: #aaa; }
 
-        /* INDICADORES */
         .indicadores { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
         .indicador {
             padding: 10px 18px;
@@ -191,7 +187,6 @@
         .indicador.activo { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; font-weight: bold; }
         .indicador.completado { background: rgba(0,255,136,0.2); color: #00ff88; border: 2px solid #00ff88; }
 
-        /* MEDIA QUERIES */
         @media (max-width: 600px) {
             body { padding: 10px; }
             .pantalla { padding: 15px; border-radius: 15px; }
@@ -212,9 +207,9 @@
             <p style="margin-top:10px; font-size:0.9em;">Use el botón <b>LAVADO</b> para seleccionar | <b>LLENADO</b> para confirmar</p>
         </div>
         <div class="bidones-container">
-            <div id="card-6" class="bidon-card"><h3>6 L</h3><div class="precio">$1000</div><div class="litros">Bidón chico</div></div>
-            <div id="card-12" class="bidon-card"><h3>12 L</h3><div class="precio">$1800</div><div class="litros">Bidón mediano</div></div>
-            <div id="card-20" class="bidon-card"><h3>20 L</h3><div class="precio">$2800</div><div class="litros">Bidón grande</div></div>
+            <div id="card-6" class="bidon-card"><h3>6 L</h3><div class="precio" id="precio-6">$ --</div><div class="litros">Bidón chico</div></div>
+            <div id="card-12" class="bidon-card"><h3>12 L</h3><div class="precio" id="precio-12">$ --</div><div class="litros">Bidón mediano</div></div>
+            <div id="card-20" class="bidon-card"><h3>20 L</h3><div class="precio" id="precio-20">$ --</div><div class="litros">Bidón grande</div></div>
         </div>
         <div class="indicadores">
             <div class="indicador">1 Pago</div><div class="indicador">2 Lavado</div>
@@ -229,7 +224,6 @@
             <div class="monto-display" id="monto-pagar">$ --</div>
             
             <div class="qr-box">
-                <!-- La imagen del QR se cargará dinámicamente desde Firebase -->
                 <img id="qr-img" src="" alt="QR Mercado Pago" style="display:none;">
                 <p id="qr-placeholder" style="color:#000; font-size:1.1em; font-weight:bold; text-align:center;">Cargando QR...</p>
             </div>
@@ -277,8 +271,8 @@
         // ============================================
         // CONFIGURACIÓN
         // ============================================
-        const PRECIOS = { 6: 1000, 12: 1800, 20: 2800 };
-        let mpAccessToken = ""; // Se cargará dinámicamente desde Firebase
+        let PRECIOS = { 6: 0, 12: 0, 20: 0 }; // 🔑 Se cargan desde Firebase
+        let mpAccessToken = "";
         let intervaloMP = null;
         let bidonSeleccionado = 0;
         let ultimoIdConocido = 0;
@@ -298,27 +292,37 @@
         const ruta = 'nuevaVersion/prueba1/';
 
         // ============================================
-        // 🔑 LECTURA DINÁMICA DE CONFIGURACIÓN (TOKEN Y QR)
+        // 🔑 LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
         // ============================================
+        onValue(ref(db, ruta + 'config/precios/6'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[6] = precio;
+            document.getElementById('precio-6').innerText = '$' + precio;
+            console.log('Precio 6L cargado:', precio);
+        });
+
+        onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[12] = precio;
+            document.getElementById('precio-12').innerText = '$' + precio;
+            console.log('Precio 12L cargado:', precio);
+        });
+
+        onValue(ref(db, ruta + 'config/precios/20'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[20] = precio;
+            document.getElementById('precio-20').innerText = '$' + precio;
+            console.log('Precio 20L cargado:', precio);
+        });
+
+        // Lectura del token de Mercado Pago
         onValue(ref(db, ruta + 'config/mpToken'), (snapshot) => {
             const token = snapshot.val();
             if (token) {
                 mpAccessToken = token;
                 console.log('✅ Token de MP cargado dinámicamente');
             } else {
-                console.log('⚠️ No hay token de MP en Firebase. Configurá la ruta: ' + ruta + 'config/mpToken');
-            }
-        });
-
-        // Opcional: Si tenés una imagen de QR estática guardada en Firebase
-        onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
-            const qrUrl = snapshot.val();
-            const img = document.getElementById('qr-img');
-            const placeholder = document.getElementById('qr-placeholder');
-            if (qrUrl) {
-                img.src = qrUrl;
-                img.style.display = 'block';
-                if(placeholder) placeholder.style.display = 'none';
+                console.log('⚠️ No hay token de MP en Firebase');
             }
         });
 
@@ -370,9 +374,7 @@
         // 4. ESCUCHAR LITROS ACTUALES
         // ============================================
         onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
-            // ⚠️ IMPORTANTE: El ESP32 debe enviar los litros multiplicados por 10.
-            // Ejemplo: 5.7 litros se envía como 57. Acá dividimos por 10.
-            const litros = (snap.val() || 0) / 10; 
+            const litros = (snap.val() || 0) / 10;
             document.getElementById('litros-actuales').innerText = litros.toFixed(1);
             
             if (bidonSeleccionado > 0) {
@@ -396,7 +398,7 @@
             .then(data => {
                 if (data.results && data.results.length > 0) {
                     ultimoIdConocido = Number(data.results[0].id); 
-                    console.log('️ ID Base guardado:', ultimoIdConocido);
+                    console.log('🛡️ ID Base guardado:', ultimoIdConocido);
                 } else { ultimoIdConocido = 0; }
                 document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
                 iniciarConsultaMercadoPago();
@@ -423,7 +425,7 @@
                         const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
 
                         if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
-                            console.log('✅ Pago válido ID:', pagoId);
+                            console.log('✅ Pago válido ID:', pagoId, '| Monto:', pagoMonto);
                             procesarPagoExitoso();
                             break;
                         }
