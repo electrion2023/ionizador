@@ -233,6 +233,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const ruta = 'nuevaVersion/prueba1/config/';
+        const ruta = 'nuevaVersion/prueba1/';
 
         // ============================================
         // LEER VALORES ACTUALES DESDE FIREBASE
@@ -242,7 +243,19 @@
             document.getElementById('display-6').innerText = '$ ' + val;
             document.getElementById('precio-6').placeholder = 'Actual: $' + val;
         });
-            // ============================================
+            
+        onValue(ref(db, ruta + 'precios/12'), (snapshot) => {
+            const val = snapshot.val() || 0;
+            document.getElementById('display-12').innerText = '$ ' + val;
+            document.getElementById('precio-12').placeholder = 'Actual: $' + val;
+        });
+
+        onValue(ref(db, ruta + 'precios/20'), (snapshot) => {
+            const val = snapshot.val() || 0;
+            document.getElementById('display-20').innerText = '$ ' + val;
+            document.getElementById('precio-20').placeholder = 'Actual: $' + val;
+        });
+        // ============================================
 //  LECTURA DEL QR DESDE FIREBASE
 // ============================================
 onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
@@ -262,18 +275,6 @@ onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
         if (placeholder) placeholder.innerText = 'QR no configurado';
     }
 });
-        onValue(ref(db, ruta + 'precios/12'), (snapshot) => {
-            const val = snapshot.val() || 0;
-            document.getElementById('display-12').innerText = '$ ' + val;
-            document.getElementById('precio-12').placeholder = 'Actual: $' + val;
-        });
-
-        onValue(ref(db, ruta + 'precios/20'), (snapshot) => {
-            const val = snapshot.val() || 0;
-            document.getElementById('display-20').innerText = '$ ' + val;
-            document.getElementById('precio-20').placeholder = 'Actual: $' + val;
-        });
-
         onValue(ref(db, ruta + 'mpToken'), (snapshot) => {
             const val = snapshot.val() || '';
             const display = document.getElementById('display-token');
