@@ -53,7 +53,79 @@
             color: #aaa;
             margin-bottom: 20px;
         }
+        /* ============================================
+   LOGO POR CÓDIGO - MAQUINARIAS GUERRA
+   ============================================ */
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding: 0 15px;
+}
 
+.logo-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    border-radius: 12px;
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.logo-footer:hover {
+    border-color: #00d4ff;
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
+}
+
+.logo-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 212, 255, 0.15);
+    border: 2px solid #00d4ff;
+}
+
+.logo-engranaje {
+    font-size: 24px;
+    color: #00d4ff;
+    line-height: 1;
+    animation: girar 8s linear infinite;
+}
+
+@keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-linea1 {
+    font-size: clamp(0.9em, 2.5vw, 1.1em);
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.logo-linea2 {
+    font-size: clamp(1.1em, 3.5vw, 1.5em);
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #00d4ff;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
         .bidones-container {
             display: flex;
             justify-content: center;
@@ -447,10 +519,18 @@
                 .catch(err => console.error('Error Firebase:', err));
         }
     </script>
-        <!-- LOGO ABAJO -->
-    <div class="logo-container">
-        <img src="logo.jpg" alt="Logo" class="logo-footer">
+        <!-- LOGO POR CÓDIGO -->
+<div class="logo-container">
+    <div class="logo-footer">
+        <div class="logo-icono">
+            <span class="logo-engranaje">⚙</span>
+        </div>
+        <div class="logo-texto">
+            <span class="logo-linea1">MAQUINARIAS</span>
+            <span class="logo-linea2">GUERRA</span>
+        </div>
     </div>
+</div>
 
 </body>
 </body>
