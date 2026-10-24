@@ -242,7 +242,26 @@
             document.getElementById('display-6').innerText = '$ ' + val;
             document.getElementById('precio-6').placeholder = 'Actual: $' + val;
         });
-
+            // ============================================
+//  LECTURA DEL QR DESDE FIREBASE
+// ============================================
+onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
+    const qrUrl = snapshot.val();
+    const img = document.getElementById('qr-img');
+    const placeholder = document.getElementById('qr-placeholder');
+    
+    console.log(' QR recibido de Firebase:', qrUrl);
+    
+    if (qrUrl && qrUrl.length > 0) {
+        console.log('✅ Cargando imagen del QR...');
+        img.src = qrUrl;
+        img.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        console.warn('⚠️ No hay URL de QR configurada en Firebase');
+        if (placeholder) placeholder.innerText = 'QR no configurado';
+    }
+});
         onValue(ref(db, ruta + 'precios/12'), (snapshot) => {
             const val = snapshot.val() || 0;
             document.getElementById('display-12').innerText = '$ ' + val;
