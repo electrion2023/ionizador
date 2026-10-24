@@ -18,7 +18,79 @@
             padding: 15px;
             overflow-x: hidden;
         }
+        /* ============================================
+   LOGO POR CÓDIGO - MAQUINARIAS GUERRA
+   ============================================ */
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding: 0 15px;
+}
 
+.logo-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    border-radius: 12px;
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.logo-footer:hover {
+    border-color: #00d4ff;
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
+}
+
+.logo-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 212, 255, 0.15);
+    border: 2px solid #00d4ff;
+}
+
+.logo-engranaje {
+    font-size: 24px;
+    color: #00d4ff;
+    line-height: 1;
+    animation: girar 8s linear infinite;
+}
+
+@keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-linea1 {
+    font-size: clamp(0.9em, 2.5vw, 1.1em);
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.logo-linea2 {
+    font-size: clamp(1.1em, 3.5vw, 1.5em);
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #00d4ff;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
         h1 {
             font-size: clamp(2.5em, 5vw, 3.5em);
             margin-bottom: 10px;
@@ -53,79 +125,7 @@
             color: #aaa;
             margin-bottom: 20px;
         }
-        /* ============================================
-   LOGO POR CÓDIGO - MAQUINARIAS GUERRA
-   ============================================ */
-.logo-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    padding: 0 15px;
-}
 
-.logo-footer {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 20px;
-    border: 2px solid rgba(0, 212, 255, 0.4);
-    border-radius: 12px;
-    background: rgba(0, 212, 255, 0.05);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
-    transition: all 0.3s ease;
-}
-
-.logo-footer:hover {
-    border-color: #ffd900;
-    box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
-}
-
-.logo-icono {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255, 251, 0, 0.253);
-    border: 2px solid #ffbb00;
-}
-
-.logo-engranaje {
-    font-size: 24px;
-    color: #fbff00;
-    line-height: 1;
-    animation: girar 8s linear infinite;
-}
-
-@keyframes girar {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-
-.logo-texto {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-}
-
-.logo-linea1 {
-    font-size: clamp(0.9em, 2.5vw, 1.1em);
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #fff;
-}
-
-.logo-linea2 {
-    font-size: clamp(1.1em, 3.5vw, 1.5em);
-    font-weight: 900;
-    letter-spacing: 5px;
-    color: #00d4ff;
-    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
-}
         .bidones-container {
             display: flex;
             justify-content: center;
@@ -137,7 +137,7 @@
         .bidon-card {
             background: rgba(255,255,255,0.08);
             border: 3px solid rgba(255,255,255,0.2);
-            border-radius: 25px;
+            border-radius: 15px;
             padding: 20px;
             width: 180px;
             text-align: center;
@@ -152,7 +152,7 @@
             box-shadow: 0 0 30px rgba(0,212,255,0.4);
         }
 
-        .bidon-card h3 { font-size: clamp(1.8em, 5vw, 3.2em); margin-bottom: 10px; color: #fff; }
+        .bidon-card h3 { font-size: clamp(1.5em, 4vw, 2.2em); margin-bottom: 10px; color: #fff; }
         .bidon-card .precio { font-size: clamp(2.8em, 3.5vw, 3.6em); color: #00d4ff; font-weight: bold; }
         .bidon-card .litros { font-size: 0.9em; color: #aaa; margin-top: 15px; }
 
@@ -195,7 +195,7 @@
         .estado-pago.aprobado { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; font-weight: bold; }
         .estado-pago.cancelado { background: rgba(255,68,68,0.2); color: #ff4444; border: 2px solid #ff4444; }
 
-        .cancelar-info { margin-top: 30px; color: #666; font-size: 0.85em; }
+        .cancelar-info { margin-top: 40px; color: #dad6d6; font-size: 0.99em; }
 
         .operativa-container { text-align: center; }
         .titulo-operativa { font-size: clamp(1.5em, 5vw, 2em); color: #00d4ff; margin-bottom: 10px; }
@@ -205,7 +205,7 @@
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin: 20px 0;
+            margin: 30px 0;
             flex-wrap: wrap;
         }
 
@@ -247,7 +247,7 @@
         .litros-display .actual { color: #00d4ff; }
         .litros-display .total { color: #aaa; }
 
-        .indicadores { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        .indicadores { display: flex; justify-content: center; gap: 10px; margin-top: 35px; flex-wrap: wrap; }
         .indicador {
             padding: 10px 18px;
             background: rgba(255,255,255,0.08);
@@ -302,7 +302,7 @@
             </div>
 
             <div>
-                <p style="color:#aaa; margin-bottom:10px;">Estado del pago:</p>
+                <p style="color:#e9e2e2; margin-bottom:14px;">Estado del pago:</p>
                 <div id="estado-pago" class="estado-pago esperando">Esperando...</div>
             </div>
             <p class="cancelar-info">Presione cualquier botón físico para cancelar</p>
@@ -373,7 +373,26 @@
             document.getElementById('precio-6').innerText = '$' + precio;
             console.log('Precio 6L cargado:', precio);
         });
-
+        // ============================================
+//  LECTURA DEL QR DESDE FIREBASE
+// ============================================
+onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
+    const qrUrl = snapshot.val();
+    const img = document.getElementById('qr-img');
+    const placeholder = document.getElementById('qr-placeholder');
+    
+    console.log(' QR recibido de Firebase:', qrUrl);
+    
+    if (qrUrl && qrUrl.length > 0) {
+        console.log('✅ Cargando imagen del QR...');
+        img.src = qrUrl;
+        img.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        console.warn('⚠️ No hay URL de QR configurada en Firebase');
+        if (placeholder) placeholder.innerText = 'QR no configurado';
+    }
+});
         onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
             const precio = snapshot.val() || 0;
             PRECIOS[12] = precio;
@@ -519,7 +538,7 @@
                 .catch(err => console.error('Error Firebase:', err));
         }
     </script>
-        <!-- LOGO POR CÓDIGO -->
+    <!-- LOGO POR CÓDIGO -->
 <div class="logo-container">
     <div class="logo-footer">
         <div class="logo-icono">
@@ -531,7 +550,5 @@
         </div>
     </div>
 </div>
-
-</body>
 </body>
 </html>
