@@ -271,7 +271,7 @@
 <body>
     <br>
     <br>
-    <h1>LLENADODE BIDONES</h1>
+    <h1>LLENADO DE BIDONES</h1>
 
     <!-- PANTALLA 0: SELECCIÓN -->
     <div id="pantalla-seleccion" class="pantalla activa">
@@ -338,232 +338,198 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ============================================
-        // CONFIGURACIÓN
-        // ============================================
-        let PRECIOS = { 6: 0, 12: 0, 20: 0 }; // 🔑 Se cargan desde Firebase
-        let mpAccessToken = "";
-        let intervaloMP = null;
-        let bidonSeleccionado = 0;
-        let ultimoIdConocido = 0;
-
-        const firebaseConfig = {
-            apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
-            authDomain: "pagos-58644.firebaseapp.com",
-            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
-            projectId: "pagos-58644",
-            storageBucket: "pagos-58644.appspot.com",
-            messagingSenderId: "123",
-            appId: "1:123:web:abc"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const ruta = 'nuevaVersion/prueba1/';
-
-        // ============================================
-        // 🔑 LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
-        // ============================================
-        onValue(ref(db, ruta + 'config/precios/6'), (snapshot) => {
-            const precio = snapshot.val() || 0;
-            PRECIOS[6] = precio;
-            document.getElementById('precio-6').innerText = '$' + precio;
-            console.log('Precio 6L cargado:', precio);
-        });
-        // ============================================
-//  LECTURA DEL QR DESDE FIREBASE
-// ============================================
-onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
-    const qrUrl = snapshot.val();
-    const img = document.getElementById('qr-img');
-    const placeholder = document.getElementById('qr-placeholder');
+    // ============================================
+    // CONFIGURACIÓN
+    // ============================================
+    let PRECIOS = { 6: 0, 12: 0, 20: 0 };
+    let mpAccessToken = "";
+    let intervaloMP = null;
+    let bidonSeleccionado = 0;
     
-    console.log(' QR recibido de Firebase:', qrUrl);
-    
-    if (qrUrl && qrUrl.length > 0) {
-        console.log('✅ Cargando imagen del QR...');
-        img.src = qrUrl;
-        img.style.display = 'block';
-        if (placeholder) placeholder.style.display = 'none';
-    } else {
-        console.warn('⚠️ No hay URL de QR configurada en Firebase');
-        if (placeholder) placeholder.innerText = 'QR no configurado';
-    }
-});
-        onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
-            const precio = snapshot.val() || 0;
-            PRECIOS[12] = precio;
-            document.getElementById('precio-12').innerText = '$' + precio;
-            console.log('Precio 12L cargado:', precio);
-        });
+    // 🔑 NUEVO: Lista de IDs de pagos que ya conocemos (para no aprobarlos dos veces)
+    let pagosProcesados = []; 
 
-        onValue(ref(db, ruta + 'config/precios/20'), (snapshot) => {
-            const precio = snapshot.val() || 0;
-            PRECIOS[20] = precio;
-            document.getElementById('precio-20').innerText = '$' + precio;
-            console.log('Precio 20L cargado:', precio);
-        });
+    const firebaseConfig = {
+        apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+        authDomain: "pagos-58644.firebaseapp.com",
+        databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
+        projectId: "pagos-58644",
+        storageBucket: "pagos-58644.appspot.com",
+        messagingSenderId: "123",
+        appId: "1:123:web:abc"
+    };
 
-        // Lectura del token de Mercado Pago
-        onValue(ref(db, ruta + 'config/mpToken'), (snapshot) => {
-            const token = snapshot.val();
-            if (token) {
-                mpAccessToken = token;
-                console.log('✅ Token de MP cargado dinámicamente');
-            } else {
-                console.log('⚠️ No hay token de MP en Firebase');
-            }
-        });
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const ruta = 'nuevaVersion/prueba1/';
 
-        // ============================================
-        // 1. ESCUCHAR ESTADO DEL SISTEMA (paso)
-        // ============================================
-        onValue(ref(db, ruta + 'paso'), (snap) => {
-            const paso = snap.val() || 0;
-            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
-            
-            if (paso === 0) document.getElementById('pantalla-seleccion').classList.add('activa');
-            else if (paso === 1) document.getElementById('pantalla-pago').classList.add('activa');
-            else if (paso === 2) document.getElementById('pantalla-operativa').classList.add('activa');
-        });
-
-        // ============================================
-        // 2. ESCUCHAR BIDÓN SELECCIONADO
-        // ============================================
-        onValue(ref(db, ruta + 'bidonSel'), (snap) => {
-            const val = snap.val() || 0;
-            bidonSeleccionado = val;
-            document.querySelectorAll('.bidon-card').forEach(c => c.classList.remove('activo'));
-            if (val > 0) {
-                document.getElementById('card-' + val).classList.add('activo');
-                document.getElementById('monto-pagar').innerText = "$" + PRECIOS[val];
-                document.getElementById('litros-objetivo').innerText = val;
-            }
-        });
-
-        // ============================================
-// ============================================
-// 3. ESCUCHAR CONFIRMACIÓN (B2 presionado en ESP32)
-// ============================================
-onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
-    const val = snap.val() || 0;
-    const estadoDiv = document.getElementById('estado-pago');
-
-    if (val === 1 && bidonSeleccionado > 0) {
-        estadoDiv.textContent = 'Conectando con Mercado Pago...';
-        estadoDiv.className = 'estado-pago procesando';
-        
-        // 🔑 SIEMPRE consultar a MP para obtener el último ID real al iniciar
-        obtenerIdBase();
-        
-    } else if (val === 0) {
-        if (intervaloMP) clearInterval(intervaloMP);
-        estadoDiv.textContent = 'Esperando...';
-        estadoDiv.className = 'estado-pago esperando';
-    }
-});
-
-        // ============================================
-        // 4. ESCUCHAR LITROS ACTUALES
-        // ============================================
-        onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
-            const litros = (snap.val() || 0) / 10;
-            document.getElementById('litros-actuales').innerText = litros.toFixed(1);
-            
-            if (bidonSeleccionado > 0) {
-                const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
-                document.getElementById('barra-progreso').style.width = porcentaje + '%';
-            }
-        });
-
-        // ============================================
-       
-// ============================================
-// 5. LÓGICA DE MERCADO PAGO
-// ============================================
-function obtenerIdBase() {
-    if (!mpAccessToken) {
-        document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
-        return;
-    }
-    
-    // Consultamos el último pago creado (cualquier estado) para saber dónde estamos parados
-    const url = `https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=1&access_token=${mpAccessToken}`;
-    
-    fetch(url)
-    .then(res => res.json())
-    .then(data => {
-        if (data.results && data.results.length > 0) {
-            ultimoIdConocido = Number(data.results[0].id); 
-            console.log('️ ID Base actual (último pago en MP):', ultimoIdConocido);
-        } else { 
-            ultimoIdConocido = 0; 
-            console.log('⚠️ No hay pagos previos. ID Base = 0');
-        }
-        document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
-        iniciarConsultaMercadoPago();
-    })
-    .catch(err => {
-        console.error('Error obteniendo ID base:', err);
-        document.getElementById('estado-pago').textContent = 'Error de conexión';
+    // ============================================
+    // LECTURA DINÁMICA DE PRECIOS, QR Y TOKEN
+    // ============================================
+    onValue(ref(db, ruta + 'config/precios/6'), (snapshot) => {
+        const precio = snapshot.val() || 0; PRECIOS[6] = precio;
+        document.getElementById('precio-6').innerText = '$' + precio;
     });
-}
+    onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
+        const precio = snapshot.val() || 0; PRECIOS[12] = precio;
+        document.getElementById('precio-12').innerText = '$' + precio;
+    });
+    onValue(ref(db, ruta + 'config/precios/20'), (snapshot) => {
+        const precio = snapshot.val() || 0; PRECIOS[20] = precio;
+        document.getElementById('precio-20').innerText = '$' + precio;
+    });
 
-function iniciarConsultaMercadoPago() {
-    if (intervaloMP) clearInterval(intervaloMP);
+    onValue(ref(db, ruta + 'config/mpToken'), (snapshot) => {
+        const token = snapshot.val();
+        if (token) { mpAccessToken = token; console.log('✅ Token MP cargado'); }
+    });
+
+    onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
+        const qrUrl = snapshot.val();
+        const img = document.getElementById('qr-img');
+        const placeholder = document.getElementById('qr-placeholder');
+        if (qrUrl && qrUrl.length > 0) {
+            img.src = qrUrl; img.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        }
+    });
+
+    // ============================================
+    // 1. ESCUCHAR ESTADO DEL SISTEMA (paso)
+    // ============================================
+    onValue(ref(db, ruta + 'paso'), (snap) => {
+        const paso = snap.val() || 0;
+        document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+        if (paso === 0) document.getElementById('pantalla-seleccion').classList.add('activa');
+        else if (paso === 1) document.getElementById('pantalla-pago').classList.add('activa');
+        else if (paso === 2) document.getElementById('pantalla-operativa').classList.add('activa');
+    });
+
+    // ============================================
+    // 2. ESCUCHAR BIDÓN SELECCIONADO
+    // ============================================
+    onValue(ref(db, ruta + 'bidonSel'), (snap) => {
+        const val = snap.val() || 0;
+        bidonSeleccionado = val;
+        document.querySelectorAll('.bidon-card').forEach(c => c.classList.remove('activo'));
+        if (val > 0) {
+            document.getElementById('card-' + val).classList.add('activo');
+            document.getElementById('monto-pagar').innerText = "$" + PRECIOS[val];
+            document.getElementById('litros-objetivo').innerText = val;
+        }
+    });
+
+    // ============================================
+    // 3. ESCUCHAR CONFIRMACIÓN (B2 presionado)
+    // ============================================
+    onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
+        const val = snap.val() || 0;
+        const estadoDiv = document.getElementById('estado-pago');
+
+        if (val === 1 && bidonSeleccionado > 0) {
+            estadoDiv.textContent = 'Conectando con Mercado Pago...';
+            estadoDiv.className = 'estado-pago procesando';
+            
+            // 🔑 CLAVE: En lugar de buscar el "último ID", cargamos los últimos 10 pagos en memoria
+            cargarPagosExistentes();
+            
+        } else if (val === 0) {
+            if (intervaloMP) clearInterval(intervaloMP);
+            estadoDiv.textContent = 'Esperando...';
+            estadoDiv.className = 'estado-pago esperando';
+        }
+    });
+
+    // ============================================
+    // 4. ESCUCHAR LITROS ACTUALES
+    // ============================================
+    onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
+        const litros = (snap.val() || 0) / 10;
+        document.getElementById('litros-actuales').innerText = litros.toFixed(1);
+        if (bidonSeleccionado > 0) {
+            const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
+            document.getElementById('barra-progreso').style.width = porcentaje + '%';
+        }
+    });
+
+    // ============================================
+    // 5. LÓGICA DE MERCADO PAGO (A PRUEBA DE FALLOS)
+    // ============================================
     
-    intervaloMP = setInterval(() => {
-        if (!mpAccessToken) return;
+    // Función para cargar los últimos 10 pagos y meterlos en la "lista negra"
+    function cargarPagosExistentes() {
+        if (!mpAccessToken) {
+            document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
+            return;
+        }
         
-        // Buscamos solo los pagos aprobados
-        const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+        const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=10&access_token=${mpAccessToken}`;
         
         fetch(url)
-        .then(response => { 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`); 
-            return response.json(); 
-        })
+        .then(res => res.json())
         .then(data => {
-            const pagos = data.results || [];
-            for (let pago of pagos) {
-                const pagoId = Number(pago.id);
-                const pagoMonto = Number(pago.transaction_amount);
-                const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
-
-                // 🔑 CLAVE: Solo aprobamos si el ID es MAYOR al que teníamos al iniciar
-                if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
-                    console.log('✅ Pago válido detectado ID:', pagoId, '| Monto:', pagoMonto);
-                    procesarPagoExitoso(pagoId);
-                    break; // Salimos del loop al encontrar el primero
-                }
+            pagosProcesados = []; // Limpiamos la lista
+            if (data.results) {
+                data.results.forEach(p => pagosProcesados.push(Number(p.id)));
             }
+            console.log('🛡️ Pagos existentes cargados en memoria:', pagosProcesados);
+            document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
+            iniciarConsultaMercadoPago();
         })
-        .catch(error => console.error('Error consultando MP:', error));
-    }, 3000); // Consulta cada 3 segundos
-}
+        .catch(err => {
+            console.error('Error cargando pagos:', err);
+            document.getElementById('estado-pago').textContent = 'Error de conexión';
+        });
+    }
 
-  
-function procesarPagoExitoso(pagoId) {
-    clearInterval(intervaloMP); // Detener consultas
-    
-    // Actualizamos el ID conocido localmente para este flujo
-    ultimoIdConocido = pagoId;
-    console.log('🔒 Pago procesado. Nuevo ID base local:', ultimoIdConocido);
-    
-    const estadoDiv = document.getElementById('estado-pago');
-    estadoDiv.textContent = '¡PAGO ACREDITADO!';
-    estadoDiv.className = 'estado-pago aprobado';
-    
-    // Avisar al ESP32
-    set(ref(db, ruta + 'pagoOk'), 1)
-        .then(() => console.log('pagoOk=1 enviado a Firebase'))
-        .catch(err => console.error('Error Firebase:', err));
-}
+    function iniciarConsultaMercadoPago() {
+        if (intervaloMP) clearInterval(intervaloMP);
+        
+        intervaloMP = setInterval(() => {
+            if (!mpAccessToken) return;
+            
+            const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+            
+            fetch(url)
+            .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+            .then(data => {
+                const pagos = data.results || [];
+                for (let pago of pagos) {
+                    const pagoId = Number(pago.id);
+                    const pagoMonto = Number(pago.transaction_amount);
+                    const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
 
-    </script>
+                    // 🔑 CLAVE: Solo aprobamos si el ID NO está en nuestra lista y el monto coincide
+                    if (!pagosProcesados.includes(pagoId) && pagoMonto === montoEsperado) {
+                        console.log('✅ Pago NUEVO detectado ID:', pagoId, '| Monto:', pagoMonto);
+                        procesarPagoExitoso(pagoId);
+                        break; 
+                    }
+                }
+            })
+            .catch(error => console.error('Error consultando MP:', error));
+        }, 3000); // Consulta cada 3 segundos
+    }
+
+    function procesarPagoExitoso(pagoId) {
+        clearInterval(intervaloMP); 
+        
+        // 🔑 Agregamos este ID a la lista para que no se vuelva a procesar si reinician el ciclo
+        pagosProcesados.push(pagoId);
+        console.log(' Pago procesado. ID agregado a lista:', pagoId);
+        
+        const estadoDiv = document.getElementById('estado-pago');
+        estadoDiv.textContent = '¡PAGO ACREDITADO!';
+        estadoDiv.className = 'estado-pago aprobado';
+        
+        set(ref(db, ruta + 'pagoOk'), 1)
+            .then(() => console.log('pagoOk=1 enviado a Firebase'))
+            .catch(err => console.error('Error Firebase:', err));
+    }
+</script>
     <!-- LOGO POR CÓDIGO -->
 <div class="logo-container">
     <div class="logo-footer">
