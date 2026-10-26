@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lavado de Bidones - Autoservicio</title>
+    <title> Autoservicio</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -18,9 +18,81 @@
             padding: 15px;
             overflow-x: hidden;
         }
+        /* ============================================
+   LOGO POR CÓDIGO - MAQUINARIAS GUERRA
+   ============================================ */
+.logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding: 0 15px;
+}
 
+.logo-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    border-radius: 12px;
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.logo-footer:hover {
+    border-color: #00d4ff;
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
+}
+
+.logo-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 212, 255, 0.15);
+    border: 2px solid #00d4ff;
+}
+
+.logo-engranaje {
+    font-size: 24px;
+    color: #00d4ff;
+    line-height: 1;
+    animation: girar 8s linear infinite;
+}
+
+@keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-linea1 {
+    font-size: clamp(0.9em, 2.5vw, 1.1em);
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.logo-linea2 {
+    font-size: clamp(1.1em, 3.5vw, 1.5em);
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #00d4ff;
+    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+}
         h1 {
-            font-size: clamp(1.5em, 5vw, 2.5em);
+            font-size: clamp(2.5em, 5vw, 3.5em);
             margin-bottom: 10px;
             text-align: center;
             color: #00d4ff;
@@ -49,7 +121,7 @@
 
         .instruccion {
             text-align: center;
-            font-size: clamp(0.9em, 3vw, 1.2em);
+            font-size: clamp(1.9em, 3vw, 2.2em);
             color: #aaa;
             margin-bottom: 20px;
         }
@@ -81,8 +153,8 @@
         }
 
         .bidon-card h3 { font-size: clamp(1.5em, 4vw, 2.2em); margin-bottom: 10px; color: #fff; }
-        .bidon-card .precio { font-size: clamp(1.2em, 3.5vw, 1.8em); color: #00d4ff; font-weight: bold; }
-        .bidon-card .litros { font-size: 0.9em; color: #aaa; margin-top: 5px; }
+        .bidon-card .precio { font-size: clamp(2.8em, 3.5vw, 3.6em); color: #00d4ff; font-weight: bold; }
+        .bidon-card .litros { font-size: 0.9em; color: #aaa; margin-top: 15px; }
 
         .pago-container { text-align: center; }
 
@@ -121,18 +193,19 @@
         .estado-pago.esperando { background: rgba(255,255,255,0.1); color: #aaa; }
         .estado-pago.procesando { background: rgba(255,165,0,0.2); color: #ffa500; border: 2px solid #ffa500; }
         .estado-pago.aprobado { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; font-weight: bold; }
+        .estado-pago.cancelado { background: rgba(255,68,68,0.2); color: #ff4444; border: 2px solid #ff4444; }
 
-        .cancelar-info { margin-top: 20px; color: #666; font-size: 0.85em; }
+        .cancelar-info { margin-top: 40px; color: #dad6d6; font-size: 0.99em; }
 
         .operativa-container { text-align: center; }
         .titulo-operativa { font-size: clamp(1.5em, 5vw, 2em); color: #00d4ff; margin-bottom: 10px; }
-        .subtitulo-operativa { font-size: clamp(0.9em, 3vw, 1.3em); color: #aaa; margin-bottom: 20px; }
+        .subtitulo-operativa { font-size: clamp(1.9em, 3vw, 2.3em); color: #aaa; margin-bottom: 20px; }
 
         .instrucciones-op {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin: 20px 0;
+            margin: 30px 0;
             flex-wrap: wrap;
         }
 
@@ -142,9 +215,9 @@
             padding: 15px;
             width: 100%;
             max-width: 280px;
-            border-left: 4px solid #00d4ff;
+            border-left: 4px solid #ff3300;
         }
-        .instruccion-card h4 { color: #00d4ff; margin-bottom: 8px; font-size: 1.1em; }
+        .instruccion-card h4 { color: #008cff; margin-bottom: 8px; font-size: 1.6em; }
         .instruccion-card p { color: #aaa; font-size: 0.95em; }
 
         .progreso-container { margin: 30px 0; }
@@ -174,7 +247,7 @@
         .litros-display .actual { color: #00d4ff; }
         .litros-display .total { color: #aaa; }
 
-        .indicadores { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        .indicadores { display: flex; justify-content: center; gap: 10px; margin-top: 35px; flex-wrap: wrap; }
         .indicador {
             padding: 10px 18px;
             background: rgba(255,255,255,0.08);
@@ -196,14 +269,15 @@
     </style>
 </head>
 <body>
-
-    <h1>AUTO-LLENADO DE BIDONES</h1>
+    <br>
+    <br>
+    <h1>LLENADO DE BIDONES</h1>
 
     <!-- PANTALLA 0: SELECCIÓN -->
     <div id="pantalla-seleccion" class="pantalla activa">
         <div class="instruccion">
             <p><b>Seleccione el tamaño de su bidón</b></p>
-            <p style="margin-top:10px; font-size:0.9em;">Use el botón <b>LLENADO</b> para seleccionar | <b>LAVADO</b> para confirmar</p>
+            <p style="margin-top:20px; font-size:0.9em;">Use el botón <b>LLENADO</b> para seleccionar | <b>LAVADO</b> para confirmar</p>
         </div>
         <div class="bidones-container">
             <div id="card-6" class="bidon-card"><h3>6 L</h3><div class="precio" id="precio-6">$ --</div><div class="litros">Bidón chico</div></div>
@@ -228,7 +302,7 @@
             </div>
 
             <div>
-                <p style="color:#aaa; margin-bottom:10px;">Estado del pago:</p>
+                <p style="color:#e9e2e2; margin-bottom:14px;">Estado del pago:</p>
                 <div id="estado-pago" class="estado-pago esperando">Esperando...</div>
             </div>
             <p class="cancelar-info">Presione cualquier botón físico para cancelar</p>
@@ -270,7 +344,7 @@
         // ============================================
         // CONFIGURACIÓN
         // ============================================
-        let PRECIOS = { 6: 0, 12: 0, 20: 0 };
+        let PRECIOS = { 6: 0, 12: 0, 20: 0 }; // 🔑 Se cargan desde Firebase
         let mpAccessToken = "";
         let intervaloMP = null;
         let bidonSeleccionado = 0;
@@ -291,7 +365,7 @@
         const ruta = 'nuevaVersion/prueba1/';
 
         // ============================================
-        // LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
+        // 🔑 LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
         // ============================================
         onValue(ref(db, ruta + 'config/precios/6'), (snapshot) => {
             const precio = snapshot.val() || 0;
@@ -299,7 +373,26 @@
             document.getElementById('precio-6').innerText = '$' + precio;
             console.log('Precio 6L cargado:', precio);
         });
-
+        // ============================================
+//  LECTURA DEL QR DESDE FIREBASE
+// ============================================
+onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
+    const qrUrl = snapshot.val();
+    const img = document.getElementById('qr-img');
+    const placeholder = document.getElementById('qr-placeholder');
+    
+    console.log(' QR recibido de Firebase:', qrUrl);
+    
+    if (qrUrl && qrUrl.length > 0) {
+        console.log('✅ Cargando imagen del QR...');
+        img.src = qrUrl;
+        img.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        console.warn('⚠️ No hay URL de QR configurada en Firebase');
+        if (placeholder) placeholder.innerText = 'QR no configurado';
+    }
+});
         onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
             const precio = snapshot.val() || 0;
             PRECIOS[12] = precio;
@@ -322,25 +415,6 @@
                 console.log('✅ Token de MP cargado dinámicamente');
             } else {
                 console.log('⚠️ No hay token de MP en Firebase');
-            }
-        });
-
-        // Lectura del QR desde Firebase
-        onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
-            const qrUrl = snapshot.val();
-            const img = document.getElementById('qr-img');
-            const placeholder = document.getElementById('qr-placeholder');
-            
-            console.log('QR recibido de Firebase:', qrUrl);
-            
-            if (qrUrl && qrUrl.length > 0) {
-                console.log('✅ Cargando imagen del QR...');
-                img.src = qrUrl;
-                img.style.display = 'block';
-                if (placeholder) placeholder.style.display = 'none';
-            } else {
-                console.warn('⚠️ No hay URL de QR configurada en Firebase');
-                if (placeholder) placeholder.innerText = 'QR no configurado';
             }
         });
 
@@ -371,40 +445,26 @@
         });
 
         // ============================================
-        // 3. ESCUCHAR CONFIRMACIÓN (B2 presionado en ESP32)
-        // ============================================
-        onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
-            const val = snap.val() || 0;
-            const estadoDiv = document.getElementById('estado-pago');
+// ============================================
+// 3. ESCUCHAR CONFIRMACIÓN (B2 presionado en ESP32)
+// ============================================
+onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
+    const val = snap.val() || 0;
+    const estadoDiv = document.getElementById('estado-pago');
 
-            if (val === 1 && bidonSeleccionado > 0) {
-                estadoDiv.textContent = 'Obteniendo ID base...';
-                estadoDiv.className = 'estado-pago procesando';
-                
-                // 🔑 CLAVE: Leer el último ID procesado desde Firebase
-                const ultimoIdProcesadoRef = ref(db, ruta + 'config/ultimoIdPagoProcesado');
-                onValue(ultimoIdProcesadoRef, (snapshot) => {
-                    const idGuardado = snapshot.val();
-                    
-                    if (idGuardado && idGuardado > 0) {
-                        // Ya tenemos un ID guardado, usarlo como base
-                        ultimoIdConocido = Number(idGuardado);
-                        console.log('🛡️ ID Base desde Firebase:', ultimoIdConocido);
-                        document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
-                        iniciarConsultaMercadoPago();
-                    } else {
-                        // Primera vez: consultar a Mercado Pago
-                        console.log('⚠️ No hay ID guardado. Consultando Mercado Pago...');
-                        obtenerIdBase();
-                    }
-                }, { onlyOnce: true }); // Solo leer una vez
-                
-            } else if (val === 0) {
-                if (intervaloMP) clearInterval(intervaloMP);
-                estadoDiv.textContent = 'Esperando...';
-                estadoDiv.className = 'estado-pago esperando';
-            }
-        });
+    if (val === 1 && bidonSeleccionado > 0) {
+        estadoDiv.textContent = 'Conectando con Mercado Pago...';
+        estadoDiv.className = 'estado-pago procesando';
+        
+        // 🔑 SIEMPRE consultar a MP para obtener el último ID real al iniciar
+        obtenerIdBase();
+        
+    } else if (val === 0) {
+        if (intervaloMP) clearInterval(intervaloMP);
+        estadoDiv.textContent = 'Esperando...';
+        estadoDiv.className = 'estado-pago esperando';
+    }
+});
 
         // ============================================
         // 4. ESCUCHAR LITROS ACTUALES
@@ -420,84 +480,101 @@
         });
 
         // ============================================
-        // 5. LÓGICA DE MERCADO PAGO
-        // ============================================
-        function obtenerIdBase() {
-            if (!mpAccessToken) {
-                document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
-                return;
-            }
-            const url = `https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=1&access_token=${mpAccessToken}`;
-            
-            fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (data.results && data.results.length > 0) {
-                    ultimoIdConocido = Number(data.results[0].id); 
-                    console.log('🛡️ ID Base desde MP:', ultimoIdConocido);
-                    
-                    // 🔑 Guardar este ID en Firebase para futuros flujos
-                    set(ref(db, ruta + 'config/ultimoIdPagoProcesado'), ultimoIdConocido)
-                        .then(() => console.log('ID base guardado en Firebase'))
-                        .catch(err => console.error('Error guardando ID:', err));
-                } else { 
-                    ultimoIdConocido = 0; 
+       
+// ============================================
+// 5. LÓGICA DE MERCADO PAGO
+// ============================================
+function obtenerIdBase() {
+    if (!mpAccessToken) {
+        document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
+        return;
+    }
+    
+    // Consultamos el último pago creado (cualquier estado) para saber dónde estamos parados
+    const url = `https://api.mercadopago.com/v1/payments/search?sort=date_created&criteria=desc&limit=1&access_token=${mpAccessToken}`;
+    
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+        if (data.results && data.results.length > 0) {
+            ultimoIdConocido = Number(data.results[0].id); 
+            console.log('️ ID Base actual (último pago en MP):', ultimoIdConocido);
+        } else { 
+            ultimoIdConocido = 0; 
+            console.log('⚠️ No hay pagos previos. ID Base = 0');
+        }
+        document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
+        iniciarConsultaMercadoPago();
+    })
+    .catch(err => {
+        console.error('Error obteniendo ID base:', err);
+        document.getElementById('estado-pago').textContent = 'Error de conexión';
+    });
+}
+
+function iniciarConsultaMercadoPago() {
+    if (intervaloMP) clearInterval(intervaloMP);
+    
+    intervaloMP = setInterval(() => {
+        if (!mpAccessToken) return;
+        
+        // Buscamos solo los pagos aprobados
+        const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+        
+        fetch(url)
+        .then(response => { 
+            if (!response.ok) throw new Error(`HTTP ${response.status}`); 
+            return response.json(); 
+        })
+        .then(data => {
+            const pagos = data.results || [];
+            for (let pago of pagos) {
+                const pagoId = Number(pago.id);
+                const pagoMonto = Number(pago.transaction_amount);
+                const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
+
+                // 🔑 CLAVE: Solo aprobamos si el ID es MAYOR al que teníamos al iniciar
+                if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
+                    console.log('✅ Pago válido detectado ID:', pagoId, '| Monto:', pagoMonto);
+                    procesarPagoExitoso(pagoId);
+                    break; // Salimos del loop al encontrar el primero
                 }
-                document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
-                iniciarConsultaMercadoPago();
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                document.getElementById('estado-pago').textContent = 'Error de conexión';
-            });
-        }
+            }
+        })
+        .catch(error => console.error('Error consultando MP:', error));
+    }, 3000); // Consulta cada 3 segundos
+}
 
-        function iniciarConsultaMercadoPago() {
-            if (intervaloMP) clearInterval(intervaloMP);
-            intervaloMP = setInterval(() => {
-                if (!mpAccessToken) return;
-                const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
-                
-                fetch(url)
-                .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
-                .then(data => {
-                    const pagos = data.results || [];
-                    for (let pago of pagos) {
-                        const pagoId = Number(pago.id);
-                        const pagoMonto = Number(pago.transaction_amount);
-                        const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
+  
+function procesarPagoExitoso(pagoId) {
+    clearInterval(intervaloMP); // Detener consultas
+    
+    // Actualizamos el ID conocido localmente para este flujo
+    ultimoIdConocido = pagoId;
+    console.log('🔒 Pago procesado. Nuevo ID base local:', ultimoIdConocido);
+    
+    const estadoDiv = document.getElementById('estado-pago');
+    estadoDiv.textContent = '¡PAGO ACREDITADO!';
+    estadoDiv.className = 'estado-pago aprobado';
+    
+    // Avisar al ESP32
+    set(ref(db, ruta + 'pagoOk'), 1)
+        .then(() => console.log('pagoOk=1 enviado a Firebase'))
+        .catch(err => console.error('Error Firebase:', err));
+}
 
-                        if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
-                            console.log('✅ Pago válido ID:', pagoId, '| Monto:', pagoMonto);
-                            procesarPagoExitoso(pagoId);
-                            break;
-                        }
-                    }
-                })
-                .catch(error => console.error('Error MP:', error));
-            }, 3000);
-        }
-
-        function procesarPagoExitoso(pagoId) {
-            clearInterval(intervaloMP);
-            
-            // 🔑 CLAVE: Actualizar ultimoIdConocido
-            ultimoIdConocido = pagoId;
-            console.log('🔒 ultimoIdConocido actualizado a:', ultimoIdConocido);
-            
-            // 🔑 CLAVE: Guardar el ID del pago procesado en Firebase
-            set(ref(db, ruta + 'config/ultimoIdPagoProcesado'), pagoId)
-                .then(() => console.log('ID de pago guardado en Firebase:', pagoId))
-                .catch(err => console.error('Error guardando ID de pago:', err));
-            
-            const estadoDiv = document.getElementById('estado-pago');
-            estadoDiv.textContent = '¡PAGO ACREDITADO!';
-            estadoDiv.className = 'estado-pago aprobado';
-            
-            set(ref(db, ruta + 'pagoOk'), 1)
-                .then(() => console.log('pagoOk=1 OK'))
-                .catch(err => console.error('Error Firebase:', err));
-        }
     </script>
+    <!-- LOGO POR CÓDIGO -->
+<div class="logo-container">
+    <div class="logo-footer">
+        <div class="logo-icono">
+            <span class="logo-engranaje">⚙</span>
+        </div>
+        <div class="logo-texto">
+            <span class="logo-linea1">MAQUINARIAS</span>
+            <span class="logo-linea2">GUERRA</span>
+        </div>
+    </div>
+</div>
 </body>
 </html>
