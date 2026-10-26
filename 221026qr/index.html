@@ -515,28 +515,33 @@ onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
                         const pagoId = Number(pago.id);
                         const pagoMonto = Number(pago.transaction_amount);
                         const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
-
                         if (pagoId > ultimoIdConocido && pagoMonto === montoEsperado) {
-                            console.log('✅ Pago válido ID:', pagoId, '| Monto:', pagoMonto);
-                            procesarPagoExitoso();
+                           console.log('✅ Pago válido ID:', pagoId);
+                            procesarPagoExitoso(pagoId); // 🔑 Pasamos el ID del pago
                             break;
                         }
+                        
                     }
                 })
                 .catch(error => console.error('Error MP:', error));
             }, 3000);
         }
 
-        function procesarPagoExitoso() {
-            clearInterval(intervaloMP);
-            const estadoDiv = document.getElementById('estado-pago');
-            estadoDiv.textContent = '¡PAGO ACREDITADO!';
-            estadoDiv.className = 'estado-pago aprobado';
-            
-            set(ref(db, ruta + 'pagoOk'), 1)
-                .then(() => console.log('pagoOk=1 OK'))
-                .catch(err => console.error('Error Firebase:', err));
-        }
+        function procesarPagoExitoso(pagoId) {
+    clearInterval(intervaloMP);
+    
+    // 🔑 CLAVE: Actualizar ultimoIdConocido con el ID del pago procesado
+    ultimoIdConocido = pagoId;
+    console.log('🔒 ultimoIdConocido actualizado a:', ultimoIdConocido);
+    
+    const estadoDiv = document.getElementById('estado-pago');
+    estadoDiv.textContent = '¡PAGO ACREDITADO!';
+    estadoDiv.className = 'estado-pago aprobado';
+    
+    set(ref(db, ruta + 'pagoOk'), 1)
+        .then(() => console.log('pagoOk=1 OK'))
+        .catch(err => console.error('Error Firebase:', err));
+}
     </script>
     <!-- LOGO POR CÓDIGO -->
 <div class="logo-container">
