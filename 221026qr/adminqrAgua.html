@@ -177,15 +177,15 @@
         <div class="section-title">Precios</div>
 
         <div class="form-group">
-            <label>Bidón 6L</label>
+            <label>Bidón 5L</label>
             <span class="precio-display" id="display-6">$ --</span>
-            <input type="number" id="precio-6" placeholder="Nuevo precio">
+            <input type="number" id="precio-5" placeholder="Nuevo precio">
         </div>
 
         <div class="form-group">
-            <label>Bidón 12L</label>
+            <label>Bidón 10L</label>
             <span class="precio-display" id="display-12">$ --</span>
-            <input type="number" id="precio-12" placeholder="Nuevo precio">
+            <input type="number" id="precio-10" placeholder="Nuevo precio">
         </div>
 
         <div class="form-group">
@@ -237,16 +237,16 @@
         // ============================================
         // LEER VALORES ACTUALES DESDE FIREBASE
         // ============================================
-        onValue(ref(db, ruta + 'precios/6'), (snapshot) => {
+        onValue(ref(db, ruta + 'precios/5'), (snapshot) => {
             const val = snapshot.val() || 0;
-            document.getElementById('display-6').innerText = '$ ' + val;
-            document.getElementById('precio-6').placeholder = 'Actual: $' + val;
+            document.getElementById('display-5').innerText = '$ ' + val;
+            document.getElementById('precio-5').placeholder = 'Actual: $' + val;
         });
 
-        onValue(ref(db, ruta + 'precios/12'), (snapshot) => {
+        onValue(ref(db, ruta + 'precios/10'), (snapshot) => {
             const val = snapshot.val() || 0;
-            document.getElementById('display-12').innerText = '$ ' + val;
-            document.getElementById('precio-12').placeholder = 'Actual: $' + val;
+            document.getElementById('display-10').innerText = '$ ' + val;
+            document.getElementById('precio-10').placeholder = 'Actual: $' + val;
         });
 
         onValue(ref(db, ruta + 'precios/20'), (snapshot) => {
@@ -302,14 +302,14 @@
                 const updates = {};
                 
                 // Solo actualizar los campos que tienen valor
-                const precio6 = document.getElementById('precio-6').value;
-                const precio12 = document.getElementById('precio-12').value;
+                const precio5 = document.getElementById('precio-5').value;
+                const precio10 = document.getElementById('precio-10').value;
                 const precio20 = document.getElementById('precio-20').value;
                 const token = document.getElementById('token-mp').value;
                 const qrUrl = document.getElementById('qr-url').value;
 
-                if (precio6) updates['precios/6'] = parseInt(precio6);
-                if (precio12) updates['precios/12'] = parseInt(precio12);
+                if (precio5) updates['precios/5'] = parseInt(precio5);
+                if (precio10) updates['precios/10'] = parseInt(precio10);
                 if (precio20) updates['precios/20'] = parseInt(precio20);
                 if (token) updates['mpToken'] = token;
                 if (qrUrl) updates['qrUrl'] = qrUrl;
@@ -324,8 +324,8 @@
                 status.innerText = '✅ Cambios guardados exitosamente';
                 
                 // Limpiar inputs
-                document.getElementById('precio-6').value = '';
-                document.getElementById('precio-12').value = '';
+                document.getElementById('precio-5').value = '';
+                document.getElementById('precio-10').value = '';
                 document.getElementById('precio-20').value = '';
                 document.getElementById('token-mp').value = '';
                 document.getElementById('qr-url').value = '';
