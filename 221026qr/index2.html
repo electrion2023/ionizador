@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title> Autoservicio</title>
+    <title>Autoservicio</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -18,79 +17,55 @@
             padding: 15px;
             overflow-x: hidden;
         }
-        /* ============================================
-   LOGO POR CÓDIGO - MAQUINARIAS GUERRA
-   ============================================ */
-.logo-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    padding: 0 15px;
-}
 
-.logo-footer {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 20px;
-    border: 2px solid rgba(0, 212, 255, 0.4);
-    border-radius: 12px;
-    background: rgba(0, 212, 255, 0.05);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
-    transition: all 0.3s ease;
-}
+        .logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding: 0 15px;
+        }
+        .logo-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        .logo-footer:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
+        }
+        .logo-icono {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid #00d4ff;
+        }
+        .logo-engranaje {
+            font-size: 24px;
+            color: #00d4ff;
+            line-height: 1;
+            animation: girar 8s linear infinite;
+        }
+        @keyframes girar {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .logo-texto { display: flex; flex-direction: column; line-height: 1.1; }
+        .logo-linea1 { font-size: clamp(0.9em, 2.5vw, 1.1em); font-weight: 700; letter-spacing: 3px; color: #fff; }
+        .logo-linea2 { font-size: clamp(1.1em, 3.5vw, 1.5em); font-weight: 900; letter-spacing: 5px; color: #00d4ff; text-shadow: 0 0 15px rgba(0, 212, 255, 0.5); }
 
-.logo-footer:hover {
-    border-color: #00d4ff;
-    box-shadow: 0 0 25px rgba(0, 212, 255, 0.35);
-}
-
-.logo-icono {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(0, 212, 255, 0.15);
-    border: 2px solid #00d4ff;
-}
-
-.logo-engranaje {
-    font-size: 24px;
-    color: #00d4ff;
-    line-height: 1;
-    animation: girar 8s linear infinite;
-}
-
-@keyframes girar {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-}
-
-.logo-texto {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-}
-
-.logo-linea1 {
-    font-size: clamp(0.9em, 2.5vw, 1.1em);
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #fff;
-}
-
-.logo-linea2 {
-    font-size: clamp(1.1em, 3.5vw, 1.5em);
-    font-weight: 900;
-    letter-spacing: 5px;
-    color: #00d4ff;
-    text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
-}
         h1 {
             font-size: clamp(2.5em, 5vw, 3.5em);
             margin-bottom: 10px;
@@ -111,7 +86,6 @@
             border: 1px solid rgba(255,255,255,0.1);
             animation: fadeIn 0.5s;
         }
-
         .pantalla.activa { display: block; }
 
         @keyframes fadeIn {
@@ -193,7 +167,6 @@
         .estado-pago.esperando { background: rgba(255,255,255,0.1); color: #aaa; }
         .estado-pago.procesando { background: rgba(255,165,0,0.2); color: #ffa500; border: 2px solid #ffa500; }
         .estado-pago.aprobado { background: rgba(0,212,255,0.2); color: #00d4ff; border: 2px solid #00d4ff; font-weight: bold; }
-        .estado-pago.cancelado { background: rgba(255,68,68,0.2); color: #ff4444; border: 2px solid #ff4444; }
 
         .cancelar-info { margin-top: 40px; color: #dad6d6; font-size: 0.99em; }
 
@@ -269,9 +242,9 @@
     </style>
 </head>
 <body>
-    <br>
-    <br>
-    <h1>LLENADO DE BIDONES m.2</h1>
+
+    <br><br>
+    <h1>LLENADO DE BIDONES 6.1</h1>
 
     <!-- PANTALLA 0: SELECCIÓN -->
     <div id="pantalla-seleccion" class="pantalla activa">
@@ -280,8 +253,8 @@
             <p style="margin-top:20px; font-size:0.9em;">Use el botón <b>LLENADO</b> para seleccionar | <b>LAVADO</b> para confirmar</p>
         </div>
         <div class="bidones-container">
-            <div id="card-6" class="bidon-card"><h3>6 L</h3><div class="precio" id="precio-6">$ --</div><div class="litros">Bidón chico</div></div>
-            <div id="card-12" class="bidon-card"><h3>12 L</h3><div class="precio" id="precio-12">$ --</div><div class="litros">Bidón mediano</div></div>
+            <div id="card-5" class="bidon-card"><h3>5 L</h3><div class="precio" id="precio-5">$ --</div><div class="litros">Bidón chico</div></div>
+            <div id="card-10" class="bidon-card"><h3>10 L</h3><div class="precio" id="precio-10">$ --</div><div class="litros">Bidón mediano</div></div>
             <div id="card-20" class="bidon-card"><h3>20 L</h3><div class="precio" id="precio-20">$ --</div><div class="litros">Bidón grande</div></div>
         </div>
         <div class="indicadores">
@@ -295,12 +268,10 @@
         <div class="pago-container">
             <h2 style="font-size:clamp(1.2em,4vw,1.8em); margin-bottom:15px;">Escanee el código QR y pague EXACTAMENTE</h2>
             <div class="monto-display" id="monto-pagar">$ --</div>
-            
             <div class="qr-box">
                 <img id="qr-img" src="" alt="QR Mercado Pago" style="display:none;">
                 <p id="qr-placeholder" style="color:#000; font-size:1.1em; font-weight:bold; text-align:center;">Cargando QR...</p>
             </div>
-
             <div>
                 <p style="color:#e9e2e2; margin-bottom:14px;">Estado del pago:</p>
                 <div id="estado-pago" class="estado-pago esperando">Esperando...</div>
@@ -338,209 +309,221 @@
     </div>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // ============================================
-    // CONFIGURACIÓN
-    // ============================================
-    let PRECIOS = { 6: 0, 12: 0, 20: 0 };
-    let mpAccessToken = "";
-    let intervaloMP = null;
-    let bidonSeleccionado = 0;
-    
-    // 🔑 NUEVO: Lista de IDs de pagos que ya conocemos (para no aprobarlos dos veces)
-    let pagosProcesados = []; 
-
-    const firebaseConfig = {
-        apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
-        authDomain: "pagos-58644.firebaseapp.com",
-        databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
-        projectId: "pagos-58644",
-        storageBucket: "pagos-58644.appspot.com",
-        messagingSenderId: "123",
-        appId: "1:123:web:abc"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const ruta = 'nuevaVersion/prueba2/';
-
-    // ============================================
-    // LECTURA DINÁMICA DE PRECIOS, QR Y TOKEN
-    // ============================================
-    onValue(ref(db, ruta + 'config/precios/6'), (snapshot) => {
-        const precio = snapshot.val() || 0; PRECIOS[6] = precio;
-        document.getElementById('precio-6').innerText = '$' + precio;
-    });
-    onValue(ref(db, ruta + 'config/precios/12'), (snapshot) => {
-        const precio = snapshot.val() || 0; PRECIOS[12] = precio;
-        document.getElementById('precio-12').innerText = '$' + precio;
-    });
-    onValue(ref(db, ruta + 'config/precios/20'), (snapshot) => {
-        const precio = snapshot.val() || 0; PRECIOS[20] = precio;
-        document.getElementById('precio-20').innerText = '$' + precio;
-    });
-
-    onValue(ref(db, ruta + 'config/mpToken'), (snapshot) => {
-        const token = snapshot.val();
-        if (token) { mpAccessToken = token; console.log('✅ Token MP cargado'); }
-    });
-
-    onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
-        const qrUrl = snapshot.val();
-        const img = document.getElementById('qr-img');
-        const placeholder = document.getElementById('qr-placeholder');
-        if (qrUrl && qrUrl.length > 0) {
-            img.src = qrUrl; img.style.display = 'block';
-            if (placeholder) placeholder.style.display = 'none';
-        }
-    });
-
-    // ============================================
-    // 1. ESCUCHAR ESTADO DEL SISTEMA (paso)
-    // ============================================
-    onValue(ref(db, ruta + 'paso'), (snap) => {
-        const paso = snap.val() || 0;
-        document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
-        if (paso === 0) document.getElementById('pantalla-seleccion').classList.add('activa');
-        else if (paso === 1) document.getElementById('pantalla-pago').classList.add('activa');
-        else if (paso === 2) document.getElementById('pantalla-operativa').classList.add('activa');
-    });
-
-    // ============================================
-    // 2. ESCUCHAR BIDÓN SELECCIONADO
-    // ============================================
-    onValue(ref(db, ruta + 'bidonSel'), (snap) => {
-        const val = snap.val() || 0;
-        bidonSeleccionado = val;
-        document.querySelectorAll('.bidon-card').forEach(c => c.classList.remove('activo'));
-        if (val > 0) {
-            document.getElementById('card-' + val).classList.add('activo');
-            document.getElementById('monto-pagar').innerText = "$" + PRECIOS[val];
-            document.getElementById('litros-objetivo').innerText = val;
-        }
-    });
-
-    // ============================================
-    // 3. ESCUCHAR CONFIRMACIÓN (B2 presionado)
-    // ============================================
-    onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
-        const val = snap.val() || 0;
-        const estadoDiv = document.getElementById('estado-pago');
-
-        if (val === 1 && bidonSeleccionado > 0) {
-            estadoDiv.textContent = 'Conectando con Mercado Pago...';
-            estadoDiv.className = 'estado-pago procesando';
-            
-            // 🔑 CLAVE: En lugar de buscar el "último ID", cargamos los últimos 10 pagos en memoria
-            cargarPagosExistentes();
-            
-        } else if (val === 0) {
-            if (intervaloMP) clearInterval(intervaloMP);
-            estadoDiv.textContent = 'Esperando...';
-            estadoDiv.className = 'estado-pago esperando';
-        }
-    });
-
-    // ============================================
-    // 4. ESCUCHAR LITROS ACTUALES
-    // ============================================
-    onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
-        const litros = (snap.val() || 0) / 10;
-        document.getElementById('litros-actuales').innerText = litros.toFixed(1);
-        if (bidonSeleccionado > 0) {
-            const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
-            document.getElementById('barra-progreso').style.width = porcentaje + '%';
-        }
-    });
-
-    // ============================================
-    // 5. LÓGICA DE MERCADO PAGO (A PRUEBA DE FALLOS)
-    // ============================================
-    
-    // Función para cargar los últimos 10 pagos y meterlos en la "lista negra"
-    function cargarPagosExistentes() {
-        if (!mpAccessToken) {
-            document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
-            return;
-        }
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        let PRECIOS = { 5: 0, 10: 0, 20: 0 };
+        let mpAccessToken = "";
+        let intervaloMP = null;
+        let bidonSeleccionado = 0;
         
-        const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=10&access_token=${mpAccessToken}`;
-        
-        fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            pagosProcesados = []; // Limpiamos la lista
-            if (data.results) {
-                data.results.forEach(p => pagosProcesados.push(Number(p.id)));
-            }
-            console.log('🛡️ Pagos existentes cargados en memoria:', pagosProcesados);
-            document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
-            iniciarConsultaMercadoPago();
-        })
-        .catch(err => {
-            console.error('Error cargando pagos:', err);
-            document.getElementById('estado-pago').textContent = 'Error de conexión';
+        // 🔑 NUEVO: Lista de IDs de pagos que ya conocemos (lista negra)
+        let pagosProcesados = []; 
+
+        const firebaseConfig = {
+            apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+            authDomain: "pagos-58644.firebaseapp.com",
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
+            projectId: "pagos-58644",
+            storageBucket: "pagos-58644.appspot.com",
+            messagingSenderId: "123",
+            appId: "1:123:web:abc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const ruta = 'nuevaVersion/prueba2/';
+
+        // ============================================
+        // LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
+        // ============================================
+        onValue(ref(db, ruta + 'config/precios/5'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[5] = precio;
+            document.getElementById('precio-5').innerText = '$' + precio;
         });
-    }
 
-    function iniciarConsultaMercadoPago() {
-        if (intervaloMP) clearInterval(intervaloMP);
+        onValue(ref(db, ruta + 'config/precios/10'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[10] = precio;
+            document.getElementById('precio-10').innerText = '$' + precio;
+        });
+
+        onValue(ref(db, ruta + 'config/precios/20'), (snapshot) => {
+            const precio = snapshot.val() || 0;
+            PRECIOS[20] = precio;
+            document.getElementById('precio-20').innerText = '$' + precio;
+        });
+
+        // Lectura del QR desde Firebase
+        onValue(ref(db, ruta + 'config/qrUrl'), (snapshot) => {
+            const qrUrl = snapshot.val();
+            const img = document.getElementById('qr-img');
+            const placeholder = document.getElementById('qr-placeholder');
+            if (qrUrl && qrUrl.length > 0) {
+                img.src = qrUrl;
+                img.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            }
+        });
+
+        // Lectura del token de Mercado Pago
+        onValue(ref(db, ruta + 'config/mpToken'), (snapshot) => {
+            const token = snapshot.val();
+            if (token) {
+                mpAccessToken = token;
+                console.log('✅ Token de MP cargado dinámicamente');
+            }
+        });
+
+        // ============================================
+        // 1. ESCUCHAR ESTADO DEL SISTEMA (paso)
+        // ============================================
+        onValue(ref(db, ruta + 'paso'), (snap) => {
+            const paso = snap.val() || 0;
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            if (paso === 0) document.getElementById('pantalla-seleccion').classList.add('activa');
+            else if (paso === 1) document.getElementById('pantalla-pago').classList.add('activa');
+            else if (paso === 2) document.getElementById('pantalla-operativa').classList.add('activa');
+        });
+
+        // ============================================
+        // 2. ESCUCHAR BIDÓN SELECCIONADO
+        // ============================================
+        onValue(ref(db, ruta + 'bidonSel'), (snap) => {
+            const val = snap.val() || 0;
+            bidonSeleccionado = val;
+            document.querySelectorAll('.bidon-card').forEach(c => c.classList.remove('activo'));
+            if (val > 0) {
+                document.getElementById('card-' + val).classList.add('activo');
+                document.getElementById('monto-pagar').innerText = "$" + PRECIOS[val];
+                document.getElementById('litros-objetivo').innerText = val;
+            }
+        });
+
+        // ============================================
+        // 3. ESCUCHAR CONFIRMACIÓN (B2 presionado en ESP32)
+        // ============================================
+        onValue(ref(db, ruta + 'seleccionConfirmada'), (snap) => {
+            const val = snap.val() || 0;
+            const estadoDiv = document.getElementById('estado-pago');
+
+            if (val === 1 && bidonSeleccionado > 0) {
+                estadoDiv.textContent = 'Conectando con Mercado Pago...';
+                estadoDiv.className = 'estado-pago procesando';
+                
+                // 🔑 CLAVE: Cargar los últimos 10 pagos en la "lista negra"
+                cargarPagosExistentes();
+                
+            } else if (val === 0) {
+                if (intervaloMP) clearInterval(intervaloMP);
+                estadoDiv.textContent = 'Esperando...';
+                estadoDiv.className = 'estado-pago esperando';
+            }
+        });
+
+        // ============================================
+        // 4. ESCUCHAR LITROS ACTUALES
+        // ============================================
+        onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
+            const litros = (snap.val() || 0) / 10;
+            document.getElementById('litros-actuales').innerText = litros.toFixed(1);
+            if (bidonSeleccionado > 0) {
+                const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
+                document.getElementById('barra-progreso').style.width = porcentaje + '%';
+            }
+        });
+
+        // ============================================
+        // 5. LÓGICA DE MERCADO PAGO (CON LISTA NEGRA)
+        // ============================================
         
-        intervaloMP = setInterval(() => {
-            if (!mpAccessToken) return;
+        // Función para cargar los últimos 10 pagos y meterlos en la "lista negra"
+        function cargarPagosExistentes() {
+            if (!mpAccessToken) {
+                document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
+                return;
+            }
             
-            const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+            const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=10&access_token=${mpAccessToken}`;
             
             fetch(url)
-            .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+            .then(res => res.json())
             .then(data => {
-                const pagos = data.results || [];
-                for (let pago of pagos) {
-                    const pagoId = Number(pago.id);
-                    const pagoMonto = Number(pago.transaction_amount);
-                    const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
-
-                    // 🔑 CLAVE: Solo aprobamos si el ID NO está en nuestra lista y el monto coincide
-                    if (!pagosProcesados.includes(pagoId) && pagoMonto === montoEsperado) {
-                        console.log('✅ Pago NUEVO detectado ID:', pagoId, '| Monto:', pagoMonto);
-                        procesarPagoExitoso(pagoId);
-                        break; 
-                    }
+                pagosProcesados = []; // Limpiamos la lista
+                if (data.results) {
+                    data.results.forEach(p => pagosProcesados.push(Number(p.id)));
                 }
+                console.log('🛡️ Pagos existentes cargados en memoria:', pagosProcesados);
+                document.getElementById('estado-pago').textContent = 'Esperando pago nuevo...';
+                iniciarConsultaMercadoPago();
             })
-            .catch(error => console.error('Error consultando MP:', error));
-        }, 3000); // Consulta cada 3 segundos
-    }
+            .catch(err => {
+                console.error('Error cargando pagos:', err);
+                document.getElementById('estado-pago').textContent = 'Error de conexión';
+            });
+        }
 
-    function procesarPagoExitoso(pagoId) {
-        clearInterval(intervaloMP); 
-        
-        // 🔑 Agregamos este ID a la lista para que no se vuelva a procesar si reinician el ciclo
-        pagosProcesados.push(pagoId);
-        console.log(' Pago procesado. ID agregado a lista:', pagoId);
-        
-        const estadoDiv = document.getElementById('estado-pago');
-        estadoDiv.textContent = '¡PAGO ACREDITADO!';
-        estadoDiv.className = 'estado-pago aprobado';
-        
-        set(ref(db, ruta + 'pagoOk'), 1)
-            .then(() => console.log('pagoOk=1 enviado a Firebase'))
-            .catch(err => console.error('Error Firebase:', err));
-    }
-</script>
+        function iniciarConsultaMercadoPago() {
+            if (intervaloMP) clearInterval(intervaloMP);
+            
+            intervaloMP = setInterval(() => {
+                if (!mpAccessToken) return;
+                
+                const url = `https://api.mercadopago.com/v1/payments/search?status=approved&sort=date_created&criteria=desc&limit=5&access_token=${mpAccessToken}`;
+                
+                fetch(url)
+                .then(response => { if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); })
+                .then(data => {
+                    const pagos = data.results || [];
+                    for (let pago of pagos) {
+                        const pagoId = Number(pago.id);
+                        const pagoMonto = Number(pago.transaction_amount);
+                        const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
+
+                        // 🔑 CLAVE: Solo aprobamos si el ID NO está en nuestra lista y el monto coincide
+                        if (!pagosProcesados.includes(pagoId) && pagoMonto === montoEsperado) {
+                            console.log('✅ Pago NUEVO detectado ID:', pagoId, '| Monto:', pagoMonto);
+                            procesarPagoExitoso(pagoId);
+                            break; 
+                        }
+                    }
+                })
+                .catch(error => console.error('Error consultando MP:', error));
+            }, 3000); // Consulta cada 3 segundos
+        }
+
+        function procesarPagoExitoso(pagoId) {
+            clearInterval(intervaloMP); 
+            
+            // 🔑 Agregamos este ID a la lista para que no se vuelva a procesar
+            pagosProcesados.push(pagoId);
+            console.log(' Pago procesado. ID agregado a lista:', pagoId);
+            
+            const estadoDiv = document.getElementById('estado-pago');
+            estadoDiv.textContent = '¡PAGO ACREDITADO!';
+            estadoDiv.className = 'estado-pago aprobado';
+            
+            set(ref(db, ruta + 'pagoOk'), 1)
+                .then(() => console.log('pagoOk=1 enviado a Firebase'))
+                .catch(err => console.error('Error Firebase:', err));
+        }
+    </script>
+
     <!-- LOGO POR CÓDIGO -->
-<div class="logo-container">
-    <div class="logo-footer">
-        <div class="logo-icono">
-            <span class="logo-engranaje">⚙</span>
-        </div>
-        <div class="logo-texto">
-            <span class="logo-linea1">MAQUINARIAS</span>
-            <span class="logo-linea2">GUERRA</span>
+    <div class="logo-container">
+        <div class="logo-footer">
+            <div class="logo-icono">
+                <span class="logo-engranaje">⚙</span>
+            </div>
+            <div class="logo-texto">
+                <span class="logo-linea1">MAQUINARIAS</span>
+                <span class="logo-linea2">GUERRA</span>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>
