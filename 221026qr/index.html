@@ -496,21 +496,62 @@
             }, 3000); // Consulta cada 3 segundos
         }
 
-        function procesarPagoExitoso(pagoId) {
-            clearInterval(intervaloMP); 
-            
-            // 🔑 Agregamos este ID a la lista para que no se vuelva a procesar
-            pagosProcesados.push(pagoId);
-            console.log(' Pago procesado. ID agregado a lista:', pagoId);
-            
-            const estadoDiv = document.getElementById('estado-pago');
-            estadoDiv.textContent = '¡PAGO ACREDITADO!';
-            estadoDiv.className = 'estado-pago aprobado';
-            
-            set(ref(db, ruta + 'pagoOk'), 1)
-                .then(() => console.log('pagoOk=1 enviado a Firebase'))
-                .catch(err => console.error('Error Firebase:', err));
-        }
+               function procesarPagoExitoso(pagoId) {
+    clearInterval(intervaloMP);
+    
+    // Actualizar el ID conocido localmente
+    ultimoIdConocido = pagoId;
+    console.log('🔒 Pago procesado. Nuevo ID base local:', ultimoIdConocido);
+    
+    const estadoDiv = document.getElementById('estado-pago');
+    estadoDiv.textContent = '¡PAGO ACREDITADO!';
+    estadoDiv.className = 'estado-pago aprobado';
+    
+    // 🔑 NUEVO: Actualizar estadísticas en Firebase
+    actualizarEstadisticas();
+    
+    // Avisar al ESP32
+    set(ref(db, ruta + 'pagoOk'), 1)
+        .then(() => console.log('pagoOk=1 enviado a Firebase'))
+        .catch(err => console.error('Error Firebase:', err));
+}
+
+// 🔑 NUEVA FUNCIÓN: Actualizar contadores en Firebase
+// 🔑 FUNCIÓN: Actualizar estadísticas desglosadas por tamaño
+function actualizarEstadisticas() {
+    const rutaEst = ruta + 'estadisticas/';
+    const tamano = bidonSeleccionado; // 5, 10 o 20
+    const precio = PRECIOS[tamano];
+
+    console.log('📊 Registrando venta: Bidón ' + tamano + 'L - $' + precio);
+
+    // Leemos todos los contadores actuales en una sola consulta
+    Promise.all([
+        get(ref(db, rutaEst + 'totalBidones')),
+        get(ref(db, rutaEst + 'totalDinero')),
+        get(ref(db, rutaEst + 'porTamano/' + tamano)),
+        get(ref(db, rutaEst + 'dineroPorTamano/' + tamano))
+    ])
+    .then(([snapTotal, snapDinero, snapTamano, snapDineroTamano]) => {
+        const totalBidones = (snapTotal.val() || 0) + 1;
+        const totalDinero = (snapDinero.val() || 0) + precio;
+        const bidonesTamano = (snapTamano.val() || 0) + 1;
+        const dineroTamano = (snapDineroTamano.val() || 0) + precio;
+
+        console.log('✅ Totales → Bidones: ' + totalBidones + ' | Dinero: $' + totalDinero);
+        console.log('✅ Bidón ' + tamano + 'L → Vendidos: ' + bidonesTamano + ' | $' + dineroTamano);
+
+        // Escribimos todo de una vez
+        return set(ref(db, rutaEst), {
+            totalBidones: totalBidones,
+            totalDinero: totalDinero,
+            ['porTamano/' + tamano]: bidonesTamano,
+            ['dineroPorTamano/' + tamano]: dineroTamano
+        });
+    })
+    .then(() => console.log('💾 Estadísticas guardadas en Firebase'))
+    .catch(err => console.error('❌ Error guardando estadísticas:', err));
+}
     </script>
 
     <!-- LOGO POR CÓDIGO -->
