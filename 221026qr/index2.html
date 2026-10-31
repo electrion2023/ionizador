@@ -243,8 +243,6 @@
 </head>
 <body>
 
-    
-
     <!-- PANTALLA 0: SELECCIÓN -->
     <div id="pantalla-seleccion" class="pantalla activa">
         <div class="instruccion">
@@ -308,8 +306,9 @@
     </div>
 
     <script type="module">
+        // 🔑 CORRECCIÓN: Se agregó 'get' a los imports para que funcione la lectura de estadísticas
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // ============================================
         // CONFIGURACIÓN
@@ -318,8 +317,9 @@
         let mpAccessToken = "";
         let intervaloMP = null;
         let bidonSeleccionado = 0;
+        let ultimoIdConocido = 0;
         
-        // 🔑 NUEVO: Lista de IDs de pagos que ya conocemos (lista negra)
+        // Lista de IDs de pagos que ya conocemos (lista negra)
         let pagosProcesados = []; 
 
         const firebaseConfig = {
@@ -334,7 +334,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const ruta = 'nuevaVersion/prueba2/';
+        const ruta = 'nuevaVersion/prueba2/'; // Asegúrate de que esta ruta coincida con tu Firebase
 
         // ============================================
         // LECTURA DINÁMICA DE PRECIOS DESDE FIREBASE
@@ -413,10 +413,7 @@
             if (val === 1 && bidonSeleccionado > 0) {
                 estadoDiv.textContent = 'Conectando con Mercado Pago...';
                 estadoDiv.className = 'estado-pago procesando';
-                
-                // 🔑 CLAVE: Cargar los últimos 10 pagos en la "lista negra"
                 cargarPagosExistentes();
-                
             } else if (val === 0) {
                 if (intervaloMP) clearInterval(intervaloMP);
                 estadoDiv.textContent = 'Esperando...';
@@ -439,8 +436,6 @@
         // ============================================
         // 5. LÓGICA DE MERCADO PAGO (CON LISTA NEGRA)
         // ============================================
-        
-        // Función para cargar los últimos 10 pagos y meterlos en la "lista negra"
         function cargarPagosExistentes() {
             if (!mpAccessToken) {
                 document.getElementById('estado-pago').textContent = 'Error: Token MP no cargado';
@@ -452,7 +447,7 @@
             fetch(url)
             .then(res => res.json())
             .then(data => {
-                pagosProcesados = []; // Limpiamos la lista
+                pagosProcesados = [];
                 if (data.results) {
                     data.results.forEach(p => pagosProcesados.push(Number(p.id)));
                 }
@@ -483,7 +478,6 @@
                         const pagoMonto = Number(pago.transaction_amount);
                         const montoEsperado = Number(PRECIOS[bidonSeleccionado]);
 
-                        // 🔑 CLAVE: Solo aprobamos si el ID NO está en nuestra lista y el monto coincide
                         if (!pagosProcesados.includes(pagoId) && pagoMonto === montoEsperado) {
                             console.log('✅ Pago NUEVO detectado ID:', pagoId, '| Monto:', pagoMonto);
                             procesarPagoExitoso(pagoId);
@@ -492,65 +486,62 @@
                     }
                 })
                 .catch(error => console.error('Error consultando MP:', error));
-            }, 3000); // Consulta cada 3 segundos
+            }, 3000);
         }
 
         function procesarPagoExitoso(pagoId) {
-    clearInterval(intervaloMP);
-    
-    // Actualizar el ID conocido localmente
-    ultimoIdConocido = pagoId;
-    console.log('🔒 Pago procesado. Nuevo ID base local:', ultimoIdConocido);
-    
-    const estadoDiv = document.getElementById('estado-pago');
-    estadoDiv.textContent = '¡PAGO ACREDITADO!';
-    estadoDiv.className = 'estado-pago aprobado';
-    
-    // 🔑 NUEVO: Actualizar estadísticas en Firebase
-    actualizarEstadisticas();
-    
-    // Avisar al ESP32
-    set(ref(db, ruta + 'pagoOk'), 1)
-        .then(() => console.log('pagoOk=1 enviado a Firebase'))
-        .catch(err => console.error('Error Firebase:', err));
-}
+            clearInterval(intervaloMP);
+            ultimoIdConocido = pagoId;
+            console.log('🔒 Pago procesado. Nuevo ID base local:', ultimoIdConocido);
+            
+            const estadoDiv = document.getElementById('estado-pago');
+            estadoDiv.textContent = '¡PAGO ACREDITADO!';
+            estadoDiv.className = 'estado-pago aprobado';
+            
+            // 🔑 Actualizar estadísticas en Firebase
+            actualizarEstadisticas();
+            
+            // Avisar al ESP32
+            set(ref(db, ruta + 'pagoOk'), 1)
+                .then(() => console.log('pagoOk=1 enviado a Firebase'))
+                .catch(err => console.error('Error Firebase:', err));
+        }
 
-// 🔑 NUEVA FUNCIÓN: Actualizar contadores en Firebase
-// 🔑 FUNCIÓN: Actualizar estadísticas desglosadas por tamaño
-function actualizarEstadisticas() {
-    const rutaEst = ruta + 'estadisticas/';
-    const tamano = bidonSeleccionado; // 5, 10 o 20
-    const precio = PRECIOS[tamano];
+        // 🔑 FUNCIÓN: Actualizar estadísticas desglosadas por tamaño
+        function actualizarEstadisticas() {
+            const rutaEst = ruta + 'estadisticas/';
+            const tamano = bidonSeleccionado; // 5, 10 o 20
+            const precio = PRECIOS[tamano];
 
-    console.log('📊 Registrando venta: Bidón ' + tamano + 'L - $' + precio);
+            console.log('📊 Registrando venta: Bidón ' + tamano + 'L - $' + precio);
 
-    // Leemos todos los contadores actuales en una sola consulta
-    Promise.all([
-        get(ref(db, rutaEst + 'totalBidones')),
-        get(ref(db, rutaEst + 'totalDinero')),
-        get(ref(db, rutaEst + 'porTamano/' + tamano)),
-        get(ref(db, rutaEst + 'dineroPorTamano/' + tamano))
-    ])
-    .then(([snapTotal, snapDinero, snapTamano, snapDineroTamano]) => {
-        const totalBidones = (snapTotal.val() || 0) + 1;
-        const totalDinero = (snapDinero.val() || 0) + precio;
-        const bidonesTamano = (snapTamano.val() || 0) + 1;
-        const dineroTamano = (snapDineroTamano.val() || 0) + precio;
+            // Leemos todos los contadores actuales
+            Promise.all([
+                get(ref(db, rutaEst + 'totalBidones')),
+                get(ref(db, rutaEst + 'totalDinero')),
+                get(ref(db, rutaEst + 'porTamano/' + tamano)),
+                get(ref(db, rutaEst + 'dineroPorTamano/' + tamano))
+            ])
+            .then(([snapTotal, snapDinero, snapTamano, snapDineroTamano]) => {
+                const totalBidones = (snapTotal.val() || 0) + 1;
+                const totalDinero = (snapDinero.val() || 0) + precio;
+                const bidonesTamano = (snapTamano.val() || 0) + 1;
+                const dineroTamano = (snapDineroTamano.val() || 0) + precio;
 
-        console.log('✅ Totales → Bidones: ' + totalBidones + ' | Dinero: $' + totalDinero);
-        console.log('✅ Bidón ' + tamano + 'L → Vendidos: ' + bidonesTamano + ' | $' + dineroTamano);
+                console.log('✅ Totales → Bidones: ' + totalBidones + ' | Dinero: $' + totalDinero);
+                console.log('✅ Bidón ' + tamano + 'L → Vendidos: ' + bidonesTamano + ' | $' + dineroTamano);
 
-        // Escribimos todo de una vez
-        return set(ref(db, rutaEst), {
-            totalBidones: totalBidones,
-            totalDinero: totalDinero,
-            ['porTamano/' + tamano]: bidonesTamano,
-            ['dineroPorTamano/' + tamano]: dineroTamano
-        });
-    })
-    .then(() => console.log('💾 Estadísticas guardadas en Firebase'))
-    .catch(err => console.error('❌ Error guardando estadísticas:', err));
-}
+                // Escribimos todo de una vez
+                return set(ref(db, rutaEst), {
+                    totalBidones: totalBidones,
+                    totalDinero: totalDinero,
+                    ['porTamano/' + tamano]: bidonesTamano,
+                    ['dineroPorTamano/' + tamano]: dineroTamano
+                });
+            })
+            .then(() => console.log('💾 Estadísticas guardadas en Firebase'))
+            .catch(err => console.error('❌ Error guardando estadísticas:', err));
+        }
     </script>
 
     <!-- LOGO POR CÓDIGO -->
