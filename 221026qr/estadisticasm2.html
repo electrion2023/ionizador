@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - Maquinarias Guerra</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            background: rgba(0, 212, 255, 0.05);
+            margin-bottom: 30px;
+        }
+        .logo-icono {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid #00d4ff;
+        }
+        .logo-engranaje {
+            font-size: 24px;
+            color: #00d4ff;
+            animation: girar 8s linear infinite;
+        }
+        @keyframes girar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .logo-texto { display: flex; flex-direction: column; line-height: 1.1; }
+        .logo-linea1 { font-size: 1.1em; font-weight: 700; letter-spacing: 3px; color: #fff; }
+        .logo-linea2 { font-size: 1.5em; font-weight: 900; letter-spacing: 5px; color: #00d4ff; }
+
+        h1 {
+            font-size: clamp(1.8em, 5vw, 2.5em);
+            margin-bottom: 30px;
+            text-align: center;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+
+        h2 {
+            font-size: 1.5em;
+            color: #aaa;
+            margin: 30px 0 20px 0;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .card.total {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .card h3 {
+            font-size: 1.1em;
+            color: #aaa;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card .value {
+            font-size: 3em;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .card .value.dinero {
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0,255,136,0.3);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 1.1em;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row strong {
+            color: #00d4ff;
+            font-size: 1.2em;
+        }
+
+        .btn-reset {
+            margin-top: 40px;
+            padding: 15px 30px;
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #ff4444;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+        }
+
+        .back-link {
+            margin-top: 20px;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: #00d4ff; }
+
+        @media (max-width: 600px) {
+            .card .value { font-size: 2.5em; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <div class="logo-icono"><span class="logo-engranaje">⚙</span></div>
+        <div class="logo-texto">
+            <span class="logo-linea1">MAQUINARIAS</span>
+            <span class="logo-linea2">GUERRA</span>
+        </div>
+    </div>
+
+    <h1>📊 PANEL DE ESTADÍSTICAS</h1>
+
+    <!-- TOTALES GENERALES -->
+    <div class="dashboard">
+        <div class="card total">
+            <h3>Total Bidones Vendidos</h3>
+            <div class="value" id="total-bidones">0</div>
+        </div>
+        <div class="card total">
+            <h3>Dinero Total Recaudado</h3>
+            <div class="value dinero" id="total-dinero">$ 0</div>
+        </div>
+    </div>
+
+    <h2>Desglose por Tamaño de Bidón</h2>
+    
+    <!-- DESGLOSE POR TAMAÑO -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>Bidones de 5 L</h3>
+            <div class="stat-row">
+                <span>Cantidad vendida:</span> <strong id="cant-5">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Dinero recaudado:</span> <strong id="dinero-5">$ 0</strong>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Bidones de 10 L</h3>
+            <div class="stat-row">
+                <span>Cantidad vendida:</span> <strong id="cant-10">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Dinero recaudado:</span> <strong id="dinero-10">$ 0</strong>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Bidones de 20 L</h3>
+            <div class="stat-row">
+                <span>Cantidad vendida:</span> <strong id="cant-20">0</strong>
+            </div>
+            <div class="stat-row">
+                <span>Dinero recaudado:</span> <strong id="dinero-20">$ 0</strong>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-reset" onclick="resetearEstadisticas()">🗑️ Resetear Estadísticas a Cero</button>
+    
+    <a href="index.html" class="back-link">← Volver al panel principal</a>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "fsItQV1U7FPegMQ0BihgG7Frj2rRcOiP7MZ4b7gE",
+            authDomain: "pagos-58644.firebaseapp.com",
+            databaseURL: "https://pagos-58644-default-rtdb.firebaseio.com/",
+            projectId: "pagos-58644",
+            storageBucket: "pagos-58644.appspot.com",
+            messagingSenderId: "123",
+            appId: "1:123:web:abc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // ⚠️ IMPORTANTE: Cambia 'prueba1' por 'prueba2' si tu máquina usa esa ruta
+        const ruta = 'nuevaVersion/prueba2/'; 
+        const rutaEst = ruta + 'estadisticas';
+
+        // ============================================
+        // ESCUCHAR ESTADÍSTICAS EN TIEMPO REAL
+        // ============================================
+        onValue(ref(db, rutaEst), (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            // Totales
+            const totalBidones = data.totalBidones || 0;
+            const totalDinero = data.totalDinero || 0;
+            
+            document.getElementById('total-bidones').innerText = totalBidones;
+            document.getElementById('total-dinero').innerText = '$ ' + totalDinero.toLocaleString('es-AR');
+
+            // Por tamaño (5L)
+            const porTamano = data.porTamano || {};
+            const dineroTamano = data.dineroPorTamano || {};
+            
+            document.getElementById('cant-5').innerText = porTamano[5] || 0;
+            document.getElementById('dinero-5').innerText = '$ ' + (dineroTamano[5] || 0).toLocaleString('es-AR');
+
+            // Por tamaño (10L)
+            document.getElementById('cant-10').innerText = porTamano[10] || 0;
+            document.getElementById('dinero-10').innerText = '$ ' + (dineroTamano[10] || 0).toLocaleString('es-AR');
+
+            // Por tamaño (20L)
+            document.getElementById('cant-20').innerText = porTamano[20] || 0;
+            document.getElementById('dinero-20').innerText = '$ ' + (dineroTamano[20] || 0).toLocaleString('es-AR');
+        });
+
+        // ============================================
+        // FUNCIÓN PARA RESETEAR ESTADÍSTICAS
+        // ============================================
+        window.resetearEstadisticas = function() {
+            if (confirm("⚠️ ¿Estás seguro de que quieres resetear TODAS las estadísticas a 0?\n\nEsta acción no se puede deshacer.")) {
+                set(ref(db, rutaEst), {
+                    totalBidones: 0,
+                    totalDinero: 0,
+                    porTamano: { 5: 0, 10: 0, 20: 0 },
+                    dineroPorTamano: { 5: 0, 10: 0, 20: 0 }
+                })
+                .then(() => {
+                    alert("✅ Estadísticas reseteadas correctamente.");
+                })
+                .catch(err => {
+                    alert("❌ Error al resetear: " + err.message);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
