@@ -141,7 +141,7 @@
     <script type="module">
         // 🔑 CORRECCIÓN 1: Se agrega 'get' a los imports para que funcione la lectura de estadísticas
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         let PRECIOS = { 5: 0, 10: 0, 20: 0 };
         let mpAccessToken = "";
@@ -305,37 +305,39 @@
 
         // 🔑 CORRECCIÓN 3: Función completa para guardar estadísticas
         function actualizarEstadisticas() {
-            const rutaEst = ruta + 'estadisticas/';
-            const tamano = bidonSeleccionado;
-            const precio = PRECIOS[tamano];
+    const rutaEst = ruta + 'estadisticas';
+    const tamano = bidonSeleccionado; // 5, 10 o 20
+    const precio = PRECIOS[tamano];
 
-            console.log('📊 Registrando venta: Bidón ' + tamano + 'L - $' + precio);
+    console.log('📊 Registrando venta: Bidón ' + tamano + 'L - $' + precio);
 
-            Promise.all([
-                get(ref(db, rutaEst + 'totalBidones')),
-                get(ref(db, rutaEst + 'totalDinero')),
-                get(ref(db, rutaEst + 'porTamano/' + tamano)),
-                get(ref(db, rutaEst + 'dineroPorTamano/' + tamano))
-            ])
-            .then(([snapTotal, snapDinero, snapTamano, snapDineroTamano]) => {
-                const totalBidones = (snapTotal.val() || 0) + 1;
-                const totalDinero = (snapDinero.val() || 0) + precio;
-                const bidonesTamano = (snapTamano.val() || 0) + 1;
-                const dineroTamano = (snapDineroTamano.val() || 0) + precio;
+    // Leemos los valores actuales
+    Promise.all([
+        get(ref(db, rutaEst + '/totalBidones')),
+        get(ref(db, rutaEst + '/totalDinero')),
+        get(ref(db, rutaEst + '/porTamano/' + tamano)),
+        get(ref(db, rutaEst + '/dineroPorTamano/' + tamano))
+    ])
+    .then(([snapTotal, snapDinero, snapTamano, snapDineroTamano]) => {
+        const totalBidones = (snapTotal.val() || 0) + 1;
+        const totalDinero = (snapDinero.val() || 0) + precio;
+        const bidonesTamano = (snapTamano.val() || 0) + 1;
+        const dineroTamano = (snapDineroTamano.val() || 0) + precio;
 
-                console.log('✅ Totales → Bidones: ' + totalBidones + ' | Dinero: $' + totalDinero);
-                console.log('✅ Bidón ' + tamano + 'L → Vendidos: ' + bidonesTamano + ' | $' + dineroTamano);
+        console.log('✅ Totales → Bidones: ' + totalBidones + ' | Dinero: $' + totalDinero);
+        console.log('✅ Bidón ' + tamano + 'L → Vendidos: ' + bidonesTamano + ' | $' + dineroTamano);
 
-                return set(ref(db, rutaEst), {
-                    totalBidones: totalBidones,
-                    totalDinero: totalDinero,
-                    ['porTamano/' + tamano]: bidonesTamano,
-                    ['dineroPorTamano/' + tamano]: dineroTamano
-                });
-            })
-            .then(() => console.log('💾 Estadísticas guardadas en Firebase'))
-            .catch(err => console.error('❌ Error guardando estadísticas:', err));
-        }
+        // 🔑 CLAVE: Usar update() en lugar de set() para rutas anidadas
+        return update(ref(db, rutaEst), {
+            totalBidones: totalBidones,
+            totalDinero: totalDinero,
+            ['porTamano/' + tamano]: bidonesTamano,
+            ['dineroPorTamano/' + tamano]: dineroTamano
+        });
+    })
+    .then(() => console.log('💾 Estadísticas guardadas en Firebase'))
+    .catch(err => console.error('❌ Error guardando estadísticas:', err));
+}
     </script>
 
     <div class="logo-container">
