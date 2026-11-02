@@ -241,11 +241,19 @@
             }
         });
 
-        onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
-            const litros = (snap.val() || 0) / 10;
+          onValue(ref(db, ruta + 'litrosActuales'), (snap) => {
+            let litros = (snap.val() || 0) / 10;
+            
+            // 🔑 TRUCO VISUAL: Si está a menos de 0.5L de terminar, mostrar el total exacto
+            if (bidonSeleccionado > 0 && litros >= (bidonSeleccionado - 0.5)) {
+                litros = bidonSeleccionado; 
+            }
+
             document.getElementById('litros-actuales').innerText = litros.toFixed(1);
+            
             if (bidonSeleccionado > 0) {
-                const porcentaje = Math.min((litros / bidonSeleccionado) * 100, 100);
+                // Si ya llegó o pasó, forzar 100% en la barra
+                let porcentaje = (litros >= bidonSeleccionado) ? 100 : Math.min((litros / bidonSeleccionado) * 100, 100);
                 document.getElementById('barra-progreso').style.width = porcentaje + '%';
             }
         });
