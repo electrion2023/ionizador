@@ -245,7 +245,7 @@
             let litros = (snap.val() || 0) / 10;
             
             // 🔑 TRUCO VISUAL: Si está a menos de 0.5L de terminar, mostrar el total exacto
-            if (bidonSeleccionado > 0 && litros >= (bidonSeleccionado - 0.5)) {
+            if (bidonSeleccionado > 0 && litros >= (bidonSeleccionado - 2.1)) {
                 litros = bidonSeleccionado; 
             }
 
