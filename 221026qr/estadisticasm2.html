@@ -66,6 +66,58 @@
             padding-bottom: 10px;
         }
 
+        /* 🔑 INDICADOR DE ESTADO ONLINE/OFFLINE */
+        .estado-barra {
+            width: 100%;
+            max-width: 900px;
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .estado-online {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .estado-offline {
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+        }
+        .estado-desconocido {
+            background: rgba(255, 165, 0, 0.1);
+            border: 2px solid #ffa500;
+            color: #ffa500;
+        }
+        .estado-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .estado-icono {
+            font-size: 1.8em;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .estado-tiempo {
+            font-size: 0.85em;
+            font-weight: normal;
+            opacity: 0.85;
+        }
+
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -82,18 +134,15 @@
             text-align: center;
             transition: transform 0.3s, box-shadow 0.3s;
         }
-
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             border-color: rgba(0, 212, 255, 0.3);
         }
-
         .card.total {
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
-
         .card h3 {
             font-size: 1.1em;
             color: #aaa;
@@ -101,18 +150,15 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
         .card .value {
             font-size: 3em;
             font-weight: 900;
             color: #fff;
         }
-
         .card .value.dinero {
             color: #00ff88;
             text-shadow: 0 0 15px rgba(0,255,136,0.3);
         }
-
         .stat-row {
             display: flex;
             justify-content: space-between;
@@ -120,11 +166,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 1.1em;
         }
-
-        .stat-row:last-child {
-            border-bottom: none;
-        }
-
+        .stat-row:last-child { border-bottom: none; }
         .stat-row strong {
             color: #00d4ff;
             font-size: 1.2em;
@@ -142,7 +184,6 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .btn-reset:hover {
             background: #ff4444;
             color: #fff;
@@ -160,6 +201,7 @@
 
         @media (max-width: 600px) {
             .card .value { font-size: 2.5em; }
+            .estado-barra { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -174,6 +216,17 @@
     </div>
 
     <h1>📊 PANEL DE ESTADÍSTICAS</h1>
+
+    <!-- 🔑 INDICADOR DE ESTADO ONLINE/OFFLINE -->
+    <div id="estado-barra" class="estado-barra estado-desconocido">
+        <div class="estado-info">
+            <span id="estado-icono" class="estado-icono">⚪</span>
+            <span id="estado-texto">Verificando conexión...</span>
+        </div>
+        <div class="estado-tiempo">
+            Última conexión: <span id="last-seen">--</span>
+        </div>
+    </div>
 
     <!-- TOTALES GENERALES -->
     <div class="dashboard">
@@ -222,7 +275,7 @@
         </div>
     </div>
 
-    <button class="btn-reset" onclick="resetearEstadisticas()">🗑️ Resetear Estadísticas a Cero</button>
+   <!-- <button class="btn-reset" onclick="resetearEstadisticas()">🗑️ Resetear Estadísticas a Cero</button> -->
     
     <a href="index.html" class="back-link">← Volver al panel principal</a>
 
@@ -248,30 +301,104 @@
         const rutaEst = ruta + 'estadisticas';
 
         // ============================================
+        // 🔑 MONITOREO DE ESTADO ONLINE/OFFLINE
+        // ============================================
+        const UMBRAL_OFFLINE = 120000; // 2 minutos sin heartbeat = offline
+        let ultimoLastSeen = 0;
+        let horaUltimaRecepcion = 0;
+
+        onValue(ref(db, ruta + 'lastSeen'), (snapshot) => {
+            const lastSeen = snapshot.val() || 0;
+            const ahora = Date.now();
+            
+            const elBarra = document.getElementById('estado-barra');
+            const elIcono = document.getElementById('estado-icono');
+            const elTexto = document.getElementById('estado-texto');
+            const elLastSeen = document.getElementById('last-seen');
+            
+            if (lastSeen === 0) {
+                // Nunca se conectó
+                elBarra.className = 'estado-barra estado-desconocido';
+                elIcono.innerText = '⚪';
+                elTexto.innerText = 'Sin datos';
+                elLastSeen.innerText = 'Nunca';
+                return;
+            }
+            
+            // Calcular tiempo transcurrido desde el último heartbeat
+            if (ultimoLastSeen === 0) {
+                // Primera recepción: establecer referencia
+                ultimoLastSeen = lastSeen;
+                horaUltimaRecepcion = ahora;
+            }
+            
+            // Calcular diferencia en millis() del ESP32
+            const diffMillisESP32 = lastSeen - ultimoLastSeen;
+            // Tiempo real transcurrido en el navegador
+            const diffReal = ahora - horaUltimaRecepcion;
+            
+            // Actualizar referencia
+            ultimoLastSeen = lastSeen;
+            horaUltimaRecepcion = ahora;
+            
+            // Calcular segundos desde el último heartbeat
+            // Si diffMillisESP32 es negativo (ESP32 se reinició), usar diffReal
+            const segundosTranscurridos = diffMillisESP32 > 0 
+                ? (diffReal + diffMillisESP32) / 1000 
+                : diffReal / 1000;
+            
+            const segundos = Math.round(segundosTranscurridos);
+            
+            // Formatear tiempo
+            let tiempoTexto = '';
+            if (segundos < 60) {
+                tiempoTexto = `hace ${segundos}s`;
+            } else if (segundos < 3600) {
+                const min = Math.floor(segundos / 60);
+                const seg = segundos % 60;
+                tiempoTexto = `hace ${min}m ${seg}s`;
+            } else {
+                const hs = Math.floor(segundos / 3600);
+                const min = Math.floor((segundos % 3600) / 60);
+                tiempoTexto = `hace ${hs}h ${min}m`;
+            }
+            elLastSeen.innerText = tiempoTexto;
+            
+            // Determinar estado
+            if (segundosTranscurridos * 1000 < UMBRAL_OFFLINE) {
+                // 🟢 ONLINE
+                elBarra.className = 'estado-barra estado-online';
+                elIcono.innerText = '🟢';
+                elTexto.innerText = 'MÁQUINA ONLINE';
+            } else {
+                // 🔴 OFFLINE
+                elBarra.className = 'estado-barra estado-offline';
+                elIcono.innerText = '🔴';
+                elTexto.innerText = 'MÁQUINA OFFLINE';
+            }
+        });
+
+        // ============================================
         // ESCUCHAR ESTADÍSTICAS EN TIEMPO REAL
         // ============================================
         onValue(ref(db, rutaEst), (snapshot) => {
             const data = snapshot.val() || {};
             
-            // Totales
             const totalBidones = data.totalBidones || 0;
             const totalDinero = data.totalDinero || 0;
             
             document.getElementById('total-bidones').innerText = totalBidones;
             document.getElementById('total-dinero').innerText = '$ ' + totalDinero.toLocaleString('es-AR');
 
-            // Por tamaño (5L)
             const porTamano = data.porTamano || {};
             const dineroTamano = data.dineroPorTamano || {};
             
             document.getElementById('cant-5').innerText = porTamano[5] || 0;
             document.getElementById('dinero-5').innerText = '$ ' + (dineroTamano[5] || 0).toLocaleString('es-AR');
 
-            // Por tamaño (10L)
             document.getElementById('cant-10').innerText = porTamano[10] || 0;
             document.getElementById('dinero-10').innerText = '$ ' + (dineroTamano[10] || 0).toLocaleString('es-AR');
 
-            // Por tamaño (20L)
             document.getElementById('cant-20').innerText = porTamano[20] || 0;
             document.getElementById('dinero-20').innerText = '$ ' + (dineroTamano[20] || 0).toLocaleString('es-AR');
         });
@@ -287,12 +414,8 @@
                     porTamano: { 5: 0, 10: 0, 20: 0 },
                     dineroPorTamano: { 5: 0, 10: 0, 20: 0 }
                 })
-                .then(() => {
-                    alert("✅ Estadísticas reseteadas correctamente.");
-                })
-                .catch(err => {
-                    alert("❌ Error al resetear: " + err.message);
-                });
+                .then(() => alert("✅ Estadísticas reseteadas correctamente."))
+                .catch(err => alert("❌ Error al resetear: " + err.message));
             }
         }
     </script>
