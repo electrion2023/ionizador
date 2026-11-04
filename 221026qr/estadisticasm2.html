@@ -303,80 +303,74 @@
         // ============================================
         // 🔑 MONITOREO DE ESTADO ONLINE/OFFLINE
         // ============================================
-        const UMBRAL_OFFLINE = 120000; // 2 minutos sin heartbeat = offline
-        let ultimoLastSeen = 0;
-        let horaUltimaRecepcion = 0;
+       // ============================================
+// 🔑 MONITOREO DE ESTADO ONLINE/OFFLINE (CORREGIDO)
+// ============================================
+const UMBRAL_OFFLINE = 120000; // 2 minutos sin heartbeat = offline
+let ultimoLastSeen = 0;
+let horaUltimaRecepcion = 0;
 
-        onValue(ref(db, ruta + 'lastSeen'), (snapshot) => {
-            const lastSeen = snapshot.val() || 0;
-            const ahora = Date.now();
-            
-            const elBarra = document.getElementById('estado-barra');
-            const elIcono = document.getElementById('estado-icono');
-            const elTexto = document.getElementById('estado-texto');
-            const elLastSeen = document.getElementById('last-seen');
-            
-            if (lastSeen === 0) {
-                // Nunca se conectó
-                elBarra.className = 'estado-barra estado-desconocido';
-                elIcono.innerText = '⚪';
-                elTexto.innerText = 'Sin datos';
-                elLastSeen.innerText = 'Nunca';
-                return;
-            }
-            
-            // Calcular tiempo transcurrido desde el último heartbeat
-            if (ultimoLastSeen === 0) {
-                // Primera recepción: establecer referencia
-                ultimoLastSeen = lastSeen;
-                horaUltimaRecepcion = ahora;
-            }
-            
-            // Calcular diferencia en millis() del ESP32
-            const diffMillisESP32 = lastSeen - ultimoLastSeen;
-            // Tiempo real transcurrido en el navegador
-            const diffReal = ahora - horaUltimaRecepcion;
-            
-            // Actualizar referencia
-            ultimoLastSeen = lastSeen;
-            horaUltimaRecepcion = ahora;
-            
-            // Calcular segundos desde el último heartbeat
-            // Si diffMillisESP32 es negativo (ESP32 se reinició), usar diffReal
-            const segundosTranscurridos = diffMillisESP32 > 0 
-                ? (diffReal + diffMillisESP32) / 1000 
-                : diffReal / 1000;
-            
-            const segundos = Math.round(segundosTranscurridos);
-            
-            // Formatear tiempo
-            let tiempoTexto = '';
-            if (segundos < 60) {
-                tiempoTexto = `hace ${segundos}s`;
-            } else if (segundos < 3600) {
-                const min = Math.floor(segundos / 60);
-                const seg = segundos % 60;
-                tiempoTexto = `hace ${min}m ${seg}s`;
-            } else {
-                const hs = Math.floor(segundos / 3600);
-                const min = Math.floor((segundos % 3600) / 60);
-                tiempoTexto = `hace ${hs}h ${min}m`;
-            }
-            elLastSeen.innerText = tiempoTexto;
-            
-            // Determinar estado
-            if (segundosTranscurridos * 1000 < UMBRAL_OFFLINE) {
-                // 🟢 ONLINE
-                elBarra.className = 'estado-barra estado-online';
-                elIcono.innerText = '🟢';
-                elTexto.innerText = 'MÁQUINA ONLINE';
-            } else {
-                // 🔴 OFFLINE
-                elBarra.className = 'estado-barra estado-offline';
-                elIcono.innerText = '🔴';
-                elTexto.innerText = 'MÁQUINA OFFLINE';
-            }
-        });
+// Función que actualiza la UI (se llama al recibir dato Y cada 10s)
+function actualizarEstadoUI() {
+    const ahora = Date.now();
+    const elBarra = document.getElementById('estado-barra');
+    const elIcono = document.getElementById('estado-icono');
+    const elTexto = document.getElementById('estado-texto');
+    const elLastSeen = document.getElementById('last-seen');
+    
+    if (ultimoLastSeen === 0) {
+        elBarra.className = 'estado-barra estado-desconocido';
+        elIcono.innerText = '⚪';
+        elTexto.innerText = 'Sin datos';
+        elLastSeen.innerText = 'Nunca';
+        return;
+    }
+    
+    // Calcular segundos desde el último heartbeat
+    const segundosTranscurridos = (ahora - horaUltimaRecepcion) / 1000;
+    const segundos = Math.round(segundosTranscurridos);
+    
+    // Formatear tiempo
+    let tiempoTexto = '';
+    if (segundos < 60) {
+        tiempoTexto = `hace ${segundos}s`;
+    } else if (segundos < 3600) {
+        const min = Math.floor(segundos / 60);
+        const seg = segundos % 60;
+        tiempoTexto = `hace ${min}m ${seg}s`;
+    } else {
+        const hs = Math.floor(segundos / 3600);
+        const min = Math.floor((segundos % 3600) / 60);
+        tiempoTexto = `hace ${hs}h ${min}m`;
+    }
+    elLastSeen.innerText = tiempoTexto;
+    
+    // Determinar estado
+    if (segundosTranscurridos * 1000 < UMBRAL_OFFLINE) {
+        elBarra.className = 'estado-barra estado-online';
+        elIcono.innerText = '🟢';
+        elTexto.innerText = 'MÁQUINA ONLINE';
+    } else {
+        elBarra.className = 'estado-barra estado-offline';
+        elIcono.innerText = '🔴';
+        elTexto.innerText = 'MÁQUINA OFFLINE';
+    }
+}
+
+// 🔑 Escuchar cambios de Firebase (solo actualiza la referencia)
+onValue(ref(db, ruta + 'lastSeen'), (snapshot) => {
+    const lastSeen = snapshot.val() || 0;
+    
+    if (lastSeen > 0) {
+        ultimoLastSeen = lastSeen;
+        horaUltimaRecepcion = Date.now(); // Referencia en tiempo real del navegador
+    }
+    
+    actualizarEstadoUI(); // Actualizar UI inmediatamente
+});
+
+// 🔑 Recalcular cada 10 segundos (aunque Firebase no envíe nada)
+setInterval(actualizarEstadoUI, 10000);
 
         // ============================================
         // ESCUCHAR ESTADÍSTICAS EN TIEMPO REAL
