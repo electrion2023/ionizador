@@ -287,7 +287,7 @@
         </div>
         <div class="bidones-container">
             <div id="card-5" class="bidon-card"><h3>5 L</h3><div class="precio" id="precio-5">$ --</div><div class="litros">Bidón chico</div></div>
-            <div id="card-10" class="bidon-card"><h3>10 L</h3><div class="precio" id="precio-10">$ --</div><div class="litros">Bidón mediano</div></div>
+            <div id="card-12" class="bidon-card"><h3>12 L</h3><div class="precio" id="precio-12">$ --</div><div class="litros">Bidón mediano</div></div>
             <div id="card-20" class="bidon-card"><h3>20 L</h3><div class="precio" id="precio-20">$ --</div><div class="litros">Bidón grande</div></div>
         </div>
         <div class="indicadores">
@@ -357,7 +357,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        let PRECIOS = { 5: 0, 10: 0, 20: 0 };
+        let PRECIOS = { 5: 0, 12: 0, 20: 0 };
         let mpAccessToken = "";
         let intervaloMP = null;
         let bidonSeleccionado = 0;
@@ -383,7 +383,7 @@
         // LECTURA DE CONFIGURACIÓN
         // ============================================
         onValue(ref(db, ruta + 'config/precios/5'), (s) => { PRECIOS[5] = s.val() || 0; document.getElementById('precio-5').innerText = '$' + PRECIOS[5]; });
-        onValue(ref(db, ruta + 'config/precios/10'), (s) => { PRECIOS[10] = s.val() || 0; document.getElementById('precio-10').innerText = '$' + PRECIOS[10]; });
+        onValue(ref(db, ruta + 'config/precios/12'), (s) => { PRECIOS[12] = s.val() || 0; document.getElementById('precio-12').innerText = '$' + PRECIOS[12]; });
         onValue(ref(db, ruta + 'config/precios/20'), (s) => { PRECIOS[20] = s.val() || 0; document.getElementById('precio-20').innerText = '$' + PRECIOS[20]; });
 
         onValue(ref(db, ruta + 'config/qrUrl'), (s) => {
