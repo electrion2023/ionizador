@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leandro Cecchetto · Desarrollo electrónico, automatización y prototipado — ELECTRION</title>
+  <meta name="description" content="Leandro Cecchetto — Desarrollador independiente de soluciones electrónicas. Diseño electrónico, automatización y prototipos funcionales. San Luis, Argentina · ELECTRION.">
+  <meta name="theme-color" content="#070c14">
+  <meta property="og:title" content="Leandro Cecchetto · Desarrollo electrónico y automatización">
+  <meta property="og:description" content="De una necesidad técnica a una solución funcionando. Electrónica aplicada · Automatización · Prototipos. San Luis, Argentina.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://electrion.com.ar">
+
+  <!-- Tipografías (si no hay internet, usa fuentes del sistema como respaldo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script>document.documentElement.classList.add('js');</script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Leandro Cecchetto",
+    "jobTitle": "Desarrollador de soluciones electrónicas y automatización",
+    "url": "https://electrion.com.ar",
+    "brand": { "@type": "Brand", "name": "ELECTRION" },
+    "address": { "@type": "PostalAddress", "addressLocality": "San Luis", "addressCountry": "AR" },
+    "knowsAbout": ["Electrónica", "Automatización", "ESP32", "Arduino", "Prototipado", "IoT"]
+  }
+  </script>
+
+  <style>
+    /* ============ VARIABLES (cambiá los colores acá) ============ */
+    :root{
+      --bg:        #070c14;
+      --panel:     #0d1522;
+      --panel-2:   #111c2e;
+      --line:      rgba(148,163,184,.16);
+      --text:      #e9f0f7;
+      --muted:     #9db0c4;
+      --acc:       #35d6f4;   /* cian eléctrico */
+      --acc-2:     #7aa2ff;   /* azul suave   */
+      --ok:        #3ddc97;   /* verde estado */
+      --grad:      linear-gradient(120deg, #39e0f7, #7aa2ff);
+      --radius:    18px;
+      --font-h:    "Space Grotesk", system-ui, sans-serif;
+      --font-b:    "Inter", system-ui, sans-serif;
+      --font-m:    "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    /* ============ BASE ============ */
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:var(--font-b); font-size:16px; line-height:1.65;
+      -webkit-font-smoothing:antialiased;
+    }
+    /* Grilla sutil de fondo, estilo plano técnico */
+    body::before{
+      content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(148,163,184,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.05) 1px, transparent 1px);
+      background-size:44px 44px;
+      -webkit-mask-image:radial-gradient(ellipse 95% 75% at 50% 0%, #000 25%, transparent 78%);
+              mask-image:radial-gradient(ellipse 95% 75% at 50% 0%, #000 25%, transparent 78%);
+    }
+    main, footer{ position:relative; z-index:1; }
+    ::selection{ background:rgba(53,214,244,.28); }
+    a{ color:var(--acc); text-decoration:none; }
+    a:hover{ text-decoration:none; }
+    :focus-visible{ outline:2px solid var(--acc); outline-offset:3px; border-radius:6px; }
+    h1,h2,h3{ font-family:var(--font-h); line-height:1.15; margin:0; letter-spacing:-.01em; }
+    p{ margin:0 0 1em; }
+    ul{ margin:0; padding:0; list-style:none; }
+    .wrap{ max-width:1120px; margin:0 auto; padding:0 24px; }
+    .ic{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8;
+         stroke-linecap:round; stroke-linejoin:round; flex:none; }
+    .skip{ position:absolute; left:-9999px; top:0; background:var(--acc); color:#04121c;
+           padding:10px 16px; z-index:100; border-radius:0 0 10px 0; font-weight:600; }
+    .skip:focus{ left:0; }
+
+    /* ============ HEADER / NAV ============ */
+    .site-head{
+      position:fixed; top:0; left:0; right:0; z-index:50;
+      background:rgba(7,12,20,.78); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line); transition:box-shadow .3s;
+    }
+    .site-head.scrolled{ box-shadow:0 10px 30px -18px rgba(0,0,0,.8); }
+    .head-in{ display:flex; align-items:center; justify-content:space-between; height:66px; gap:16px; }
+    .brand{ display:flex; align-items:center; gap:12px; color:var(--text); }
+    .brand-mark{
+      width:38px; height:38px; border-radius:11px; display:grid; place-items:center;
+      background:var(--grad); color:#04121c; font-family:var(--font-h); font-weight:700; font-size:15px;
+      box-shadow:0 4px 18px -4px rgba(57,224,247,.5);
+    }
+    .brand-txt{ display:flex; flex-direction:column; line-height:1.15; font-weight:600; font-size:.95rem; }
+    .brand-txt small{ font-family:var(--font-m); font-size:.62rem; letter-spacing:.28em; color:var(--acc); }
+    .nav-links{ display:flex; align-items:center; gap:4px; }
+    .nav-links a{
+      color:var(--muted); font-size:.9rem; font-weight:500; padding:8px 12px; border-radius:9px;
+      transition:color .2s, background .2s;
+    }
+    .nav-links a:hover{ color:var(--text); background:rgba(148,163,184,.08); }
+    .nav-links a.active{ color:var(--acc); }
+    .nav-links a.cta{
+      color:#04121c; background:var(--grad); font-weight:600; margin-left:8px; padding:8px 16px;
+    }
+    .nav-links a.cta:hover{ filter:brightness(1.1); background:var(--grad); color:#04121c; }
+    .menu-btn{
+      display:none; background:none; border:1px solid var(--line); border-radius:10px;
+      color:var(--text); width:42px; height:42px; cursor:pointer; place-items:center;
+    }
+    .menu-btn .ic-x{ display:none; }
+    .menu-btn[aria-expanded="true"] .ic-menu{ display:none; }
+    .menu-btn[aria-expanded="true"] .ic-x{ display:block; }
+
+    /* ============ HERO ============ */
+    .hero{ position:relative; overflow:hidden; padding:150px 0 90px; }
+    .hero::before{
+      content:""; position:absolute; top:-220px; right:-160px; width:640px; height:640px;
+      background:radial-gradient(circle, rgba(53,214,244,.14), transparent 62%); pointer-events:none;
+    }
+    .hero::after{
+      content:""; position:absolute; bottom:-260px; left:-180px; width:560px; height:560px;
+      background:radial-gradient(circle, rgba(122,162,255,.10), transparent 62%); pointer-events:none;
+    }
+    .hero-in{ position:relative; display:grid; grid-template-columns:1.15fr .85fr; gap:56px; align-items:center; }
+    .badges{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; font-size:.82rem; font-weight:500;
+      color:var(--muted); border:1px solid var(--line); border-radius:999px; padding:6px 14px;
+      background:rgba(148,163,184,.05);
+    }
+    .badge .ic{ width:15px; height:15px; color:var(--acc); }
+    .badge strong{ color:var(--text); font-weight:600; }
+    .hero h1{ font-size:clamp(2.5rem, 5.4vw, 4rem); font-weight:700; margin-bottom:10px; }
+    .hero-role{
+      font-family:var(--font-h); font-weight:600; font-size:clamp(1.15rem, 2.2vw, 1.5rem);
+      background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+      margin-bottom:18px;
+    }
+    .hero-claim{
+      font-size:1.12rem; color:var(--muted); max-width:34ch;
+      border-left:3px solid var(--acc); padding-left:16px; margin-bottom:24px;
+    }
+    .hero-claim em{ font-style:normal; color:var(--text); font-weight:600; }
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:30px; }
+    .chip{
+      font-family:var(--font-m); font-size:.76rem; color:#bfe9f5; padding:6px 13px;
+      border:1px solid rgba(53,214,244,.28); border-radius:999px; background:rgba(53,214,244,.06);
+    }
+    .hero-cta{ display:flex; flex-wrap:wrap; gap:12px; }
+    .btn{
+      display:inline-flex; align-items:center; gap:9px; padding:13px 24px; border-radius:12px;
+      font-weight:600; font-size:.95rem; transition:transform .2s, box-shadow .2s, border-color .2s, background .2s;
+    }
+    .btn .ic{ width:17px; height:17px; }
+    .btn-primary{ background:var(--grad); color:#04121c; box-shadow:0 8px 26px -8px rgba(57,224,247,.55); }
+    .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 34px -8px rgba(57,224,247,.6); }
+    .btn-ghost{ border:1px solid var(--line); color:var(--text); background:rgba(148,163,184,.04); }
+    .btn-ghost:hover{ border-color:rgba(53,214,244,.5); transform:translateY(-2px); }
+
+    /* Tarjeta terminal del hero */
+    .terminal{
+      border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+      background:linear-gradient(180deg, var(--panel-2), var(--panel));
+      box-shadow:0 30px 70px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(53,214,244,.05);
+      font-family:var(--font-m); font-size:.86rem;
+    }
+    .t-head{ display:flex; align-items:center; gap:7px; padding:13px 16px; border-bottom:1px solid var(--line); }
+    .t-dot{ width:11px; height:11px; border-radius:50%; }
+    .t-dot.r{ background:#ff5f57; } .t-dot.y{ background:#febc2e; } .t-dot.g{ background:#28c840; }
+    .t-title{ margin-left:8px; color:var(--muted); font-size:.74rem; letter-spacing:.08em; }
+    .t-body{ padding:20px 20px 24px; color:#c6d4e3; }
+    .t-body p{ margin:0 0 9px; }
+    .t-p{ color:var(--acc); font-weight:600; margin-right:8px; }
+    .t-k{ color:var(--acc-2); display:inline-block; min-width:64px; }
+    .t-k::after{ content:":"; }
+    .t-gap{ margin-top:18px !important; }
+    .t-status{ display:flex; align-items:center; gap:10px; color:var(--ok); }
+    .pulse{
+      width:9px; height:9px; border-radius:50%; background:var(--ok); flex:none;
+      box-shadow:0 0 0 0 rgba(61,220,151,.55); animation:pulse 2.2s infinite;
+    }
+    @keyframes pulse{ 70%{ box-shadow:0 0 0 9px rgba(61,220,151,0);} 100%{ box-shadow:0 0 0 0 rgba(61,220,151,0);} }
+    .caret{ width:9px; height:1.05em; background:var(--acc); animation:blink 1.1s steps(2) infinite; }
+    @keyframes blink{ 50%{ opacity:0; } }
+
+    /* ============ SECCIONES ============ */
+    .section{ padding:88px 0; scroll-margin-top:80px; }
+    .section:nth-of-type(even){ background:rgba(148,163,184,.025); border-block:1px solid rgba(148,163,184,.07); }
+    .sec-head{ margin-bottom:44px; max-width:720px; }
+    .kicker{
+      display:flex; align-items:center; gap:12px; font-family:var(--font-m); font-size:.74rem;
+      letter-spacing:.22em; text-transform:uppercase; color:var(--acc); margin-bottom:14px;
+    }
+    .kicker span{ color:var(--muted); }
+    .kicker::after{ content:""; height:1px; width:56px; background:linear-gradient(90deg, var(--acc), transparent); }
+    .sec-head h2{ font-size:clamp(1.7rem, 3.2vw, 2.35rem); font-weight:700; }
+    .lead{ color:var(--muted); margin-top:12px; font-size:1.02rem; }
+
+    /* Tarjetas genéricas */
+    .card{
+      border:1px solid var(--line); border-radius:var(--radius); padding:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.032), rgba(255,255,255,.008));
+      transition:transform .25s, border-color .25s, box-shadow .25s;
+    }
+    .card:hover{
+      transform:translateY(-4px); border-color:rgba(53,214,244,.4);
+      box-shadow:0 18px 46px -18px rgba(53,214,244,.22);
+    }
+    .card-ic{
+      width:46px; height:46px; border-radius:13px; display:grid; place-items:center; margin-bottom:18px;
+      color:var(--acc); background:rgba(53,214,244,.09); border:1px solid rgba(53,214,244,.22);
+    }
+    .card-ic .ic{ width:23px; height:23px; }
+    .card h3{ font-size:1.14rem; margin-bottom:14px; }
+
+    /* Listas con check */
+    .ticks li{
+      display:flex; gap:10px; align-items:flex-start; color:var(--muted);
+      font-size:.93rem; padding:5px 0;
+    }
+    .ticks .ic{ width:16px; height:16px; color:var(--ok); margin-top:4px; }
+
+    /* ============ SOBRE MÍ ============ */
+    .about-grid{ display:grid; grid-template-columns:1.35fr .8fr; gap:40px; align-items:start; }
+    .about-txt p{ color:#c3d0de; font-size:1.02rem; }
+    .about-txt p:first-child{ font-size:1.12rem; color:var(--text); }
+    .facts h3{ font-size:.8rem; font-family:var(--font-m); letter-spacing:.2em; text-transform:uppercase; color:var(--acc); margin-bottom:18px; }
+    .facts dl{ margin:0; }
+    .facts .row{ display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px dashed var(--line); font-size:.92rem; }
+    .facts .row:last-of-type{ border-bottom:none; }
+    .facts dt{ color:var(--muted); }
+    .facts dd{ margin:0; font-weight:600; text-align:right; }
+    .facts .mini{ margin-top:18px; padding-top:18px; border-top:1px solid var(--line); }
+    .facts .mini p{ font-size:.8rem; color:var(--muted); margin-bottom:10px; font-family:var(--font-m); letter-spacing:.08em; }
+
+    /* ============ ÁREAS ============ */
+    .areas-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(248px, 1fr)); gap:20px; }
+
+    /* ============ PROYECTOS ============ */
+    .projects-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+    .project{ display:flex; flex-direction:column; }
+    .p-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .p-num{ font-family:var(--font-m); font-weight:600; font-size:2rem; color:rgba(148,163,184,.3); line-height:1; }
+    .project h3{ font-size:1.22rem; margin-bottom:12px; }
+    .p-brand{
+      font-family:var(--font-m); font-size:.66rem; letter-spacing:.18em; color:var(--acc);
+      border:1px solid rgba(53,214,244,.3); border-radius:6px; padding:3px 8px;
+      vertical-align:middle; margin-left:8px; white-space:nowrap;
+    }
+    .project > p{ color:var(--muted); font-size:.95rem; }
+    .p-highlight{
+      margin-top:16px; padding:14px 16px; border-radius:12px; font-size:.9rem; color:#c9e9f4;
+      background:rgba(53,214,244,.06); border:1px solid rgba(53,214,244,.22);
+    }
+    .p-highlight strong{ color:var(--acc); font-family:var(--font-m); font-size:.85rem; letter-spacing:.04em; }
+    .tags{ margin-top:auto; padding-top:20px; }
+    .tags-label{ font-family:var(--font-m); font-size:.66rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:10px; }
+    .tags-row{ display:flex; flex-wrap:wrap; gap:7px; }
+    .tag{
+      font-size:.74rem; color:#b9c8d9; background:rgba(148,163,184,.08);
+      border:1px solid var(--line); padding:4px 11px; border-radius:999px;
+    }
+
+    /* ============ STACK ============ */
+    .stack-grid{ display:flex; flex-wrap:wrap; gap:12px; }
+    .stack-item{
+      display:inline-flex; align-items:center; gap:10px; padding:12px 20px; border-radius:13px;
+      border:1px solid var(--line); background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.008));
+      font-size:.92rem; font-weight:500; color:#cdd9e6; transition:border-color .2s, transform .2s;
+    }
+    .stack-item:hover{ border-color:rgba(53,214,244,.45); transform:translateY(-2px); }
+    .stack-item::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--acc); opacity:.75; flex:none; }
+    .stack-item.hot{ border-color:rgba(53,214,244,.4); background:rgba(53,214,244,.07); color:var(--text); }
+    .stack-item.hot::before{ display:none; }
+    .stack-item.hot .ic{ width:16px; height:16px; color:var(--acc); }
+
+    /* ============ TRAYECTORIA ============ */
+    .timeline{
+      display:flex; gap:24px; align-items:flex-start; padding:28px; margin-bottom:22px;
+      border:1px solid var(--line); border-radius:var(--radius);
+      background:linear-gradient(120deg, rgba(53,214,244,.06), rgba(122,162,255,.04));
+    }
+    .timeline .card-ic{ margin-bottom:0; }
+    .t-year{ font-family:var(--font-m); font-size:.78rem; color:var(--acc); letter-spacing:.12em; display:block; margin-bottom:6px; }
+    .timeline h3{ font-size:1.25rem; margin-bottom:8px; }
+    .timeline p{ color:var(--muted); margin:0; font-size:.96rem; }
+    .awards-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; }
+    .award h3{ font-size:1.05rem; margin-bottom:6px; }
+    .award p{ color:var(--muted); font-size:.9rem; margin:0; }
+    .award .card-ic{ color:#ffd479; background:rgba(255,212,121,.08); border-color:rgba(255,212,121,.25); }
+
+    /* ============ COLABORACIÓN ============ */
+    .collab-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:14px; }
+    .collab-item{
+      display:flex; align-items:center; gap:13px; padding:17px 20px; border-radius:14px;
+      border:1px solid var(--line); background:rgba(255,255,255,.02);
+      font-size:.94rem; font-weight:500; color:#cdd9e6; transition:border-color .2s, background .2s;
+    }
+    .collab-item:hover{ border-color:rgba(61,220,151,.4); background:rgba(61,220,151,.05); }
+    .collab-item .ic{ width:18px; height:18px; color:var(--ok); }
+
+    /* ============ CONTACTO ============ */
+    .contact-panel{
+      position:relative; text-align:center; padding:64px 32px; border-radius:26px; overflow:hidden;
+      border:1px solid rgba(53,214,244,.28);
+      background:
+        radial-gradient(ellipse 70% 90% at 50% -20%, rgba(53,214,244,.14), transparent 65%),
+        linear-gradient(180deg, var(--panel-2), var(--panel));
+    }
+    .contact-panel .kicker{ justify-content:center; }
+    .contact-panel .kicker::after{ display:none; }
+    .contact-panel h2{ font-size:clamp(1.4rem, 2.8vw, 2rem); max-width:26ch; margin:0 auto 14px; }
+    .contact-yes{
+      font-family:var(--font-h); font-weight:700; font-size:clamp(1.6rem, 3.4vw, 2.4rem);
+      background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+      margin-bottom:18px;
+    }
+    .contact-panel .note{ color:var(--muted); max-width:52ch; margin:0 auto 30px; font-size:.98rem; }
+    .contact-cta{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:26px; }
+    .contact-meta{ display:flex; flex-wrap:wrap; gap:10px 26px; justify-content:center; color:var(--muted); font-size:.88rem; }
+    .contact-meta span{ display:inline-flex; align-items:center; gap:8px; }
+    .contact-meta .ic{ width:15px; height:15px; color:var(--acc); }
+
+    /* ============ FOOTER ============ */
+    footer{ border-top:1px solid var(--line); padding:30px 0; }
+    .foot-in{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; color:var(--muted); font-size:.86rem; }
+    .foot-in .up{ display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-weight:500; }
+    .foot-in .up:hover{ color:var(--acc); }
+    .foot-in .up .ic{ width:15px; height:15px; }
+
+    /* ============ ANIMACIÓN DE APARICIÓN ============ */
+    .js .reveal{ opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease; transition-delay:var(--d, 0s); }
+    .js .reveal.in{ opacity:1; transform:none; }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 960px){
+      .hero{ padding:130px 0 70px; }
+      .hero-in{ grid-template-columns:1fr; gap:40px; }
+      .terminal{ max-width:540px; }
+      .about-grid{ grid-template-columns:1fr; }
+      .projects-grid{ grid-template-columns:1fr; }
+    }
+    @media (max-width: 860px){
+      .menu-btn{ display:grid; }
+      .nav-links{
+        display:none; position:absolute; top:66px; left:0; right:0;
+        flex-direction:column; align-items:stretch; gap:2px; padding:14px 24px 20px;
+        background:rgba(7,12,20,.97); border-bottom:1px solid var(--line);
+        backdrop-filter:blur(14px);
+      }
+      .nav-links.open{ display:flex; }
+      .nav-links a{ padding:13px 12px; font-size:1rem; }
+      .nav-links a.cta{ margin:10px 0 0; text-align:center; }
+    }
+    @media (max-width: 560px){
+      .wrap{ padding:0 18px; }
+      .section{ padding:64px 0; }
+      .card{ padding:22px; }
+      .timeline{ flex-direction:column; gap:16px; }
+      .contact-panel{ padding:48px 20px; }
+      .brand-txt small{ display:none; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      html{ scroll-behavior:auto; }
+      .js .reveal{ opacity:1; transform:none; transition:none; }
+      .pulse, .caret{ animation:none; }
+      .card:hover, .btn:hover, .stack-item:hover{ transform:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ ÍCONOS SVG (sprite interno) ============ -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></symbol>
+    <symbol id="i-arrow-d" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 2 2 7.5l10 5.5 10-5.5L12 2Z"/><path d="m2 12.5 10 5.5 10-5.5"/><path d="m2 17.5 10 5.5 10-5.5"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7Z"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+    <symbol id="i-weight" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M6.5 8a2 2 0 0 0-1.9 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.92-2.54L19.4 9.5A2 2 0 0 0 17.48 8Z"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z"/></symbol>
+    <symbol id="i-brief" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  </svg>
+
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-head" id="top">
+    <div class="wrap head-in">
+      <a class="brand" href="#top" aria-label="Inicio — Leandro Cecchetto">
+        <span class="brand-mark">LC</span>
+        <span class="brand-txt">Leandro Cecchetto<small>ELECTRION</small></span>
+      </a>
+      <nav aria-label="Secciones del sitio">
+        <button class="menu-btn" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+          <svg class="ic ic-menu"><use href="#i-menu"/></svg>
+          <svg class="ic ic-x"><use href="#i-x"/></svg>
+        </button>
+        <div class="nav-links" id="menu">
+          <a href="#sobre-mi">Sobre mí</a>
+          <a href="#areas">Áreas</a>
+          <a href="#proyectos">Proyectos</a>
+          <a href="#stack">Tecnologías</a>
+          <a href="#trayectoria">Trayectoria</a>
+          <a href="#colaboracion">Colaboración</a>
+          <a href="#contacto" class="cta">Contacto</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="wrap hero-in">
+        <div>
+          <div class="badges reveal">
+            <span class="badge"><svg class="ic"><use href="#i-bolt"/></svg> Desarrollador independiente · <strong>ELECTRION</strong></span>
+            <span class="badge"><svg class="ic"><use href="#i-pin"/></svg> San Luis, Argentina</span>
+          </div>
+          <h1 class="reveal" style="--d:.05s">Leandro Cecchetto</h1>
+          <p class="hero-role reveal" style="--d:.1s">Desarrollo electrónico, automatización y prototipado</p>
+          <p class="hero-claim reveal" style="--d:.15s">De una necesidad técnica a <em>una solución funcionando</em>.</p>
+          <div class="chips reveal" style="--d:.2s">
+            <span class="chip">Electrónica aplicada</span>
+            <span class="chip">Automatización</span>
+            <span class="chip">Diseño de prototipos</span>
+          </div>
+          <div class="hero-cta reveal" style="--d:.25s">
+            <a class="btn btn-primary" href="#proyectos">Ver proyectos <svg class="ic"><use href="#i-arrow-d"/></svg></a>
+            <a class="btn btn-ghost" href="#contacto">Trabajemos juntos <svg class="ic"><use href="#i-mail"/></svg></a>
+          </div>
+        </div>
+
+        <aside class="terminal reveal" style="--d:.2s" aria-label="Resumen rápido">
+          <div class="t-head">
+            <span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span>
+            <span class="t-title">leandro · electrion</span>
+          </div>
+          <div class="t-body">
+            <p><span class="t-p">$</span>perfil --resumen</p>
+            <p><span class="t-k">rol</span> desarrollo electrónico &amp; automatización</p>
+            <p><span class="t-k">base</span> San Luis, Argentina</p>
+            <p><span class="t-k">desde</span> 2018 · ELECTRION</p>
+            <p><span class="t-k">stack</span> ESP32 / Arduino / Web</p>
+            <p class="t-gap"><span class="t-p">$</span>estado</p>
+            <p class="t-status"><span class="pulse"></span> disponible para nuevos proyectos <span class="caret"></span></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ 01 · SOBRE MÍ ============ -->
+    <section id="sobre-mi" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>01</span> Perfil</p>
+          <h2>Sobre mí</h2>
+        </header>
+        <div class="about-grid">
+          <div class="about-txt reveal">
+            <p>Soy desarrollador independiente de soluciones electrónicas, con experiencia desde 2018 en diseño, desarrollo y fabricación de productos tecnológicos.</p>
+            <p>Trabajo integrando electrónica, programación, mecanismos y software para resolver necesidades concretas de fabricación y producción.</p>
+            <p>Mi actividad comprende tanto el desarrollo de productos desde cero como la modernización de equipos existentes.</p>
+            <p>Me interesa especialmente trabajar junto a fabricantes, emprendedores y empresas industriales que necesiten desarrollar nuevos equipos, automatizar procesos o incorporar tecnología a sus productos.</p>
+          </div>
+          <aside class="card facts reveal" style="--d:.1s">
+            <h3>En síntesis</h3>
+            <dl>
+              <div class="row"><dt>Experiencia</dt><dd>Desde 2018</dd></div>
+              <div class="row"><dt>Base</dt><dd>San Luis, Argentina</dd></div>
+              <div class="row"><dt>Marca propia</dt><dd><a href="https://electrion.com.ar" target="_blank" rel="noopener">ELECTRION</a></dd></div>
+              <div class="row"><dt>Modalidad</dt><dd>Independiente / por proyecto</dd></div>
+            </dl>
+            <div class="mini">
+              <p>// trabajo junto a</p>
+              <div class="chips" style="margin-bottom:0">
+                <span class="chip">Fabricantes</span>
+                <span class="chip">Emprendedores</span>
+                <span class="chip">Industria</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 · ÁREAS ============ -->
+    <section id="areas" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>02</span> Qué puedo desarrollar</p>
+          <h2>Áreas de desarrollo</h2>
+          <p class="lead">De la placa al sistema completo: electrónica, control, conectividad y prototipos listos para probar.</p>
+        </header>
+        <div class="areas-grid">
+          <article class="card reveal">
+            <div class="card-ic"><svg class="ic"><use href="#i-chip"/></svg></div>
+            <h3>Diseño electrónico</h3>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Diseño de circuitos y placas de control.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Integración de módulos y componentes electrónicos.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Desarrollo de prototipos y pruebas.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Adaptación de electrónica a necesidades específicas.</li>
+            </ul>
+          </article>
+          <article class="card reveal" style="--d:.08s">
+            <div class="card-ic"><svg class="ic"><use href="#i-gear"/></svg></div>
+            <h3>Automatización</h3>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Control de motores, bombas y servomotores.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Sensores, caudalímetros y sistemas de pesaje.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Electroválvulas y actuadores.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Secuencias automáticas de funcionamiento.</li>
+            </ul>
+          </article>
+          <article class="card reveal" style="--d:.16s">
+            <div class="card-ic"><svg class="ic"><use href="#i-wifi"/></svg></div>
+            <h3>Programación y conectividad</h3>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>ESP32, ESP8266 y Arduino.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Sistemas de control mediante WiFi.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Interfaces web y pantallas de operación.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Monitoreo remoto y bases de datos.</li>
+            </ul>
+          </article>
+          <article class="card reveal" style="--d:.24s">
+            <div class="card-ic"><svg class="ic"><use href="#i-layers"/></svg></div>
+            <h3>Desarrollo integral de prototipos</h3>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Análisis de necesidades.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Diseño de la solución.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Integración mecánica y electrónica.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Construcción y puesta a prueba de prototipos funcionales.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 · PROYECTOS ============ -->
+    <section id="proyectos" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>03</span> Portfolio</p>
+          <h2>Proyectos desarrollados</h2>
+          <p class="lead">Sistemas desarrollados de punta a punta, integrando electrónica, mecánica y software.</p>
+        </header>
+        <div class="projects-grid">
+
+          <article class="card project reveal">
+            <div class="p-top">
+              <span class="p-num">01</span>
+              <div class="card-ic" style="margin-bottom:0"><svg class="ic"><use href="#i-drop"/></svg></div>
+            </div>
+            <h3>Sistemas electrónicos para piscinas <span class="p-brand">ELECTRION</span></h3>
+            <p>Desarrollo de una línea propia de ionizadores electrónicos para tratamiento de agua.</p>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Diseño de electrónica de potencia y control.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Inversión de polaridad.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Desarrollo de placas y protecciones eléctricas.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Sistemas de conectividad.</li>
+            </ul>
+            <div class="p-highlight">
+              <strong>WiFiDuo</strong> — controlador que integra la gestión de bomba, iluminación e ionización de piscinas mediante conectividad WiFi.
+            </div>
+            <div class="tags">
+              <span class="tags-label">Experiencia aplicada</span>
+              <div class="tags-row">
+                <span class="tag">Diseño electrónico</span><span class="tag">Control de potencia</span>
+                <span class="tag">Microcontroladores</span><span class="tag">Conectividad</span>
+                <span class="tag">Fabricación de productos propios</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card project reveal" style="--d:.08s">
+            <div class="p-top">
+              <span class="p-num">02</span>
+              <div class="card-ic" style="margin-bottom:0"><svg class="ic"><use href="#i-gauge"/></svg></div>
+            </div>
+            <h3>Sistema automático de despacho y llenado de agua</h3>
+            <p>Desarrollo de un sistema de despacho automático que integra electrónica, mecánica y software.</p>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Control de bombas y electroválvulas.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Medición de caudal y sensores infrarrojos.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Control de actuadores y servomotores.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Secuencias automáticas de funcionamiento.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Integración con sistemas de consulta de pagos electrónicos.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Interfaz de operación para el usuario.</li>
+            </ul>
+            <div class="tags">
+              <span class="tags-label">Experiencia aplicada</span>
+              <div class="tags-row">
+                <span class="tag">Automatización de procesos</span><span class="tag">Control de fluidos</span>
+                <span class="tag">Sensores</span><span class="tag">Actuadores</span>
+                <span class="tag">Integración de software</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card project reveal">
+            <div class="p-top">
+              <span class="p-num">03</span>
+              <div class="card-ic" style="margin-bottom:0"><svg class="ic"><use href="#i-weight"/></svg></div>
+            </div>
+            <h3>Automatización de máquinas de llenado y pesaje</h3>
+            <p>Desarrollo de sistemas de control para maquinaria que combina mecanismos, sensores, motores y actuadores.</p>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Programación de secuencias de trabajo.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Coordinación de dispositivos.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Comunicación entre controladores.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Interfaces de operación.</li>
+            </ul>
+            <div class="tags">
+              <span class="tags-label">Experiencia aplicada</span>
+              <div class="tags-row">
+                <span class="tag">Automatización de maquinaria</span><span class="tag">Electrónica de control</span>
+                <span class="tag">Comunicación entre microcontroladores</span><span class="tag">Sistemas a medida</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card project reveal" style="--d:.08s">
+            <div class="p-top">
+              <span class="p-num">04</span>
+              <div class="card-ic" style="margin-bottom:0"><svg class="ic"><use href="#i-thermo"/></svg></div>
+            </div>
+            <h3>Monitoreo remoto de temperatura y alarmas</h3>
+            <p>Desarrollo de nodos electrónicos para monitoreo de temperatura en instalaciones y cámaras de frío.</p>
+            <ul class="ticks">
+              <li><svg class="ic"><use href="#i-check"/></svg>Lectura de sensores digitales.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Comunicación inalámbrica.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Supervisión de múltiples puntos.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Detección de cortes de alimentación.</li>
+              <li><svg class="ic"><use href="#i-check"/></svg>Alarmas y notificaciones remotas.</li>
+            </ul>
+            <div class="tags">
+              <span class="tags-label">Experiencia aplicada</span>
+              <div class="tags-row">
+                <span class="tag">Instrumentación</span><span class="tag">Adquisición de datos</span>
+                <span class="tag">Conectividad</span><span class="tag">Monitoreo remoto</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · TECNOLOGÍAS ============ -->
+    <section id="stack" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>04</span> Stack</p>
+          <h2>Tecnologías y herramientas</h2>
+        </header>
+        <div class="stack-grid reveal">
+          <span class="stack-item hot"><svg class="ic"><use href="#i-bolt"/></svg>ESP32 · ESP8266 · Arduino</span>
+          <span class="stack-item">Electrónica analógica y digital</span>
+          <span class="stack-item">Sensores y actuadores</span>
+          <span class="stack-item">Control de motores, bombas y electroválvulas</span>
+          <span class="stack-item">Comunicación WiFi y protocolos de datos</span>
+          <span class="stack-item">Firebase y aplicaciones web</span>
+          <span class="stack-item">Interfaces de usuario y pantallas HMI</span>
+          <span class="stack-item">Prototipado electrónico y fabricación de placas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · TRAYECTORIA ============ -->
+    <section id="trayectoria" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>05</span> Recorrido</p>
+          <h2>Trayectoria y reconocimientos</h2>
+        </header>
+        <div class="timeline reveal">
+          <div class="card-ic"><svg class="ic"><use href="#i-brief"/></svg></div>
+          <div>
+            <span class="t-year">2018 — ACTUALIDAD</span>
+            <h3>ELECTRION</h3>
+            <p>Emprendimiento tecnológico propio dedicado al diseño, desarrollo, fabricación y comercialización de productos electrónicos.</p>
+          </div>
+        </div>
+        <div class="awards-grid">
+          <article class="card award reveal">
+            <div class="card-ic"><svg class="ic"><use href="#i-award"/></svg></div>
+            <h3>Finalista INNOVAR 2019</h3>
+            <p>Concurso nacional de innovaciones.</p>
+          </article>
+          <article class="card award reveal" style="--d:.08s">
+            <div class="card-ic"><svg class="ic"><use href="#i-star"/></svg></div>
+            <h3>Tecnópolis Argentina</h3>
+            <p>Participación en TAM 2018.</p>
+          </article>
+          <article class="card award reveal" style="--d:.16s">
+            <div class="card-ic"><svg class="ic"><use href="#i-trophy"/></svg></div>
+            <h3>1.º puesto — Desarrollo Tecnológico</h3>
+            <p>CAME Joven / Cámara de Comercio.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 06 · COLABORACIÓN ============ -->
+    <section id="colaboracion" class="section">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker"><span>06</span> Cómo trabajo</p>
+          <h2>Modalidad de colaboración</h2>
+          <p class="lead">Por proyecto, como soporte técnico externo o integrado a tu equipo.</p>
+        </header>
+        <div class="collab-grid reveal">
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Desarrollo electrónico por proyecto.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Diseño de controles para maquinaria.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Modernización de equipos existentes.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Prototipos funcionales.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Automatización de procesos.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Asistencia técnica externa para fabricantes.</div>
+          <div class="collab-item"><svg class="ic"><use href="#i-check"/></svg>Incorporación a equipos de desarrollo e ingeniería.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 07 · CONTACTO ============ -->
+    <section id="contacto" class="section">
+      <div class="wrap">
+        <div class="contact-panel reveal">
+          <p class="kicker"><span>07</span> Contacto</p>
+          <h2>¿Tenés una máquina que necesita una mejora o una idea que necesita convertirse en un equipo funcional?</h2>
+          <p class="contact-yes">Podemos desarrollarla.</p>
+          <p class="note">Disponible para proyectos en todo el país y colaboraciones técnicas presenciales o a distancia.</p>
+          <div class="contact-cta">
+            <a class="btn btn-primary" href="https://electrion.com.ar" target="_blank" rel="noopener">
+              <svg class="ic"><use href="#i-globe"/></svg> electrion.com.ar <svg class="ic"><use href="#i-arrow"/></svg>
+            </a>
+            <!-- ✏️ OPCIONAL: descomentá y completá con tus datos reales -->
+            <!-- <a class="btn btn-ghost" href="mailto:TU-EMAIL@ejemplo.com"><svg class="ic"><use href="#i-mail"/></svg> Escribime</a> -->
+            <!-- <a class="btn btn-ghost" href="https://wa.me/549XXXXXXXXXX" target="_blank" rel="noopener"><svg class="ic"><use href="#i-phone"/></svg> WhatsApp</a> -->
+          </div>
+          <div class="contact-meta">
+            <span><svg class="ic"><use href="#i-pin"/></svg> San Luis, Argentina</span>
+            <span><svg class="ic"><use href="#i-bolt"/></svg> ELECTRION · Desarrollo electrónico y automatización</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="wrap foot-in">
+      <span>© <span id="year">2026</span> Leandro Cecchetto — ELECTRION</span>
+      <span>San Luis, Argentina</span>
+      <a class="up" href="#top">Volver arriba <svg class="ic"><use href="#i-up"/></svg></a>
+    </div>
+  </footer>
+
+  <script>
+    // Año automático
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Sombra del header al hacer scroll
+    const head = document.querySelector('.site-head');
+    addEventListener('scroll', () => head.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+    // Menú mobile
+    const btn = document.querySelector('.menu-btn');
+    const menu = document.getElementById('menu');
+    const setMenu = open => {
+      menu.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+      btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    };
+    btn.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+    // Aparición suave de elementos al entrar en pantalla
+    const reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: .12 });
+      reveals.forEach(el => io.observe(el));
+    } else {
+      reveals.forEach(el => el.classList.add('in'));
+    }
+
+    // Resaltado del link activo en el menú
+    const links = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+    const spy = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    links.forEach(l => {
+      const sec = document.querySelector(l.getAttribute('href'));
+      if (sec) spy.observe(sec);
+    });
+  </script>
+</body>
+</html>
